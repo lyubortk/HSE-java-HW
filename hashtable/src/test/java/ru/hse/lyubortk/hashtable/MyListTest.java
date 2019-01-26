@@ -1,5 +1,6 @@
 package ru.hse.lyubortk.hashtable;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
@@ -9,9 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MyListTest {
 
+    @BeforeEach
+    void initializeList() {
+        list = new MyList();
+    }
+
     @Test
     void iteratorHasNext() {
-        MyList list = new MyList();
         Iterator it = list.iterator();
         assertFalse(it.hasNext());
 
@@ -24,7 +29,6 @@ class MyListTest {
 
     @Test
     void iteratorNext() {
-        MyList list = new MyList();
         list.insertObject(1);
         list.insertObject(2);
         list.insertObject(3);
@@ -38,7 +42,6 @@ class MyListTest {
 
     @Test
     void iteratorRemoveFirst() {
-        MyList list = new MyList();
         list.insertObject(1);
         list.insertObject(2);
         Iterator it = list.iterator();
@@ -52,7 +55,6 @@ class MyListTest {
 
     @Test
     void iteratorRemoveLast() {
-        MyList list = new MyList();
         list.insertObject(1);
         list.insertObject(2);
         Iterator it = list.iterator();
@@ -67,7 +69,6 @@ class MyListTest {
 
     @Test
     void iteratorRemoveInMiddle() {
-        MyList list = new MyList();
         list.insertObject(1);
         list.insertObject(2);
         list.insertObject(3);
@@ -84,7 +85,6 @@ class MyListTest {
 
     @Test
     void insertObject() {
-        MyList list = new MyList();
         Iterator it = list.iterator();
         assertFalse(it.hasNext());
 
@@ -98,4 +98,6 @@ class MyListTest {
         assertEquals(1, it.next());
         assertFalse(it.hasNext());
     }
+
+    private MyList list;
 }
