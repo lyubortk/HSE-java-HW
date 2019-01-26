@@ -98,7 +98,6 @@ public class Hashtable {
      *  by default constructor */
     public void clear(){
         copyFrom(new Hashtable());
-
     }
 
     /** Checks whether the number of elements in hash table is greater than
