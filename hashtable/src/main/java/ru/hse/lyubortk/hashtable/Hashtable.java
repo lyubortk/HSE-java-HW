@@ -28,8 +28,10 @@ public class Hashtable {
     }
 
     /** Checks whether some value is stored by particular key
-     * @param key a key to search mapped value
-     * @return whether some value is mapped to the key*/
+     * @param key a non-null key to search for mapped value
+     * @return whether some value is mapped to the key
+     * @throws IllegalArgumentException if key is null*/
+
     public boolean contains(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
@@ -42,8 +44,9 @@ public class Hashtable {
     }
 
     /** Returns value mapped to particular key or null if the key is not in the hash table
-     * @param key a key to search mapped value.
-     * @return mapped value or null */
+     * @param key a non-null key to search for mapped value.
+     * @return mapped value or null
+     * @throws IllegalArgumentException if key is null*/
     public String get(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
@@ -56,12 +59,12 @@ public class Hashtable {
     }
 
     /** Maps value to key. Both arguments have to be non-null.
-     * @param key a key to map value to
-     * @param value a value to be mapped to key
+     * @param key a non-null key to map value to
+     * @param value a non-null value to be mapped to key
      * @return previous value stored by that key or null if there was none
-     * @exception IllegalArgumentException if either any of arguments is null */
+     * @exception IllegalArgumentException if any of arguments are null */
     public String put(String key, String value){
-        if (key == null || value == null) {
+        if (value == null) {
             throw new IllegalArgumentException();
         }
 
@@ -74,8 +77,9 @@ public class Hashtable {
     }
 
     /** Removes pair of (key, mapped value) from hash table.
-     * @param key a key to search mapped value
-     * @return a value that was mapped to this key or null if there was none*/
+     * @param key a non-null key to search mapped value
+     * @return a value that was mapped to this key or null if there was none
+     * @throws IllegalArgumentException if key is null*/
     public String remove(String key){
         int bucket = getBucketIndex(key);
         String foundValue = null;
@@ -94,7 +98,7 @@ public class Hashtable {
     }
 
     /** Removes everything from hash table and sets number of buckets to a default value.
-     *  In other words, method makes the hash table identical to one constructed.
+     *  In other words, method makes the hash table identical to one constructed
      *  by default constructor */
     public void clear(){
         copyFrom(new Hashtable());
@@ -133,9 +137,14 @@ public class Hashtable {
     }
 
     /** Calculates index in bucket array.
-     * @param key a key {@link String} to calculate its {@link String#hashCode}
-     * @return number of bucket in which keys with that {@link String#hashCode} are stored */
+     * @param key a non-null key {@link String} to calculate its {@link String#hashCode}
+     * @return number of bucket in which keys with that {@link String#hashCode} are stored
+     * @throws IllegalArgumentException if key is null*/
     private int getBucketIndex(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException();
+        }
+
         int temp = key.hashCode() % bucketsNumber;
         return (temp >= 0 ? temp : temp + bucketsNumber);
     }
