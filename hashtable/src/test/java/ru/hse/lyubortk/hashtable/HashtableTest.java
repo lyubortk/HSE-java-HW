@@ -22,6 +22,13 @@ class HashtableTest {
     }
 
     @Test
+    void sizeAfterDoublePut() {
+        putThousandIntegers();
+        putThousandIntegers();
+        assertEquals(1000, table.size());
+    }
+
+    @Test
     void sizeAfterRemove() {
         putThousandIntegers();
         for (int i = 0; i < 1000; i++) {
