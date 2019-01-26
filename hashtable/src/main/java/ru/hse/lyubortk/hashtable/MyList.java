@@ -75,7 +75,7 @@ public class MyList implements Iterable<Object>{
      * by {@link Iterator} will start with the newest added element.
      * @param obj an {@link Object} to add to the list */
     public void insertObject(Object obj) {
-        ListNode node = new ListNode(obj);
+        var node = new ListNode(obj);
         if (head != null) {
             node.next = head;
             head.prev = node;

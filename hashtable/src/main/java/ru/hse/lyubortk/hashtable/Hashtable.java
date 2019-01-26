@@ -33,7 +33,7 @@ public class Hashtable {
     public boolean contains(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
-            StringPair cur = (StringPair)o;
+            var cur = (StringPair)o;
             if (cur.key.equals(key)) {
                 return true;
             }
@@ -47,7 +47,7 @@ public class Hashtable {
     public String get(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
-            StringPair cur = (StringPair)o;
+            var cur = (StringPair)o;
             if (cur.key.equals(key)) {
                 return cur.val;
             }
@@ -81,7 +81,7 @@ public class Hashtable {
         String foundValue = null;
         Iterator it = arr[bucket].iterator();
         while (it.hasNext()) {
-            StringPair last = (StringPair) it.next();
+            var last = (StringPair)it.next();
             if (last.key.equals(key)){
                 foundValue = last.val;
                 it.remove();
@@ -106,7 +106,7 @@ public class Hashtable {
      *  if such situation occurs. */
     private void checkBucketsNumber() {
         if (size * 2 > bucketsNumber) {
-            Hashtable newHashtable = new Hashtable(bucketsNumber*2);
+            var newHashtable = new Hashtable(bucketsNumber*2);
             copyContentTo(newHashtable);
             copyFrom(newHashtable);
         }
@@ -127,7 +127,7 @@ public class Hashtable {
     private void copyContentTo(Hashtable table) {
         for (int i = 0; i < bucketsNumber; i++) {
             for (Object o : arr[i]) {
-                StringPair pair = (StringPair) o;
+                var pair = (StringPair) o;
                 table.put(pair.key, pair.val);
             }
         }
