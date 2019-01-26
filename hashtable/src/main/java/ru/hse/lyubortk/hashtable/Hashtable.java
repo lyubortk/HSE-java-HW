@@ -35,8 +35,8 @@ public class Hashtable {
     public boolean contains(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
-            var cur = (StringPair)o;
-            if (cur.key.equals(key)) {
+            var curPair = (StringPair)o;
+            if (curPair.key.equals(key)) {
                 return true;
             }
         }
@@ -50,9 +50,9 @@ public class Hashtable {
     public String get(String key){
         int bucket = getBucketIndex(key);
         for (Object o : arr[bucket]) {
-            var cur = (StringPair)o;
-            if (cur.key.equals(key)) {
-                return cur.val;
+            var curPair = (StringPair)o;
+            if (curPair.key.equals(key)) {
+                return curPair.val;
             }
         }
         return null;
@@ -85,9 +85,9 @@ public class Hashtable {
         String foundValue = null;
         Iterator it = arr[bucket].iterator();
         while (it.hasNext()) {
-            var last = (StringPair)it.next();
-            if (last.key.equals(key)){
-                foundValue = last.val;
+            var lastPair = (StringPair)it.next();
+            if (lastPair.key.equals(key)){
+                foundValue = lastPair.val;
                 it.remove();
                 size--;
                 break;
@@ -130,8 +130,8 @@ public class Hashtable {
     private void copyContentTo(Hashtable table) {
         for (int i = 0; i < bucketsNumber; i++) {
             for (Object o : arr[i]) {
-                var pair = (StringPair) o;
-                table.put(pair.key, pair.val);
+                var curPair = (StringPair) o;
+                table.put(curPair.key, curPair.val);
             }
         }
     }
@@ -145,8 +145,8 @@ public class Hashtable {
             throw new IllegalArgumentException();
         }
 
-        int temp = key.hashCode() % bucketsNumber;
-        return (temp >= 0 ? temp : temp + bucketsNumber);
+        int hashCode = key.hashCode() % bucketsNumber;
+        return (hashCode >= 0 ? hashCode : hashCode + bucketsNumber);
     }
 
     /** Inner class which represents pair of (key, mapped value). */
