@@ -1,44 +1,43 @@
 package ru.hse.temp;
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+
 public class Maybe<T> {
     private T value;
+    private boolean isNothing;
 
     private Maybe() {}
 
-    private void set(T value) {
-        this.value = value;
-    }
-
-    public static <T> Maybe<T> just(@NotNull T t) {
+    public static <T> Maybe<T> just(@Nullable T t) {
         var mb = new Maybe<T>();
-        mb.set(t);
+        mb.value = t;
+        mb.isNothing = false;
         return mb;
     }
 
     public static <T> Maybe<T> nothing() {
         var mb = new Maybe<T>();
-        mb.set(null);
+        mb.isNothing = true;
         return mb;
     }
 
-    public @NotNull T get() {
-        if (value == null) {
+    public @Nullable T get() {
+        if (isNothing) {
             throw new NoSuchElementException("Trying to get null.");
         }
         return value;
     }
 
     public boolean isPresent() {
-        return value != null;
+        return !isNothing;
     }
 
     public <U> Maybe<U> map(Function<? super T, ? extends U> mapper) {
-        if (value == null) {
+        if (isNothing) {
             return nothing();
         }
         return just(mapper.apply(value));
