@@ -1,11 +1,12 @@
 package ru.hse.temp;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Script {
-    static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         if (args.length != 2) {
             throw new IllegalArgumentException();
         }
@@ -27,8 +28,21 @@ public class Script {
         }
 
         for (var o : valuesArray) {
-
+            if (o.isPresent()) {
+                out.write(o.map(Script::func).get().toString());
+            } else {
+                out.write("__");
+            }
+            out.write(" ");
         }
+        out.write('\n');
 
+        in.close();
+        out.flush();
+        out.close();;
+    }
+
+    static private long func(int a) {
+        return ((long)a)*a;
     }
 }
