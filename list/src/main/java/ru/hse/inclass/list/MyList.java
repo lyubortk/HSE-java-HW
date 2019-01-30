@@ -82,6 +82,7 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
 
         @Override
         public void add(E e) {
+            size++;
             var tempNode = new ListNode(e);
             tempNode.next = rightNode;
             tempNode.prev = leftNode;
@@ -102,6 +103,7 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
             if (nodeOnPreviousMove == null) {
                 throw new IllegalStateException();
             } else {
+                size--;
                 if (nodeOnPreviousMove.prev != null) {
                     nodeOnPreviousMove.prev.next = nodeOnPreviousMove.next;
                 }
@@ -131,12 +133,34 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
         private int index;
     }
 
+    @Override
+    public E get(int index) {
+        var it = this.iterator();
+        for (int i = 0; i < index; i++) {
+            it.next();
+        }
+        return it.next();
+    }
+
     /** {@inheritDoc} */
     @Override
-    public MyListIterator iterator() {
+    public Iterator<E> iterator() {
         return new MyListIterator(head);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public ListIterator<E> listIterator() {
+        return new MyListIterator(head);
+    }
+
+    @Override
+    public int size() {
+        return size;
     }
 
     /** A reference to the front node of the list */
     private ListNode head;
+    /** List size */
+    private int size;
 }
