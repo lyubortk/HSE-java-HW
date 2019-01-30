@@ -39,7 +39,7 @@ public class Script {
 
         in.close();
         out.flush();
-        out.close();;
+        out.close();
     }
 
     static private long func(int a) {
