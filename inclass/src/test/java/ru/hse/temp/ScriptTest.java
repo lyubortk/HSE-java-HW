@@ -8,6 +8,6 @@ class ScriptTest {
 
     @Test
     void main() {
-        
+
     }
 }
