@@ -18,7 +18,7 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
         private ListNode prev;
         private ListNode next;
     }
-
+    
     /** {@inheritDoc}
      * Implementation of {@link Iterator} for MyList.*/
     private class MyListIterator implements ListIterator<E> {
@@ -81,21 +81,17 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
 
 
         @Override
-        public void add(E e) { ;
+        public void add(E e) {
             var tempNode = new ListNode(e);
             tempNode.next = rightNode;
             tempNode.prev = leftNode;
             if (leftNode != null) {
                 leftNode.next = tempNode;
-            } else {
-                head = tempNode;
             }
-
             if (rightNode != null) {
                 rightNode.prev = tempNode;
             }
             leftNode = tempNode;
-            size++;
             index++;
             nodeOnPreviousMove = null;
         }
@@ -106,7 +102,6 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
             if (nodeOnPreviousMove == null) {
                 throw new IllegalStateException();
             } else {
-                size--;
                 if (nodeOnPreviousMove.prev != null) {
                     nodeOnPreviousMove.prev.next = nodeOnPreviousMove.next;
                 }
@@ -119,10 +114,6 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
                     index--;
                 } else {
                     rightNode = nodeOnPreviousMove.next;
-                }
-
-                if (head == nodeOnPreviousMove) {
-                    head = nodeOnPreviousMove.next;
                 }
 
                 nodeOnPreviousMove = null;
@@ -140,54 +131,12 @@ public class MyList<E>  extends AbstractList<E> implements Iterable<E> {
         private int index;
     }
 
-    @Override
-    public E get(int index) {
-        var it = this.iterator();
-        for (int i = 0; i < index; i++) {
-            it.next();
-        }
-        return it.next();
-    }
-
-    @Override
-    public void add(int index, E element) {
-        ListIterator<E> it = listIterator();
-        for (int i = 0; i < index; i++) {
-            it.next();
-        }
-        it.add(element);
-    }
-
-    @Override
-    public E remove(int index) {
-        ListIterator<E> it = listIterator();
-        for (int i = 0; i < index; i++) {
-            it.next();
-        }
-        E prev = it.next();
-        it.remove();
-        return prev;
-    }
-
     /** {@inheritDoc} */
     @Override
-    public Iterator<E> iterator() {
+    public MyListIterator iterator() {
         return new MyListIterator(head);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public ListIterator<E> listIterator() {
-        return new MyListIterator(head);
-    }
-
-    @Override
-    public int size() {
-        return size;
     }
 
     /** A reference to the front node of the list */
     private ListNode head;
-    /** List size */
-    private int size;
 }
