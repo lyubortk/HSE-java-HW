@@ -15,9 +15,9 @@ public class Hashtable {
      * @param buckets initial number of buckets */
     public Hashtable(int buckets) {
         bucketsNumber = buckets;
-        arr = new MyList[buckets];
+        bucketArray = new MyList[buckets];
         for (int i = 0; i< buckets; i++) {
-            arr[i] = new MyList();
+            bucketArray[i] = new MyList();
         }
     }
 
@@ -34,7 +34,7 @@ public class Hashtable {
 
     public boolean contains(String key){
         int bucket = getBucketIndex(key);
-        for (Object o : arr[bucket]) {
+        for (Object o : bucketArray[bucket]) {
             var curPair = (StringPair)o;
             if (curPair.key.equals(key)) {
                 return true;
@@ -49,7 +49,7 @@ public class Hashtable {
      * @throws IllegalArgumentException if key is null*/
     public String get(String key){
         int bucket = getBucketIndex(key);
-        for (Object o : arr[bucket]) {
+        for (Object o : bucketArray[bucket]) {
             var curPair = (StringPair)o;
             if (curPair.key.equals(key)) {
                 return curPair.val;
@@ -70,7 +70,7 @@ public class Hashtable {
 
         String prevValue = remove(key);
         int bucket = getBucketIndex(key);
-        arr[bucket].insertObject(new StringPair(key, value));
+        bucketArray[bucket].insertObject(new StringPair(key, value));
         size++;
         checkBucketsNumber();
         return prevValue;
@@ -83,7 +83,7 @@ public class Hashtable {
     public String remove(String key){
         int bucket = getBucketIndex(key);
         String foundValue = null;
-        Iterator it = arr[bucket].iterator();
+        Iterator it = bucketArray[bucket].iterator();
         while (it.hasNext()) {
             var lastPair = (StringPair)it.next();
             if (lastPair.key.equals(key)){
@@ -121,7 +121,7 @@ public class Hashtable {
     private void copyFrom(Hashtable table) {
         size = table.size;
         bucketsNumber = table.bucketsNumber;
-        arr = table.arr;
+        bucketArray = table.bucketArray;
     }
 
     /** Adds (by calling method {@link Hashtable#put}) every pair of (key, value) stored in the
@@ -129,7 +129,7 @@ public class Hashtable {
      * @param table another hash table to copy all stored data to */
     private void copyContentTo(Hashtable table) {
         for (int i = 0; i < bucketsNumber; i++) {
-            for (Object o : arr[i]) {
+            for (Object o : bucketArray[i]) {
                 var curPair = (StringPair) o;
                 table.put(curPair.key, curPair.val);
             }
@@ -166,5 +166,5 @@ public class Hashtable {
     private int bucketsNumber;
 
     /** Array of buckets (has {@link Hashtable#bucketsNumber} size) */
-    private MyList[] arr;
+    private MyList[] bucketArray;
 }
