@@ -108,7 +108,7 @@ public class Hashtable {
      *  if such situation occurs. */
     private void checkBucketsNumber() {
         if (size * 2 > bucketsNumber) {
-            var newHashtable = new Hashtable(bucketsNumber*2);
+            var newHashtable = new Hashtable(bucketsNumber * 2);
             copyContentTo(newHashtable);
             copyFrom(newHashtable);
         }
