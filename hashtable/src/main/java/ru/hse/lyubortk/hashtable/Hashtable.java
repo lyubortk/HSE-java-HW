@@ -6,6 +6,17 @@ import java.util.Iterator;
  *  Hash table implements separate chaining method and uses {@link MyList}
  *  for buckets. */
 public class Hashtable {
+
+    /** Number of pairs (key, mapped value) stored in the hash table */
+    private int size;
+
+    /** Number of allocated buckets */
+    private int bucketsNumber;
+
+    /** Array of buckets (has {@link Hashtable#bucketsNumber} size) */
+    private MyList[] bucketArray;
+
+
     /** Default constructor which sets initial number of buckets to 16. */
     public Hashtable() {
         this(16);
@@ -114,6 +125,7 @@ public class Hashtable {
         }
     }
 
+
     /** Makes hash table identical to one given as argument. Method simply assigns all
      * fields to ones of argument table.
      * @param table a hash table to copy fields from */
@@ -160,13 +172,4 @@ public class Hashtable {
         private String key;
         private String val;
     }
-
-    /** Number of pairs (key, mapped value) stored in the hash table */
-    private int size;
-
-    /** Number of allocated buckets */
-    private int bucketsNumber;
-
-    /** Array of buckets (has {@link Hashtable#bucketsNumber} size) */
-    private MyList[] bucketArray;
 }

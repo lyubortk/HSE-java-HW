@@ -7,19 +7,45 @@ import java.util.NoSuchElementException;
  * Allows to add objects by one and to iterate through content using {@link Iterator} */
 public class MyList implements Iterable<Object>{
 
+    /** A reference to the front node of the list */
+    private ListNode head;
+
+    /** {@inheritDoc} */
+    @Override
+    public MyListIterator iterator() {
+        return new MyListIterator(head);
+    }
+
+    /** Inserts one {@link Object} to the front of the list. I.e. iteration
+     * by {@link Iterator} will start with the newest added element.
+     * @param obj an {@link Object} to add to the list */
+    public void insertObject(Object obj) {
+        var node = new ListNode(obj);
+        if (head != null) {
+            node.nextNode = head;
+            head.prevNode = node;
+        }
+        head = node;
+    }
+
     /** Inner class which represents nodes of list*/
     private class ListNode{
+        private Object data;
+        private ListNode prevNode;
+        private ListNode nextNode;
+        
         private ListNode(Object obj) {
-            this.obj = obj;
+            this.data = obj;
         }
-        private Object obj;
-        private ListNode prev;
-        private ListNode next;
     }
 
     /** {@inheritDoc}
      * Implementation of {@link Iterator} for MyList.*/
     private class MyListIterator implements Iterator<Object> {
+
+        private ListNode nextNode;
+        private ListNode prevNode;
+
         private MyListIterator(ListNode firstNode) {
             nextNode = firstNode;
         }
@@ -35,8 +61,8 @@ public class MyList implements Iterable<Object>{
         public Object next() {
             if (nextNode != null) {
                 prevNode = nextNode;
-                nextNode = nextNode.next;
-                return prevNode.obj;
+                nextNode = nextNode.nextNode;
+                return prevNode.data;
             } else {
                 throw new NoSuchElementException();
             }
@@ -46,43 +72,20 @@ public class MyList implements Iterable<Object>{
         @Override
         public void remove() {
             if (prevNode != null) {
-                if (prevNode.prev != null) {
-                    prevNode.prev.next = nextNode;
+                if (prevNode.prevNode != null) {
+                    prevNode.prevNode.nextNode = nextNode;
                 } else {
                     head = nextNode;
                 }
 
                 if (nextNode != null) {
-                    nextNode.prev = prevNode.prev;
+                    nextNode.prevNode = prevNode.prevNode;
                 }
+
                 prevNode = null;
             } else {
                 throw new IllegalStateException();
             }
         }
-
-        private ListNode nextNode;
-        private ListNode prevNode;
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public MyListIterator iterator() {
-        return new MyListIterator(head);
-    }
-
-    /** Inserts one {@link Object} to the front of the list. I.e. iteration
-     * by {@link Iterator} will start with the newest added element.
-     * @param obj an {@link Object} to add to the list */
-    public void insertObject(Object obj) {
-        var node = new ListNode(obj);
-        if (head != null) {
-            node.next = head;
-            head.prev = node;
-        }
-        head = node;
-    }
-
-    /** A reference to the front node of the list */
-    private ListNode head;
 }
