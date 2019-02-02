@@ -3,7 +3,7 @@ package ru.hse.lyubortk.trie;
 import java.util.HashMap;
 
 public class Trie {
-    
+
     private TrieNode root;
     private int size;
 
@@ -71,11 +71,11 @@ public class Trie {
             symbol = symbolVal;
         }
 
-        boolean hasNext(char c) {
+        private boolean hasNext(char c) {
             return sons.containsKey(c);
         }
 
-        TrieNode getNext(char c) {
+        private TrieNode getNext(char c) {
             if (sons.containsKey(c)) {
                 return sons.get(c);
             } else {
@@ -85,12 +85,12 @@ public class Trie {
             }
         }
 
-        HashMap<Character, TrieNode> sons;
-        boolean isTerminal;
-        int depth;
-        int terminalsInSubtree;
-        TrieNode father;
-        char symbol;
+        private HashMap<Character, TrieNode> sons;
+        private boolean isTerminal;
+        private int depth;
+        private int terminalsInSubtree;
+        private TrieNode father;
+        private char symbol;
     }
 
     private TrieNode getLastExistingNodeOnPath(String element) {
