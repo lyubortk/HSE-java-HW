@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,6 +54,35 @@ class MyListTest {
         assertEquals(1, it.next());
         assertFalse(it.hasNext());
     }
+    @Test
+    void test() {
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.add(6);
+        list.add(7);
+
+        ListIterator<Integer> it = list.listIterator();
+
+
+
+
+
+
+
+        assertEquals(Integer.valueOf(1), it.next());
+        assertEquals(Integer.valueOf(2), it.next());
+        assertEquals(Integer.valueOf(3), it.next());
+        assertEquals(Integer.valueOf(3), it.previous());
+        it.remove();
+        assertEquals(Integer.valueOf(2), it.previous());
+        assertEquals(Integer.valueOf(2), it.next());
+        assertEquals(Integer.valueOf(4), it.next());
+        it.add(3);
+        assertEquals(Integer.valueOf(3), it.previous());
+    }
 /*
     @Test
     void iteratorRemoveLast() {
@@ -67,7 +97,7 @@ class MyListTest {
         assertEquals(2, it.next());
         assertFalse(it.hasNext());
     }
-
+/*
     @Test
     void iteratorRemoveInMiddle() {
         list.insertObject(1);
