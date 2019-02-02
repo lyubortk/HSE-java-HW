@@ -145,7 +145,10 @@ public class Hashtable {
         }
 
         int hashCode = key.hashCode() % bucketsNumber;
-        return (hashCode >= 0 ? hashCode : hashCode + bucketsNumber);
+        if (hashCode < 0) {
+            hashCode += bucketsNumber;
+        }
+        return hashCode;
     }
 
     /** Inner class which represents pair of (key, mapped value). */
