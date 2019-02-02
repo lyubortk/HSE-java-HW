@@ -3,15 +3,19 @@ package ru.hse.lyubortk.trie;
 import java.util.HashMap;
 
 public class Trie {
+    
+    private TrieNode root;
+    private int size;
+
     public Trie() {
         root = new TrieNode();
         size = 0;
     }
 
     public boolean add(String element){
-        var node = getTerminalNode(element);
-        if (!node.isTerminal()) {
-            node.makeTerminal();
+        var node = getNode(element);
+        if (!node.isTerminal) {
+            makeNodeTerminal(node);
             size++;
             return true;
         } else {
@@ -20,8 +24,8 @@ public class Trie {
     }
 
     public boolean contains(String element){
-        var node = getLastNodeOnPath(element);
-        if (node.getDepth() == element.length() && node.isTerminal()) {
+        var node = getLastExistingNodeOnPath(element);
+        if (node.depth == element.length() && node.isTerminal) {
             return true;
         } else {
             return false;
@@ -29,9 +33,9 @@ public class Trie {
     }
 
     public boolean remove(String element) {
-        var node = getLastNodeOnPath(element);
-        if (node.getDepth() == element.length() && node.isTerminal()) {
-            node.makeNotTerminal();
+        var node = getLastExistingNodeOnPath(element);
+        if (node.depth == element.length() && node.isTerminal) {
+            makeNodeNotTerminal(node);
             size--;
             return true;
         } else {
@@ -44,8 +48,12 @@ public class Trie {
     }
 
     public int howManyStartWithPrefix(String prefix) {
-        var node = getLastNodeOnPath(prefix);
-        return node.getNumberOfTerminalsInSubtree();
+        var node = getLastExistingNodeOnPath(prefix);
+        if (node.depth == prefix.length()) {
+            return node.terminalsInSubtree;
+        } else {
+            return 0;
+        }
     }
 
 
@@ -56,47 +64,11 @@ public class Trie {
 
         TrieNode(int depthVal, TrieNode fatherRef, char symbolVal) {
             sons = new HashMap<>();
-            terminal = false;
+            isTerminal = false;
             depth = depthVal;
             terminalsInSubtree = 0;
             father = fatherRef;
             symbol = symbolVal;
-        }
-
-        boolean isTerminal() {
-            return terminal;
-        }
-
-        void makeNotTerminal() {
-            if (!terminal) {
-                return;
-            }
-            terminal = false;
-            terminalsInSubtree--;
-
-            var curNode = this;
-            var fatherNode = father;
-            while (fatherNode != null) {
-                fatherNode.terminalsInSubtree--;
-                if (curNode.terminalsInSubtree == 0) {
-                    fatherNode.sons.remove(curNode.symbol);
-                }
-                curNode = fatherNode;
-                fatherNode = curNode.father;
-            }
-        }
-
-        void makeTerminal() {
-            if (terminal) {
-                return;
-            }
-            terminal = true;
-
-            var curNode = this;
-            while (curNode != null) {
-                curNode.terminalsInSubtree++;
-                curNode = curNode.father;
-            }
         }
 
         boolean hasNext(char c) {
@@ -105,7 +77,7 @@ public class Trie {
 
         TrieNode getNext(char c) {
             if (sons.containsKey(c)) {
-                return (TrieNode)sons.get(c);
+                return sons.get(c);
             } else {
                 var newSon = new TrieNode(depth+1, this, c);
                 sons.put(c, newSon);
@@ -113,23 +85,15 @@ public class Trie {
             }
         }
 
-        int getDepth() {
-            return depth;
-        }
-
-        int getNumberOfTerminalsInSubtree() {
-            return terminalsInSubtree;
-        }
-
         HashMap<Character, TrieNode> sons;
-        boolean terminal;
+        boolean isTerminal;
         int depth;
         int terminalsInSubtree;
         TrieNode father;
         char symbol;
     }
 
-    private TrieNode getLastNodeOnPath(String element) {
+    private TrieNode getLastExistingNodeOnPath(String element) {
         if (element == null) {
             throw new IllegalArgumentException();
         }
@@ -143,7 +107,7 @@ public class Trie {
         return curNode;
     }
 
-    private TrieNode getTerminalNode(String element) {
+    private TrieNode getNode(String element) {
         if (element == null) {
             throw new IllegalArgumentException();
         }
@@ -155,7 +119,33 @@ public class Trie {
         return curNode;
     }
 
+    private void makeNodeNotTerminal(TrieNode node) {
+        if (!node.isTerminal) {
+            return;
+        }
+        node.isTerminal = false;
+        node.terminalsInSubtree--;
 
-    private TrieNode root;
-    private int size;
+        var fatherNode= node.father;
+        while (fatherNode != null) {
+            fatherNode.terminalsInSubtree--;
+            if (node.terminalsInSubtree == 0) {
+                fatherNode.sons.remove(node.symbol);
+            }
+            node = fatherNode;
+            fatherNode = node.father;
+        }
+    }
+
+    private void makeNodeTerminal(TrieNode node) {
+        if (node.isTerminal) {
+            return;
+        }
+        node.isTerminal = true;
+
+        while (node != null) {
+            node.terminalsInSubtree++;
+            node = node.father;
+        }
+    }
 }
