@@ -169,7 +169,7 @@ class TrieTest {
     @Test
     void howManyStartWithPrefix() {
         String[] dict = {"to", "tea", "ted", "ten", "inn", "in"};
-        for (var str: dict) {
+        for (var str : dict) {
             trie.add(str);
         }
         assertEquals(4, trie.howManyStartWithPrefix("t"));
@@ -177,7 +177,9 @@ class TrieTest {
         assertEquals(1, trie.howManyStartWithPrefix("ten"));
         assertEquals(1, trie.howManyStartWithPrefix("inn"));
         assertEquals(2, trie.howManyStartWithPrefix("i"));
+        assertEquals(2, trie.howManyStartWithPrefix("in"));
         assertEquals(6, trie.howManyStartWithPrefix(""));
+        assertEquals(0, trie.howManyStartWithPrefix("a"));
     }
 
     private String[] getDictionary(int size) {
