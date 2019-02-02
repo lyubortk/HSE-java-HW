@@ -83,8 +83,7 @@ public class Hashtable {
     public String remove(String key){
         int bucket = getBucketIndex(key);
         String foundValue = null;
-        Iterator it = bucketArray[bucket].iterator();
-        while (it.hasNext()) {
+        for (Iterator it = bucketArray[bucket].iterator(); it.hasNext();) {
             var lastPair = (StringPair)it.next();
             if (lastPair.key.equals(key)){
                 foundValue = lastPair.val;
