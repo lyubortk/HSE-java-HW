@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HashtableTest {
 
+    private Hashtable table;
+
     @BeforeEach
     void initializeHashtable() {
         table = new Hashtable();
@@ -129,6 +131,4 @@ class HashtableTest {
             table.put(Integer.toString(i),Integer.toString(i + 1000));
         }
     }
-
-    private Hashtable table;
 }

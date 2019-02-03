@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MyListTest {
 
+    private MyList list;
+
     @BeforeEach
     void initializeList() {
         list = new MyList();
@@ -98,6 +100,4 @@ class MyListTest {
         assertEquals(1, it.next());
         assertFalse(it.hasNext());
     }
-
-    private MyList list;
 }
