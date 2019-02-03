@@ -236,7 +236,7 @@ public class Trie {
         }
     }
 
-    /** Write specific subtree as byte-sequnce to the {@link DataOutputStream}. */
+    /** Write specific subtree as byte-sequence to the {@link DataOutputStream}. */
     private void serializeSubtree(@NotNull TrieNode node,
                                   @NotNull DataOutputStream out) throws IOException {
         out.writeBoolean(node.isTerminal);
