@@ -68,6 +68,7 @@ public class Trie {
         var dataIn = new DataInputStream(in);
         root = new TrieNode();
         deserializeSubtree(root, dataIn);
+        size = root.terminalsInSubtree;
         dataIn.close();
     }
 

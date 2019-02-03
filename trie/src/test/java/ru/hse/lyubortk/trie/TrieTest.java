@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TrieTest {
 
     private Trie trie;
-    static final int DICT_SIZE = 1000;
+    private static final int DICT_SIZE = 1000;
+    private static final String[] DICT = getDictionary(DICT_SIZE);
 
     @BeforeEach
     void initializeTrie() {
@@ -27,19 +28,17 @@ class TrieTest {
 
     @Test
     void addNew() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str : dict) {
+        for (var str : DICT) {
             assertTrue(trie.add(str));
         }
     }
 
     @Test
     void addAlreadyAdded() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str : dict) {
+        for (var str : DICT) {
             trie.add(str);
         }
-        for (var str : dict) {
+        for (var str : DICT) {
             assertFalse(trie.add(str));
         }
     }
@@ -73,8 +72,7 @@ class TrieTest {
 
     @Test
     void containsNotAdded() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str : dict) {
+        for (var str : DICT) {
             assertFalse(trie.contains(str));
         }
     }
@@ -91,11 +89,10 @@ class TrieTest {
 
     @Test
     void containsAdded() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str : dict) {
+        for (var str : DICT) {
             trie.add(str);
         }
-        for (var str : dict) {
+        for (var str : DICT) {
             assertTrue(trie.contains(str));
         }
     }
@@ -107,8 +104,7 @@ class TrieTest {
 
     @Test
     void removeNotAdded() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for(var str: dict) {
+        for(var str: DICT) {
             assertFalse(trie.remove(str));
         }
     }
@@ -143,21 +139,19 @@ class TrieTest {
 
     @Test
     void size() {
-        String[] dict = getDictionary(DICT_SIZE);
         for (int i = 0; i < DICT_SIZE; i++) {
             assertEquals(i, trie.size());
-            trie.add(dict[i]);
+            trie.add(DICT[i]);
         }
         assertEquals(DICT_SIZE, trie.size());
     }
 
     @Test
     void sizeDoubleAdding() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str : dict) {
+        for (var str : DICT) {
             trie.add(str);
         }
-        for (var str : dict) {
+        for (var str : DICT) {
             trie.add(str);
         }
         assertEquals(1000, trie.size());
@@ -188,20 +182,18 @@ class TrieTest {
 
     @Test
     void serializeContainsContent() {
-        String[] dict = getDictionary(DICT_SIZE);
-        for (var str: dict) {
+        for (var str: DICT) {
             trie.add(str);
         }
 
         var anotherTrie = new Trie();
-        var out = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> trie.serialize(out));
-        var in = new ByteArrayInputStream(out.toByteArray());
-        assertDoesNotThrow(() -> anotherTrie.deserialize(in));
+        sendData(trie, anotherTrie);
 
-        for (var str: dict) {
+        for (var str: DICT) {
             assertTrue(anotherTrie.contains(str));
         }
+
+        assertEquals(DICT_SIZE, anotherTrie.size());
     }
 
     @Test
@@ -209,17 +201,39 @@ class TrieTest {
         trie.add("Test String");
         var anotherTrie = new Trie();
         anotherTrie.add("Old String");
+        anotherTrie.add("Another Old String");
 
-        var out = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> trie.serialize(out));
-        var in = new ByteArrayInputStream(out.toByteArray());
-        assertDoesNotThrow(() -> anotherTrie.deserialize(in));
+        sendData(trie, anotherTrie);
 
         assertFalse(anotherTrie.contains("Old String"));
+        assertFalse(anotherTrie.contains("Another Old String"));
         assertTrue(anotherTrie.contains("Test String"));
     }
 
-    private String[] getDictionary(int size) {
+    @Test
+    void serializeFromEmptyTrie() {
+        var anotherTrie = new Trie();
+        for (var str : DICT) {
+            anotherTrie.add(str);
+        }
+        assertEquals(DICT_SIZE, anotherTrie.size());
+
+        sendData(trie, anotherTrie);
+
+        assertEquals(0, anotherTrie.size());
+        for(var str : DICT) {
+            assertFalse(anotherTrie.contains(str));
+        }
+    }
+
+    private static void sendData(Trie from, Trie to) {
+        var out = new ByteArrayOutputStream();
+        assertDoesNotThrow(() -> from.serialize(out));
+        var in = new ByteArrayInputStream(out.toByteArray());
+        assertDoesNotThrow(() -> to.deserialize(in));
+    }
+
+    private static String[] getDictionary(int size) {
         Random generator = new Random(1);
         var wordsSet = new HashSet<String>();
 
