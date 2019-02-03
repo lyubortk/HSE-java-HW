@@ -1,6 +1,11 @@
 package ru.hse.lyubortk.trie;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Trie {
 
@@ -12,7 +17,7 @@ public class Trie {
         size = 0;
     }
 
-    public boolean add(String element){
+    public boolean add(@NotNull String element){
         var node = getNode(element);
         if (!node.isTerminal) {
             makeNodeTerminal(node);
@@ -23,16 +28,12 @@ public class Trie {
         }
     }
 
-    public boolean contains(String element){
+    public boolean contains(@NotNull String element){
         var node = getLastExistingNodeOnPath(element);
-        if (node.depth == element.length() && node.isTerminal) {
-            return true;
-        } else {
-            return false;
-        }
+        return node.depth == element.length() && node.isTerminal;
     }
 
-    public boolean remove(String element) {
+    public boolean remove(@NotNull String element) {
         var node = getLastExistingNodeOnPath(element);
         if (node.depth == element.length() && node.isTerminal) {
             makeNodeNotTerminal(node);
@@ -47,7 +48,7 @@ public class Trie {
         return size;
     }
 
-    public int howManyStartWithPrefix(String prefix) {
+    public int howManyStartWithPrefix(@NotNull String prefix) {
         var node = getLastExistingNodeOnPath(prefix);
         if (node.depth == prefix.length()) {
             return node.terminalsInSubtree;
@@ -56,13 +57,33 @@ public class Trie {
         }
     }
 
+    public void serialize(@NotNull OutputStream out) throws IOException {
+        var dataOut = new DataOutputStream(out);
+        serializeSubtree(root, dataOut);
+        dataOut.flush();
+        dataOut.close();
+    }
+
+    public void deserialize(@NotNull InputStream in) throws IOException {
+        var dataIn = new DataInputStream(in);
+        root = new TrieNode();
+        deserializeSubtree(root, dataIn);
+        dataIn.close();
+    }
 
     private class TrieNode {
+        private HashMap<Character, TrieNode> sons;
+        private boolean isTerminal;
+        private int depth;
+        private int terminalsInSubtree;
+        private TrieNode father;
+        private char symbol;
+
         TrieNode() {
             this(0, null, '\0');
         }
 
-        TrieNode(int depthVal, TrieNode fatherRef, char symbolVal) {
+        TrieNode(int depthVal, @Nullable TrieNode fatherRef, char symbolVal) {
             sons = new HashMap<>();
             isTerminal = false;
             depth = depthVal;
@@ -85,19 +106,9 @@ public class Trie {
             }
         }
 
-        private HashMap<Character, TrieNode> sons;
-        private boolean isTerminal;
-        private int depth;
-        private int terminalsInSubtree;
-        private TrieNode father;
-        private char symbol;
     }
 
-    private TrieNode getLastExistingNodeOnPath(String element) {
-        if (element == null) {
-            throw new IllegalArgumentException();
-        }
-
+    private TrieNode getLastExistingNodeOnPath(@NotNull String element) {
         var curNode = root;
         int i = 0;
         while (element.length() > i && curNode.hasNext(element.charAt(i))) {
@@ -107,11 +118,7 @@ public class Trie {
         return curNode;
     }
 
-    private TrieNode getNode(String element) {
-        if (element == null) {
-            throw new IllegalArgumentException();
-        }
-
+    private TrieNode getNode(@NotNull String element) {
         var curNode = root;
         for (char c : element.toCharArray()) {
             curNode = curNode.getNext(c);
@@ -119,7 +126,7 @@ public class Trie {
         return curNode;
     }
 
-    private void makeNodeNotTerminal(TrieNode node) {
+    private void makeNodeNotTerminal(@NotNull TrieNode node) {
         if (!node.isTerminal) {
             return;
         }
@@ -137,7 +144,7 @@ public class Trie {
         }
     }
 
-    private void makeNodeTerminal(TrieNode node) {
+    private void makeNodeTerminal(@NotNull TrieNode node) {
         if (node.isTerminal) {
             return;
         }
@@ -148,4 +155,36 @@ public class Trie {
             node = node.father;
         }
     }
+
+    private void serializeSubtree(@NotNull TrieNode node,
+                                  @NotNull DataOutputStream out) throws IOException {
+        out.writeBoolean(node.isTerminal);
+        out.writeInt(node.depth);
+        out.writeInt(node.terminalsInSubtree);
+        out.writeChar(node.symbol);
+        out.writeInt(node.sons.size());
+
+        for (Map.Entry<Character, TrieNode> o : node.sons.entrySet()) {
+            out.writeChar(o.getKey());
+            serializeSubtree(o.getValue(), out);
+        }
+    }
+
+    private void deserializeSubtree(@NotNull TrieNode node,
+                                    @NotNull DataInputStream in) throws IOException {
+        node.isTerminal = in.readBoolean();
+        node.depth = in.readInt();
+        node.terminalsInSubtree = in.readInt();
+        node.symbol = in.readChar();
+
+        int numberOfSons = in.readInt();
+        while (numberOfSons-- > 0) {
+            char symbolOnEdge = in.readChar();
+            TrieNode son = new TrieNode();
+            deserializeSubtree(son, in);
+            node.sons.put(symbolOnEdge, son);
+            son.father = node;
+        }
+    }
+
 }

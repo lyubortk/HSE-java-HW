@@ -3,13 +3,17 @@ package ru.hse.lyubortk.trie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrieTest {
+
+    private Trie trie;
+    static final int DICT_SIZE = 1000;
 
     @BeforeEach
     void initializeTrie() {
@@ -23,7 +27,7 @@ class TrieTest {
 
     @Test
     void addNew() {
-        String[] dict = getDictionary(1000);
+        String[] dict = getDictionary(DICT_SIZE);
         for (var str : dict) {
             assertTrue(trie.add(str));
         }
@@ -31,7 +35,7 @@ class TrieTest {
 
     @Test
     void addAlreadyAdded() {
-        String[] dict = getDictionary(1000);
+        String[] dict = getDictionary(DICT_SIZE);
         for (var str : dict) {
             trie.add(str);
         }
@@ -69,7 +73,7 @@ class TrieTest {
 
     @Test
     void containsNotAdded() {
-        String[] dict = getDictionary(1000);
+        String[] dict = getDictionary(DICT_SIZE);
         for (var str : dict) {
             assertFalse(trie.contains(str));
         }
@@ -87,7 +91,7 @@ class TrieTest {
 
     @Test
     void containsAdded() {
-        String[] dict = getDictionary(1000);
+        String[] dict = getDictionary(DICT_SIZE);
         for (var str : dict) {
             trie.add(str);
         }
@@ -103,7 +107,7 @@ class TrieTest {
 
     @Test
     void removeNotAdded() {
-        String[] dict = getDictionary(1000);
+        String[] dict = getDictionary(DICT_SIZE);
         for(var str: dict) {
             assertFalse(trie.remove(str));
         }
@@ -139,22 +143,22 @@ class TrieTest {
 
     @Test
     void size() {
-        String[] dict = getDictionary(1000);
-        for (int i = 0; i < 1000; i++) {
+        String[] dict = getDictionary(DICT_SIZE);
+        for (int i = 0; i < DICT_SIZE; i++) {
             assertEquals(i, trie.size());
             trie.add(dict[i]);
         }
-        assertEquals(1000, trie.size());
+        assertEquals(DICT_SIZE, trie.size());
     }
 
     @Test
     void sizeDoubleAdding() {
-        String[] dict = getDictionary(1000);
-        for (int i = 0; i < 1000; i++) {
-            trie.add(dict[i]);
+        String[] dict = getDictionary(DICT_SIZE);
+        for (var str : dict) {
+            trie.add(str);
         }
-        for (int i = 0; i < 1000; i++) {
-            trie.add(dict[i]);
+        for (var str : dict) {
+            trie.add(str);
         }
         assertEquals(1000, trie.size());
     }
@@ -182,6 +186,39 @@ class TrieTest {
         assertEquals(0, trie.howManyStartWithPrefix("a"));
     }
 
+    @Test
+    void serializeContainsContent() {
+        String[] dict = getDictionary(DICT_SIZE);
+        for (var str: dict) {
+            trie.add(str);
+        }
+
+        var anotherTrie = new Trie();
+        var out = new ByteArrayOutputStream();
+        assertDoesNotThrow(() -> trie.serialize(out));
+        var in = new ByteArrayInputStream(out.toByteArray());
+        assertDoesNotThrow(() -> anotherTrie.deserialize(in));
+
+        for (var str: dict) {
+            assertTrue(anotherTrie.contains(str));
+        }
+    }
+
+    @Test
+    void serializeDoesNotContainOldValues() {
+        trie.add("Test String");
+        var anotherTrie = new Trie();
+        anotherTrie.add("Old String");
+
+        var out = new ByteArrayOutputStream();
+        assertDoesNotThrow(() -> trie.serialize(out));
+        var in = new ByteArrayInputStream(out.toByteArray());
+        assertDoesNotThrow(() -> anotherTrie.deserialize(in));
+
+        assertFalse(anotherTrie.contains("Old String"));
+        assertTrue(anotherTrie.contains("Test String"));
+    }
+
     private String[] getDictionary(int size) {
         Random generator = new Random(1);
         var wordsSet = new HashSet<String>();
@@ -189,13 +226,11 @@ class TrieTest {
         while (wordsSet.size() < size) {
             char[] word = new char[3 + generator.nextInt(27)];
             for(int j = 0; j < word.length; j++) {
-                word[j] = (char)(generator.nextInt(65535));
+                word[j] = (char)(generator.nextInt(Character.MAX_VALUE));
             }
             wordsSet.add(new String(word));
         }
 
         return wordsSet.toArray(new String[size]);
     }
-
-    private Trie trie;
 }
