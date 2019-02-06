@@ -72,14 +72,16 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
             throw new IndexOutOfBoundsException();
         }
 
-        size++;
-
         if (size == 0) {
             data = element;
+        } else if (size == 1) {
+            var tempArrayList = new ArrayList<E>();
+            tempArrayList.add((E)data);
+            tempArrayList.add(index, element);
+            copyArrayListToArray(tempArrayList);
         } else if (size < 5) {
             var tempArrayList = new ArrayList<E>(Arrays.asList((E[])data));
             tempArrayList.add(index, element);
-
             copyArrayListToArray(tempArrayList);
         } else if (size == 5) {
             data = new ArrayList<E>(Arrays.asList((E[])data));
@@ -87,6 +89,7 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
         } else {
             ((ArrayList<E>)data).add(index, element);
         }
+        size++;
     }
 
     @Override
@@ -98,7 +101,6 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
         E previousObject;
         if (size == 1) {
             var temp = data;
-            size = 0;
             data = null;
             previousObject = (E)temp;
         } else if (size == 2) {
@@ -115,7 +117,8 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
         } else {
             previousObject = ((ArrayList<E>)data).remove(index);
         }
-        
+
+        size--;
         return previousObject;
     }
 
