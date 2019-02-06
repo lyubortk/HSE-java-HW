@@ -16,7 +16,7 @@ public class SmartList<E> extends AbstractList<E> implements List<E> {
 
         if (collection.size() == 1) {
             size = 1;
-            data = collection.toArray()[1];
+            data = collection.toArray()[0];
         } else if (collection.size() > 1 && collection.size() <= 5) {
             size = collection.size();
             data = new Object[5];
