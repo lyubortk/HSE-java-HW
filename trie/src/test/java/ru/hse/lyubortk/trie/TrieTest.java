@@ -153,7 +153,7 @@ class TrieTest {
         for (var str : DICT) {
             trie.add(str);
         }
-        assertEquals(1000, trie.size());
+        assertEquals(DICT_SIZE, trie.size());
     }
 
     @Test
