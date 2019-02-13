@@ -87,7 +87,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
     /** {@link TreeSet#remove} */
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(@NotNull Object o) {
         var node = getLessOrEqualNode(root, o);
         if (node == null || !o.equals(node.data)) {
             return false;
@@ -220,12 +220,21 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     private void remove(@NotNull TreeNode<E> node) {
         if (node.left == null && node.right == null) {
             changeSonTo(node.father, node, null);
+            if (root == node) {
+                root = null;
+            }
         } else if (node.left == null) {
             changeSonTo(node.father, node, node.right);
             node.right.father = node.father;
+            if (root == node) {
+                root = node.right;
+            }
         } else if (node.right == null) {
             changeSonTo(node.father, node, node.left);
             node.left.father = node.father;
+            if (root == node) {
+                root = node.left;
+            }
         } else {
             var nextNode = getNextNode(node);
             assert nextNode != null;
@@ -333,6 +342,11 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         @Override
         public boolean add(@NotNull E e) {
             return Tree.this.add(e);
+        }
+
+        @Override
+        public boolean remove(@NotNull Object o) {
+            return Tree.this.remove(o);
         }
 
         @Override

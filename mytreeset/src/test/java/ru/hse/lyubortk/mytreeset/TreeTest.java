@@ -171,7 +171,51 @@ class TreeTest {
         assertEquals(5, (int)iterator.next());
         assertEquals(16, (int)iterator.next());
         assertEquals(17, (int)iterator.next());
+    }
 
+    @Test
+    void addSameValues() {
+        assertTrue(tree.add(1));
+        assertFalse(tree.add(1));
+        assertFalse(tree.add(1));
+
+        assertTrue(tree.add(5));
+        assertFalse(tree.add(5));
+        assertFalse(tree.add(5));
+
+        assertTrue(tree.add(2));
+        assertFalse(tree.add(2));
+        assertFalse(tree.add(2));
+
+        assertTrue(tree.add(3));
+        assertFalse(tree.add(3));
+        assertFalse(tree.add(3));
+
+        assertTrue(tree.add(6));
+        assertFalse(tree.add(6));
+        assertFalse(tree.add(6));
+    }
+
+    @Test
+    void removeBasic() {
+        tree.addAll(Arrays.asList(numbersDict20));
+        for (int i = 0; i < 20; ++i) {
+            assertTrue(tree.remove(i));
+            assertFalse(tree.remove(i));
+            assertEquals(20 - i - 1, tree.size());
+        }
+    }
+
+    @Test
+    void removeDescending() {
+        tree.addAll(Arrays.asList(numbersDict20));
+        var descendingTree = tree.descendingSet();
+        for (int i = 0; i < 20; ++i) {
+            assertTrue(descendingTree.remove(i));
+            assertFalse(descendingTree.remove(i));
+            assertEquals(20 - i - 1, descendingTree.size());
+            assertEquals(20 - i - 1, tree.size());
+        }
     }
 
     @Test
@@ -250,6 +294,7 @@ class TreeTest {
         }
         assertEquals(19, (int)descendingSet.ceiling(50));
     }
+
     @Test
     void higher() {
         tree.addAll(Arrays.asList(numbersDict10));
