@@ -11,37 +11,45 @@ public final class FirstPartTasks {
 
     // Список названий альбомов
     public static List<String> allNames(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        return albums.map(Album::getName).collect(Collectors.toList());
     }
 
     // Список названий альбомов, отсортированный лексикографически по названию
     public static List<String> allNamesSorted(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        return albums.map(Album::getName).sorted().collect(Collectors.toList());
     }
 
     // Список треков, отсортированный лексикографически по названию, включающий все треки альбомов из 'albums'
     public static List<String> allTracksSorted(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        return null;
+        //Stream <Track> tracks = albums.map(album -> album.getTracks().stream()).reduce(Stream::concat).map(track -> track.getName()).sorted().collect(Collectors.toList());.
     }
 
     // Список альбомов, в которых есть хотя бы один трек с рейтингом более 95, отсортированный по названию
     public static List<Album> sortedFavorites(Stream<Album> s) {
-        throw new UnsupportedOperationException();
+        return s.filter(album ->
+                !album.getTracks().stream().filter(track ->
+                        track.getRating() > 95
+                ).collect(Collectors.toList()).isEmpty()
+        ).sorted(Comparator.comparing(Album::getName)).collect(Collectors.toList());
     }
 
     // Сгруппировать альбомы по артистам
     public static Map<Artist, List<Album>> groupByArtist(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        return albums.collect(Collectors.groupingBy(Album::getArtist));
     }
 
-    // Сгруппировать альбомы по артистам (в качестве значения вместо объекта 'Artist' использовать его имя)
+    // Сгруппировать альбомы по артистам (в качестве значения вместо объекта 'Album' использовать его имя)
     public static Map<Artist, List<String>> groupByArtistMapName(Stream<Album> albums) {
+        //return albums.collect(Collectors.groupingBy(Album::getArtist));
         throw new UnsupportedOperationException();
     }
 
     // Число повторяющихся альбомов в потоке
     public static long countAlbumDuplicates(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        //throw new UnsupportedOperationException();
+        return albums.filter(i -> Collections.frequency(albums.collect(Collectors.toList()), i) > 1)
+                .collect(Collectors.toSet()).size();
     }
 
     // Альбом, в котором максимум рейтинга минимален
