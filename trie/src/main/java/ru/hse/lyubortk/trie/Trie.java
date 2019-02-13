@@ -7,8 +7,10 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/** A data structure to store set of strings.
- *  Basic operations have time complexity of O(length).*/
+/**
+ * A data structure to store set of strings.
+ * Basic operations have time complexity of O(length).
+ */
 public class Trie implements Serializable {
     /** A root node which represents empty string. */
     private TrieNode root = new TrieNode();
