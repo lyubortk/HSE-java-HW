@@ -1,8 +1,6 @@
 package ru.hse.inclass;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -54,23 +52,28 @@ public final class FirstPartTasks {
 
     // Список альбомов, отсортированный по убыванию среднего рейтинга его треков (0, если треков нет)
     public static List<Album> sortByAverageRating(Stream<Album> albums) {
-        throw new UnsupportedOperationException();
+        return albums.sorted((a, b) -> (meanrating(a) - meanrating(b)) > 0 ? -1 : 1).collect(Collectors.toList());
+    }
+
+    public static double meanrating(Album c) {
+        return (c.getTracks().stream().map(a -> a.getRating()).reduce(0, Integer::sum) /
+                (double)(c.getTracks().size()) );
     }
 
     // Произведение всех чисел потока по модулю 'modulo'
     // (все числа от 0 до 10000)
     public static int moduloProduction(IntStream stream, int modulo) {
-        throw new UnsupportedOperationException();
+        return stream.reduce(1, (a, b) -> a * b % modulo);
     }
 
     // Вернуть строку, состояющую из конкатенаций переданного массива, и окруженную строками "<", ">"
     // см. тесты
     public static String joinTo(String... strings) {
-        throw new UnsupportedOperationException();
+        return "<" + Arrays.stream(strings).collect(Collectors.joining(", ")) + ">";
     }
 
     // Вернуть поток из объектов класса 'clazz'
     public static <R> Stream<R> filterIsInstance(Stream<?> s, Class<R> clazz) {
-        throw new UnsupportedOperationException();
+        return (Stream<R>) s.filter(a -> clazz.isInstance(a));
     }
 }
