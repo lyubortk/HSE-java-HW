@@ -108,7 +108,7 @@ public class Trie {
 
     /** Inner class which represents nodes of trie. */
     private class TrieNode {
-        /** Map of char and children-node. */
+        /** Map of char and child-node. */
         private HashMap<Character, TrieNode> sons;
 
         /** Whether the node represents full string. */
