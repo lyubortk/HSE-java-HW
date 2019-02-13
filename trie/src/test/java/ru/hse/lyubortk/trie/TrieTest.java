@@ -56,11 +56,7 @@ class TrieTest {
         assertTrue(trie.add("test"));
         assertTrue(trie.add("tea"));
     }
-
-    @Test
-    void addNull() {
-        assertThrows(IllegalArgumentException.class, () -> trie.add(null));
-    }
+    
 
     @Test
     void containsEmpty() {
@@ -96,10 +92,6 @@ class TrieTest {
         }
     }
 
-    @Test
-    void containsNull() {
-        assertThrows(IllegalArgumentException.class, () -> trie.contains(null));
-    }
 
     @Test
     void removeNotAdded() {
@@ -131,10 +123,6 @@ class TrieTest {
         assertFalse(trie.remove("tea"));
     }
 
-    @Test
-    void removeNull() {
-        assertThrows(IllegalArgumentException.class, () -> trie.remove(null));
-    }
 
     @Test
     void size() {
