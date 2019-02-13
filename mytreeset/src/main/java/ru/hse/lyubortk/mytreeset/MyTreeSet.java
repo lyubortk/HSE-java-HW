@@ -19,7 +19,6 @@ public interface MyTreeSet<E> extends Set<E> {
     /** {@link TreeSet#last()} **/
     E last();
 
-
     /** {@link TreeSet#lower(E)} **/
     E lower(E e);
 
