@@ -96,7 +96,7 @@ public class Trie implements Serializable {
     }
 
     /** Inner class which represents nodes of trie. */
-    private class TrieNode {
+    private static class TrieNode {
         /** Map of char and child-node. */
         private HashMap<Character, TrieNode> sons;
 
