@@ -6,39 +6,50 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
+/** Unbalanced binary search tree which implements {@link MyTreeSet} interface */
 public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
-
     private int size = 0;
     private TreeNode<E> root = null;
     private final Comparator<? super E> comparator;
     private long treeRevision = 0;
 
+    /**
+     * Default constructor without comparator.
+     * Elements in the tree will be sorted according to their compareTo method.
+     */
     public Tree() {
         comparator = null;
     }
 
+    /**
+     * Constructor with comparator
+     * @param comparator used to maintain order of elements in the tree
+     */
     public Tree(Comparator<? super E> comparator) {
         this.comparator = comparator;
     }
 
-
+    /** {@inheritDoc} */
     @Override
     public @NotNull Iterator<E> iterator() {
         return new TreeIterator(root != null ? getLeftmostNodeInSubtree(root) : null,
                                 this::getNextNode);
     }
 
+    /** {@inheritDoc} */
     @Override
     public @NotNull Iterator<E> descendingIterator() {
         return new TreeIterator(root != null ? getRightmostNodeInSubtree(root) : null,
                                 this::getPrevNode);
     }
 
+    /** {@inheritDoc} */
     @Override
     public int size() {
         return size;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean add(@NotNull E e) {
         if (root == null) {
@@ -74,11 +85,13 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public MyTreeSet<E> descendingSet() {
         return new DescendingTree();
     }
 
+    /** {@inheritDoc} */
     @Override
     public @NotNull E first() {
         if (root == null) {
@@ -89,6 +102,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return leftmostNode.data;
     }
 
+    /** {@inheritDoc} */
     @Override
     public @NotNull E last() {
         if (root == null) {
@@ -99,6 +113,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return rightmostNode.data;
     }
 
+    /** {@inheritDoc} */
     @Override
     public E lower(@NotNull E e) {
         var lessOrEqualNode = getLessOrEqualNode(root, e);
@@ -113,18 +128,21 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return lessNode != null ? lessNode.data : null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public E floor(@NotNull E e) {
         var lessOrEqualNode = getLessOrEqualNode(root, e);
         return lessOrEqualNode != null ? lessOrEqualNode.data : null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public E ceiling(@NotNull E e) {
         var greaterOrEqualNode = getGreaterOrEqualNode(root, e);
         return greaterOrEqualNode != null ? greaterOrEqualNode.data : null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public E higher(@NotNull E e) {
         var greaterOrEqualNode = getGreaterOrEqualNode(root, e);
@@ -161,6 +179,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             iteratorRevision = treeRevision;
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean hasNext() {
             if (iteratorRevision != treeRevision) {
@@ -169,6 +188,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             return nextNode != null;
         }
 
+        /** {@inheritDoc} */
         @Override
         public @NotNull E next() {
             if (iteratorRevision != treeRevision) {
@@ -257,57 +277,67 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     }
 
     private class DescendingTree extends AbstractSet<E> implements MyTreeSet<E> {
-
+        /** {@inheritDoc} */
         @Override
         public @NotNull Iterator<E> iterator() {
             return Tree.this.descendingIterator();
         }
 
+        /** {@inheritDoc} */
         @Override
         public int size() {
             return Tree.this.size();
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean add(@NotNull E e) {
             return Tree.this.add(e);
         }
 
+        /** {@inheritDoc} */
         @Override
         public @NotNull Iterator<E> descendingIterator() {
             return Tree.this.iterator();
         }
 
+        /** {@inheritDoc} */
         @Override
         public @NotNull MyTreeSet<E> descendingSet() {
             return Tree.this;
         }
 
+        /** {@inheritDoc} */
         @Override
         public @NotNull E first() {
             return Tree.this.last();
         }
 
+        /** {@inheritDoc} */
         @Override
         public @NotNull E last() {
             return Tree.this.first();
         }
 
+        /** {@inheritDoc} */
         @Override
         public @Nullable E lower(@NotNull E e) {
             return Tree.this.higher(e);
         }
 
+        /** {@inheritDoc} */
         @Override
         public @Nullable E floor(@NotNull E e) {
             return Tree.this.ceiling(e);
         }
 
+        /** {@inheritDoc} */
         @Override
         public @Nullable E ceiling(@NotNull E e) {
             return Tree.this.floor(e);
         }
 
+        /** {@inheritDoc} */
         @Override
         public @Nullable E higher(@NotNull E e) {
             return Tree.this.lower(e);

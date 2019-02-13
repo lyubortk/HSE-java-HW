@@ -19,16 +19,16 @@ public interface MyTreeSet<E> extends Set<E> {
     /** {@link TreeSet#last()} **/
     E last();
 
-    /** {@link TreeSet#lower(E)} **/
+    /** {@link TreeSet#lower} **/
     E lower(E e);
 
-    /** {@link TreeSet#floor(E)} **/
+    /** {@link TreeSet#floor} **/
     E floor(E e);
 
 
-    /** {@link TreeSet#ceiling(E)} **/
+    /** {@link TreeSet#ceiling} **/
     E ceiling(E e);
 
-    /** {@link TreeSet#higher(E)} **/
+    /** {@link TreeSet#higher} **/
     E higher(E e);
 }
