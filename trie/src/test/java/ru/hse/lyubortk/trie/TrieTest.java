@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -189,7 +190,73 @@ class TrieTest {
 
         assertNotEquals(trie, anotherTrie);
     }
-    
+
+    @Test
+    void serialize() {
+        var serializationResult = new ByteArrayOutputStream();
+        var expectedResult = new ByteArrayOutputStream();
+
+        writeTrieWithThreeStrings(expectedResult);
+
+        trie.add("a");
+        trie.add("b");
+        trie.add("bc");
+        assertDoesNotThrow(() -> trie.serialize(serializationResult));
+
+        assertArrayEquals(expectedResult.toByteArray(), serializationResult.toByteArray());
+    }
+
+    @Test
+    void deserialize() {
+        var expectedInput = new ByteArrayOutputStream();
+        writeTrieWithThreeStrings(expectedInput);
+
+        var anotherTrie = new Trie();
+        assertDoesNotThrow(() -> anotherTrie.deserialize(
+                                 new ByteArrayInputStream(expectedInput.toByteArray())));
+
+        trie.add("a");
+        trie.add("b");
+        trie.add("bc");
+
+        assertEquals(trie, anotherTrie);
+    }
+
+    private void writeTrieWithThreeStrings(ByteArrayOutputStream out) {
+        var dataOut = new DataOutputStream(out);
+        assertDoesNotThrow(() -> dataOut.writeBoolean(false));
+        assertDoesNotThrow(() -> dataOut.writeInt(0));
+        assertDoesNotThrow(() -> dataOut.writeInt(3));
+        assertDoesNotThrow(() -> dataOut.writeChar('\0'));
+        assertDoesNotThrow(() -> dataOut.writeInt(2));
+
+        assertDoesNotThrow(() -> dataOut.writeChar('a'));
+
+        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
+        assertDoesNotThrow(() -> dataOut.writeInt(1));
+        assertDoesNotThrow(() -> dataOut.writeInt(1));
+        assertDoesNotThrow(() -> dataOut.writeChar('a'));
+        assertDoesNotThrow(() -> dataOut.writeInt(0));
+
+        assertDoesNotThrow(() -> dataOut.writeChar('b'));
+
+        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
+        assertDoesNotThrow(() -> dataOut.writeInt(1));
+        assertDoesNotThrow(() -> dataOut.writeInt(2));
+        assertDoesNotThrow(() -> dataOut.writeChar('b'));
+        assertDoesNotThrow(() -> dataOut.writeInt(1));
+
+        assertDoesNotThrow(() -> dataOut.writeChar('c'));
+
+        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
+        assertDoesNotThrow(() -> dataOut.writeInt(2));
+        assertDoesNotThrow(() -> dataOut.writeInt(1));
+        assertDoesNotThrow(() -> dataOut.writeChar('c'));
+        assertDoesNotThrow(() -> dataOut.writeInt(0));
+
+        assertDoesNotThrow(dataOut::flush);
+    }
+
     @Test
     void serializeDeserializeBasic() {
         for (var str: DICT) {
