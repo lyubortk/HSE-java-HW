@@ -28,7 +28,7 @@ class TreeTest {
     @Test
     void iteratorBasic() {
         tree.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = tree.iterator();
+        var iterator = tree.iterator();
         for (int i = 0; i < 20; ++i) {
             assertTrue(iterator.hasNext());
             assertEquals(i, (int)iterator.next());
@@ -41,7 +41,7 @@ class TreeTest {
     void iteratorInDescendingSet() {
         var descendingSet = tree.descendingSet();
         descendingSet.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = descendingSet.iterator();
+        var iterator = descendingSet.iterator();
         for (int i = 0; i < 20; ++i) {
             assertTrue(iterator.hasNext());
             assertEquals(19-i, (int)iterator.next());
@@ -53,7 +53,7 @@ class TreeTest {
     @Test
     void iteratorNoInvalidationAfterDummyAdd() {
         tree.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = tree.iterator();
+        var iterator = tree.iterator();
         for (int i = 0; i < 5; ++i) {
             iterator.next();
         }
@@ -70,7 +70,7 @@ class TreeTest {
     @Test
     void iteratorInvalidation() {
         tree.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = tree.iterator();
+        var iterator = tree.iterator();
         for (int i = 0; i < 5; ++i) {
             iterator.next();
         }
@@ -88,7 +88,7 @@ class TreeTest {
     @Test
     void descendingIteratorBasic() {
         tree.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = tree.descendingIterator();
+        var iterator = tree.descendingIterator();
         for (int i = 0; i < 20; ++i) {
             assertTrue(iterator.hasNext());
             assertEquals(19-i, (int)iterator.next());
@@ -101,7 +101,7 @@ class TreeTest {
     void descendingIteratorInDescendingSet() {
         var descendingSet = tree.descendingSet();
         descendingSet.addAll(Arrays.asList(numbersDict20));
-        Iterator<Integer> iterator = descendingSet.descendingIterator();
+        var iterator = descendingSet.descendingIterator();
         for (int i = 0; i < 20; ++i) {
             assertTrue(iterator.hasNext());
             assertEquals(i, (int)iterator.next());
@@ -134,7 +134,7 @@ class TreeTest {
     @Test
     void sizeDescendingSet() {
         tree.addAll(Arrays.asList(numbersDict20));
-        MyTreeSet<Integer> descendingSet = tree.descendingSet();
+        var descendingSet = tree.descendingSet();
         assertEquals(20, descendingSet.size());
     }
 
@@ -163,7 +163,7 @@ class TreeTest {
     void addWithComparator() {
         var testTree = new Tree<>(Comparator.<Integer>comparingInt(o -> Math.abs(o - 10)));
         Collections.addAll(testTree, 17, 5, 16, 11, 10, 8);
-        Iterator<Integer> iterator = testTree.iterator();
+        var iterator = testTree.iterator();
 
         assertEquals(10, (int)iterator.next());
         assertEquals(11, (int)iterator.next());
