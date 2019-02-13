@@ -51,7 +51,7 @@ class TreeTest {
     }
 
     @Test
-    void iteratorNoInvalidationAfterDummyAdd() {
+    void iteratorNoInvalidationAfterDummyAddOrDelete() {
         tree.addAll(Arrays.asList(numbersDict20));
         var iterator = tree.iterator();
         for (int i = 0; i < 5; ++i) {
@@ -59,6 +59,8 @@ class TreeTest {
         }
         tree.add(3);
         tree.add(5);
+        tree.remove(20);
+        tree.remove(21);
         for (int i = 5; i < 20; ++i) {
             assertDoesNotThrow(iterator::hasNext);
             assertEquals(i, (int)iterator.next());
@@ -68,13 +70,24 @@ class TreeTest {
     }
 
     @Test
-    void iteratorInvalidation() {
+    void iteratorInvalidationAdd() {
         tree.addAll(Arrays.asList(numbersDict20));
         var iterator = tree.iterator();
         for (int i = 0; i < 5; ++i) {
             iterator.next();
         }
         tree.add(21);
+        assertThrows(IllegalStateException.class, iterator::next);
+    }
+
+    @Test
+    void iteratorInvalidationRemove() {
+        tree.addAll(Arrays.asList(numbersDict20));
+        var iterator = tree.iterator();
+        for (int i = 0; i < 5; ++i) {
+            iterator.next();
+        }
+        tree.remove(10);
         assertThrows(IllegalStateException.class, iterator::next);
     }
 

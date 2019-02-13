@@ -290,29 +290,29 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return node;
     }
 
-    private @Nullable TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object e) {
+    private @Nullable TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object o) {
         if (node == null) {
             return null;
         }
 
-        if (compare(node.data, e) <= 0) {
-            var answerFromRightSubtree = getLessOrEqualNode(node.right, e);
+        if (compare(node.data, o) <= 0) {
+            var answerFromRightSubtree = getLessOrEqualNode(node.right, o);
             return answerFromRightSubtree == null ? node : answerFromRightSubtree;
         } else {
-            return getLessOrEqualNode(node.left, e);
+            return getLessOrEqualNode(node.left, o);
         }
     }
 
-    private @Nullable TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object e) {
+    private @Nullable TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object o) {
         if (node == null) {
             return null;
         }
 
-        if (compare(node.data, e) >= 0) {
-            var answerFromLeftSubtree = getGreaterOrEqualNode(node.left, e);
+        if (compare(node.data, o) >= 0) {
+            var answerFromLeftSubtree = getGreaterOrEqualNode(node.left, o);
             return answerFromLeftSubtree == null ? node : answerFromLeftSubtree;
         } else {
-            return getGreaterOrEqualNode(node.right, e);
+            return getGreaterOrEqualNode(node.right, o);
         }
     }
 
