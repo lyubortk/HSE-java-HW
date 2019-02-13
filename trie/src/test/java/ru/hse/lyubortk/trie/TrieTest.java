@@ -56,7 +56,7 @@ class TrieTest {
         assertTrue(trie.add("test"));
         assertTrue(trie.add("tea"));
     }
-    
+
 
     @Test
     void containsEmpty() {
@@ -168,7 +168,30 @@ class TrieTest {
     }
 
     @Test
-    void serializeContainsContent() {
+    void equalsBasic() {
+        var anotherTrie = new Trie();
+        for (var str: DICT) {
+            trie.add(str);
+            anotherTrie.add(str);
+        }
+
+        assertEquals(trie, anotherTrie);
+    }
+
+    @Test
+    void notEquals() {
+        var anotherTrie = new Trie();
+        for (var str: new String[]{"a", "b", "c", "ad"}) {
+            trie.add(str);
+            anotherTrie.add(str);
+        }
+        trie.add("e");
+
+        assertNotEquals(trie, anotherTrie);
+    }
+    
+    @Test
+    void serializeDeserializeBasic() {
         for (var str: DICT) {
             trie.add(str);
         }
@@ -176,15 +199,11 @@ class TrieTest {
         var anotherTrie = new Trie();
         sendData(trie, anotherTrie);
 
-        for (var str: DICT) {
-            assertTrue(anotherTrie.contains(str));
-        }
-
-        assertEquals(DICT_SIZE, anotherTrie.size());
+        assertEquals(trie, anotherTrie);
     }
 
     @Test
-    void serializeDoesNotContainOldValues() {
+    void SerializeDeserializeNotEmpty() {
         trie.add("Test String");
         var anotherTrie = new Trie();
         anotherTrie.add("Old String");
@@ -192,13 +211,11 @@ class TrieTest {
 
         sendData(trie, anotherTrie);
 
-        assertFalse(anotherTrie.contains("Old String"));
-        assertFalse(anotherTrie.contains("Another Old String"));
-        assertTrue(anotherTrie.contains("Test String"));
+        assertEquals(trie, anotherTrie);
     }
 
     @Test
-    void serializeFromEmptyTrie() {
+    void serializeDeserializeFromEmptyTrie() {
         var anotherTrie = new Trie();
         for (var str : DICT) {
             anotherTrie.add(str);
@@ -207,10 +224,7 @@ class TrieTest {
 
         sendData(trie, anotherTrie);
 
-        assertEquals(0, anotherTrie.size());
-        for(var str : DICT) {
-            assertFalse(anotherTrie.contains(str));
-        }
+        assertEquals(trie, anotherTrie);
     }
 
     private static void sendData(Trie from, Trie to) {

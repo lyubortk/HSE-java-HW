@@ -95,6 +95,22 @@ public class Trie implements Serializable {
         }
     }
 
+    /** Checks whether another trie contains the same set of string */
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Trie)) {
+            return false;
+        }
+        var anotherTrie = (Trie) o;
+        return (size == anotherTrie.size) && equalsSubtrees(root, anotherTrie.root);
+    }
+
+    /** returns size of the trie */
+    @Override
+    public int hashCode() {
+        return size;
+    }
+
     /** Inner class which represents nodes of trie. */
     private static class TrieNode {
         /** Map of char and child-node. */
@@ -260,6 +276,31 @@ public class Trie implements Serializable {
             deserializeSubtree(son, in);
             node.sons.put(symbolOnEdge, son);
             son.father = node;
+        }
+    }
+
+    private boolean equalsSubtrees(@Nullable TrieNode first, @Nullable TrieNode second) {
+        if (first == null && second == null) {
+            return true;
+        } else if (first != null && second != null) {
+            boolean answer = true;
+            answer &= first.isTerminal == second.isTerminal;
+            answer &= first.depth == second.depth;
+            answer &= first.symbol == second.symbol;
+            answer &= first.terminalsInSubtree == second.terminalsInSubtree;
+            answer &= first.sons.size() == second.sons.size();
+
+            for (Map.Entry<Character, TrieNode> o : first.sons.entrySet()) {
+                var key = o.getKey();
+                if (!second.sons.containsKey(key)) {
+                    answer = false;
+                    break;
+                }
+                answer &= equalsSubtrees(first.sons.get(key), second.sons.get(key));
+            }
+            return answer;
+        } else {
+            return false;
         }
     }
 }
