@@ -11,7 +11,6 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrieTest {
-
     private Trie trie;
     private static final int DICT_SIZE = 1000;
     private static final String[] DICT = getDictionary(DICT_SIZE);
