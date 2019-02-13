@@ -239,7 +239,7 @@ class TrieTest {
         while (wordsSet.size() < size) {
             char[] word = new char[3 + generator.nextInt(27)];
             for(int j = 0; j < word.length; j++) {
-                word[j] = (char)(generator.nextInt(Character.MAX_VALUE));
+                word[j] = (char) generator.nextInt(Character.MAX_VALUE);
             }
             wordsSet.add(new String(word));
         }

@@ -134,16 +134,16 @@ public class Trie {
         /**
          * Constructor for nodes with parent node.
          * @param depthVal depth of node
-         * @param fatherRef reference to parent node
-         * @param symbolVal character on the edge to parent node
+         * @param father reference to parent node
+         * @param symbol character on the edge to parent node
          */
-        TrieNode(int depthVal, @Nullable TrieNode fatherRef, char symbolVal) {
+        TrieNode(int depthVal, @Nullable TrieNode father, char symbol) {
             sons = new HashMap<>();
             isTerminal = false;
             depth = depthVal;
             terminalsInSubtree = 0;
-            father = fatherRef;
-            symbol = symbolVal;
+            this.father = father;
+            this.symbol = symbol;
         }
 
         /**
@@ -164,7 +164,7 @@ public class Trie {
             if (sons.containsKey(c)) {
                 return sons.get(c);
             } else {
-                var newSon = new TrieNode(depth+1, this, c);
+                var newSon = new TrieNode(depth + 1, this, c);
                 sons.put(c, newSon);
                 return newSon;
             }
@@ -265,7 +265,7 @@ public class Trie {
         node.symbol = in.readChar();
 
         int numberOfSons = in.readInt();
-        while (numberOfSons-- > 0) {
+        for (; numberOfSons > 0; numberOfSons--) {
             char symbolOnEdge = in.readChar();
             TrieNode son = new TrieNode();
             deserializeSubtree(son, in);
