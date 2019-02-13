@@ -11,16 +11,10 @@ import java.util.Map;
  *  Basic operations have time complexity of O(length).*/
 public class Trie {
     /** A root node which represents empty string. */
-    private TrieNode root;
+    private TrieNode root = new TrieNode();
 
     /** Total number of strings added to trie. */
-    private int size;
-
-    /** Default constructor which creates empty trie with no strings added. */
-    public Trie() {
-        root = new TrieNode();
-        size = 0;
-    }
+    private int size = 0;
 
     /**
      * Adds string to the trie. If the string is already added to the trie,
