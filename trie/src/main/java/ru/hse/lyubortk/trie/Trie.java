@@ -75,11 +75,7 @@ public class Trie implements Serializable {
      */
     public int howManyStartWithPrefix(@NotNull String prefix) {
         var node = getLastExistingNodeOnPath(prefix);
-        if (node.depth == prefix.length()) {
-            return node.terminalsInSubtree;
-        } else {
-            return 0;
-        }
+        return node.depth == prefix.length() ? node.terminalsInSubtree : 0;
     }
 
     /** {@inheritDoc} */
