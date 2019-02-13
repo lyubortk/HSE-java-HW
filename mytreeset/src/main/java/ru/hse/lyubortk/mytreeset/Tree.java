@@ -22,16 +22,14 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     }
 
 
-    @NotNull
     @Override
-    public Iterator<E> iterator() {
+    public @NotNull Iterator<E> iterator() {
         return new TreeIterator(root != null ? getLeftmostNodeInSubtree(root) : null,
                                 this::getNextNode);
     }
 
-    @NotNull
     @Override
-    public Iterator<E> descendingIterator() {
+    public @NotNull Iterator<E> descendingIterator() {
         return new TreeIterator(root != null ? getRightmostNodeInSubtree(root) : null,
                                 this::getPrevNode);
     }
@@ -81,9 +79,8 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return new DescendingTree();
     }
 
-    @NotNull
     @Override
-    public E first() {
+    public @NotNull E first() {
         if (root == null) {
             throw new NoSuchElementException();
         }
@@ -92,9 +89,8 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return leftmostNode.data;
     }
 
-    @NotNull
     @Override
-    public E last() {
+    public @NotNull E last() {
         if (root == null) {
             throw new NoSuchElementException();
         }
@@ -110,7 +106,10 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             return null;
         }
 
-        var lessNode = getPrevNode(lessOrEqualNode);
+        var lessNode = lessOrEqualNode;
+        if (compare(lessOrEqualNode.data, e) == 0) {
+            lessNode = getPrevNode(lessOrEqualNode);
+        }
         return lessNode != null ? lessNode.data : null;
     }
 
@@ -132,7 +131,10 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         if (greaterOrEqualNode == null) {
             return null;
         }
-        var greaterNode = getNextNode(greaterOrEqualNode);
+        var greaterNode = greaterOrEqualNode;
+        if (compare(greaterOrEqualNode.data, e) == 0) {
+            greaterNode = getNextNode(greaterOrEqualNode);
+        }
         return greaterNode != null ? greaterNode.data : null;
     }
 
@@ -140,7 +142,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         private TreeNode<E> left = null;
         private TreeNode<E> right = null;
         private TreeNode<E> father = null;
-        private E data;
+        private final E data;
 
         private TreeNode(@NotNull E data) {
             this.data = data;
@@ -149,8 +151,8 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
     private class TreeIterator implements Iterator<E> {
         private TreeNode<E> nextNode;
-        private Function<TreeNode<E>, TreeNode<E>> stepForward;
-        private long iteratorRevision;
+        private final Function<TreeNode<E>, TreeNode<E>> stepForward;
+        private final long iteratorRevision;
 
         TreeIterator(@Nullable TreeNode<E> nextNode,
                      @NotNull Function<TreeNode<E>, TreeNode<E>> stepForward) {
@@ -167,9 +169,8 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             return nextNode != null;
         }
 
-        @NotNull
         @Override
-        public E next() {
+        public @NotNull E next() {
             if (iteratorRevision != treeRevision) {
                 throw new IllegalStateException();
             }
@@ -183,8 +184,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    @Nullable
-    private TreeNode<E> getNextNode(@NotNull TreeNode<E> node) {
+    private @Nullable TreeNode<E> getNextNode(@NotNull TreeNode<E> node) {
         if (node.right != null) {
             return getLeftmostNodeInSubtree(node.right);
         } else {
@@ -195,8 +195,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    @Nullable
-    private TreeNode<E> getPrevNode(@NotNull TreeNode<E> node) {
+    private @Nullable TreeNode<E> getPrevNode(@NotNull TreeNode<E> node) {
         if (node.left != null) {
             return getRightmostNodeInSubtree(node.left);
         } else {
@@ -207,24 +206,21 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    @NotNull
-    private TreeNode<E> getLeftmostNodeInSubtree(@NotNull TreeNode<E> node) {
+    private @NotNull TreeNode<E> getLeftmostNodeInSubtree(@NotNull TreeNode<E> node) {
         while (node.left != null) {
             node = node.left;
         }
         return node;
     }
 
-    @NotNull
-    private TreeNode<E> getRightmostNodeInSubtree(@NotNull TreeNode<E> node) {
+    private @NotNull TreeNode<E> getRightmostNodeInSubtree(@NotNull TreeNode<E> node) {
         while (node.right != null) {
             node = node.right;
         }
         return node;
     }
 
-    @Nullable
-    private TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
+    private @Nullable TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
         if (node == null) {
             return null;
         }
@@ -237,8 +233,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    @Nullable
-    private TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
+    private @Nullable TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
         if (node == null) {
             return null;
         }
@@ -263,9 +258,8 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
     private class DescendingTree extends AbstractSet<E> implements MyTreeSet<E> {
 
-        @NotNull
         @Override
-        public Iterator<E> iterator() {
+        public @NotNull Iterator<E> iterator() {
             return Tree.this.descendingIterator();
         }
 
@@ -279,51 +273,43 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             return Tree.this.add(e);
         }
 
-        @NotNull
         @Override
-        public Iterator<E> descendingIterator() {
+        public @NotNull Iterator<E> descendingIterator() {
             return Tree.this.iterator();
         }
 
-        @NotNull
         @Override
-        public MyTreeSet<E> descendingSet() {
+        public @NotNull MyTreeSet<E> descendingSet() {
             return Tree.this;
         }
 
-        @NotNull
         @Override
-        public E first() {
+        public @NotNull E first() {
             return Tree.this.last();
         }
 
-        @NotNull
         @Override
-        public E last() {
+        public @NotNull E last() {
             return Tree.this.first();
         }
 
-        @Nullable
         @Override
-        public E lower(@NotNull E e) {
+        public @Nullable E lower(@NotNull E e) {
             return Tree.this.higher(e);
         }
 
-        @Nullable
         @Override
-        public E floor(@NotNull E e) {
+        public @Nullable E floor(@NotNull E e) {
             return Tree.this.ceiling(e);
         }
 
-        @Nullable
         @Override
-        public E ceiling(@NotNull E e) {
+        public @Nullable E ceiling(@NotNull E e) {
             return Tree.this.floor(e);
         }
 
-        @Nullable
         @Override
-        public E higher(@NotNull E e) {
+        public @Nullable E higher(@NotNull E e) {
             return Tree.this.lower(e);
         }
     }
