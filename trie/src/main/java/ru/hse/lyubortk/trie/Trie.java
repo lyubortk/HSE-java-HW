@@ -80,19 +80,19 @@ public class Trie implements Serializable {
 
     /** {@inheritDoc} */
     public void serialize(@NotNull OutputStream out) throws IOException {
-        var dataOut = new DataOutputStream(out);
-        serializeSubtree(root, dataOut);
-        dataOut.flush();
-        dataOut.close();
+        try (var dataOut = new DataOutputStream(out)) {
+            serializeSubtree(root, dataOut);
+            dataOut.flush();
+        }
     }
 
     /** {@inheritDoc} */
     public void deserialize(@NotNull InputStream in) throws IOException {
-        var dataIn = new DataInputStream(in);
-        root = new TrieNode();
-        deserializeSubtree(root, dataIn);
-        size = root.terminalsInSubtree;
-        dataIn.close();
+        try (var dataIn = new DataInputStream(in)) {
+            root = new TrieNode();
+            deserializeSubtree(root, dataIn);
+            size = root.terminalsInSubtree;
+        }
     }
 
     /** Inner class which represents nodes of trie. */
