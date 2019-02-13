@@ -49,7 +49,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return size;
     }
 
-    /** {@inheritDoc} */
+    /** {@link TreeSet#add} */
     @Override
     public boolean add(@NotNull E e) {
         if (root == null) {
@@ -83,6 +83,21 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         } else {
             return false;
         }
+    }
+
+    /** {@link TreeSet#remove} */
+    @Override
+    public boolean remove(Object o) {
+        var node = getLessOrEqualNode(root, o);
+        if (node == null || !o.equals(node.data)) {
+            return false;
+        }
+
+        remove(node);
+
+        size--;
+        treeRevision++;
+        return true;
     }
 
     /** {@inheritDoc} */
@@ -160,7 +175,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         private TreeNode<E> left = null;
         private TreeNode<E> right = null;
         private TreeNode<E> father = null;
-        private final E data;
+        private E data;
 
         private TreeNode(@NotNull E data) {
             this.data = data;
@@ -179,7 +194,6 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             iteratorRevision = treeRevision;
         }
 
-        /** {@inheritDoc} */
         @Override
         public boolean hasNext() {
             if (iteratorRevision != treeRevision) {
@@ -188,7 +202,6 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             return nextNode != null;
         }
 
-        /** {@inheritDoc} */
         @Override
         public @NotNull E next() {
             if (iteratorRevision != treeRevision) {
@@ -201,6 +214,34 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
             E data = nextNode.data;
             nextNode = stepForward.apply(nextNode);
             return data;
+        }
+    }
+
+    private void remove(@NotNull TreeNode<E> node) {
+        if (node.left == null && node.right == null) {
+            changeSonTo(node.father, node, null);
+        } else if (node.left == null) {
+            changeSonTo(node.father, node, node.right);
+            node.right.father = node.father;
+        } else if (node.right == null) {
+            changeSonTo(node.father, node, node.left);
+            node.left.father = node.father;
+        } else {
+            var nextNode = getNextNode(node);
+            assert nextNode != null;
+            node.data = nextNode.data;
+            remove(nextNode);
+        }
+    }
+
+    private void changeSonTo(@Nullable TreeNode<E> father, @NotNull TreeNode<E> son,
+                             @Nullable TreeNode<E> replacement) {
+        if (father == null) return;
+        if (father.left == son) {
+            father.left = replacement;
+        }
+        if (father.right == son) {
+            father.right = replacement;
         }
     }
 
@@ -240,7 +281,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         return node;
     }
 
-    private @Nullable TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
+    private @Nullable TreeNode<E> getLessOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object e) {
         if (node == null) {
             return null;
         }
@@ -253,7 +294,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    private @Nullable TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull E e) {
+    private @Nullable TreeNode<E> getGreaterOrEqualNode(@Nullable TreeNode<E> node, @NotNull Object e) {
         if (node == null) {
             return null;
         }
@@ -266,78 +307,69 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    private int compare(@NotNull E first, @NotNull E second) {
+    private int compare(@NotNull E first, @NotNull Object second) {
         if (comparator != null) {
-            return comparator.compare(first, second);
+            @SuppressWarnings("unchecked")
+            E secondCasted = (E)second;
+            return comparator.compare(first, secondCasted);
         } else {
             @SuppressWarnings("unchecked")
-            var comparableFirst = (Comparable<? super E>)first;
-            return comparableFirst.compareTo(second);
+            var comparableSecond = (Comparable<? super E>)second;
+            return (-1) * comparableSecond.compareTo(first);
         }
     }
 
     private class DescendingTree extends AbstractSet<E> implements MyTreeSet<E> {
-        /** {@inheritDoc} */
         @Override
         public @NotNull Iterator<E> iterator() {
             return Tree.this.descendingIterator();
         }
 
-        /** {@inheritDoc} */
         @Override
         public int size() {
             return Tree.this.size();
         }
 
-        /** {@inheritDoc} */
         @Override
         public boolean add(@NotNull E e) {
             return Tree.this.add(e);
         }
 
-        /** {@inheritDoc} */
         @Override
         public @NotNull Iterator<E> descendingIterator() {
             return Tree.this.iterator();
         }
 
-        /** {@inheritDoc} */
         @Override
         public @NotNull MyTreeSet<E> descendingSet() {
             return Tree.this;
         }
 
-        /** {@inheritDoc} */
         @Override
         public @NotNull E first() {
             return Tree.this.last();
         }
 
-        /** {@inheritDoc} */
         @Override
         public @NotNull E last() {
             return Tree.this.first();
         }
 
-        /** {@inheritDoc} */
         @Override
         public @Nullable E lower(@NotNull E e) {
             return Tree.this.higher(e);
         }
 
-        /** {@inheritDoc} */
         @Override
         public @Nullable E floor(@NotNull E e) {
             return Tree.this.ceiling(e);
         }
 
-        /** {@inheritDoc} */
         @Override
         public @Nullable E ceiling(@NotNull E e) {
             return Tree.this.floor(e);
         }
 
-        /** {@inheritDoc} */
         @Override
         public @Nullable E higher(@NotNull E e) {
             return Tree.this.lower(e);
