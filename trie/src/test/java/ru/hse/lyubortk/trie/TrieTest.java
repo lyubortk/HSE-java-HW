@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -192,73 +193,74 @@ class TrieTest {
     }
 
     @Test
-    void serialize() {
-        var serializationResult = new ByteArrayOutputStream();
-        var expectedResult = new ByteArrayOutputStream();
+    void serialize() throws IOException {
+        try (var serializationResult = new ByteArrayOutputStream();
+             var expectedResult = new ByteArrayOutputStream()) {
+            writeTrieWithThreeStrings(expectedResult);
 
-        writeTrieWithThreeStrings(expectedResult);
+            trie.add("a");
+            trie.add("b");
+            trie.add("bc");
+            assertDoesNotThrow(() -> trie.serialize(serializationResult));
 
-        trie.add("a");
-        trie.add("b");
-        trie.add("bc");
-        assertDoesNotThrow(() -> trie.serialize(serializationResult));
-
-        assertArrayEquals(expectedResult.toByteArray(), serializationResult.toByteArray());
+            assertArrayEquals(expectedResult.toByteArray(), serializationResult.toByteArray());
+        }
     }
 
     @Test
-    void deserialize() {
-        var expectedInput = new ByteArrayOutputStream();
-        writeTrieWithThreeStrings(expectedInput);
+    void deserialize() throws IOException {
+        try (var expectedInput = new ByteArrayOutputStream()) {
+            writeTrieWithThreeStrings(expectedInput);
 
-        var anotherTrie = new Trie();
-        assertDoesNotThrow(() -> anotherTrie.deserialize(
-                                 new ByteArrayInputStream(expectedInput.toByteArray())));
+            var anotherTrie = new Trie();
+            assertDoesNotThrow(() -> anotherTrie.deserialize(
+                    new ByteArrayInputStream(expectedInput.toByteArray())));
 
-        trie.add("a");
-        trie.add("b");
-        trie.add("bc");
+            trie.add("a");
+            trie.add("b");
+            trie.add("bc");
 
-        assertEquals(trie, anotherTrie);
+            assertEquals(trie, anotherTrie);
+        }
     }
 
-    private void writeTrieWithThreeStrings(ByteArrayOutputStream out) {
+    private void writeTrieWithThreeStrings(ByteArrayOutputStream out) throws IOException {
         var dataOut = new DataOutputStream(out);
-        assertDoesNotThrow(() -> dataOut.writeBoolean(false));
-        assertDoesNotThrow(() -> dataOut.writeInt(0));
-        assertDoesNotThrow(() -> dataOut.writeInt(3));
-        assertDoesNotThrow(() -> dataOut.writeChar('\0'));
-        assertDoesNotThrow(() -> dataOut.writeInt(2));
+        dataOut.writeBoolean(false);
+        dataOut.writeInt(0);
+        dataOut.writeInt(3);
+        dataOut.writeChar('\0');
+        dataOut.writeInt(2);
 
-        assertDoesNotThrow(() -> dataOut.writeChar('a'));
+        dataOut.writeChar('a');
 
-        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
-        assertDoesNotThrow(() -> dataOut.writeInt(1));
-        assertDoesNotThrow(() -> dataOut.writeInt(1));
-        assertDoesNotThrow(() -> dataOut.writeChar('a'));
-        assertDoesNotThrow(() -> dataOut.writeInt(0));
+        dataOut.writeBoolean(true);
+        dataOut.writeInt(1);
+        dataOut.writeInt(1);
+        dataOut.writeChar('a');
+        dataOut.writeInt(0);
 
-        assertDoesNotThrow(() -> dataOut.writeChar('b'));
+        dataOut.writeChar('b');
 
-        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
-        assertDoesNotThrow(() -> dataOut.writeInt(1));
-        assertDoesNotThrow(() -> dataOut.writeInt(2));
-        assertDoesNotThrow(() -> dataOut.writeChar('b'));
-        assertDoesNotThrow(() -> dataOut.writeInt(1));
+        dataOut.writeBoolean(true);
+        dataOut.writeInt(1);
+        dataOut.writeInt(2);
+        dataOut.writeChar('b');
+        dataOut.writeInt(1);
 
-        assertDoesNotThrow(() -> dataOut.writeChar('c'));
+        dataOut.writeChar('c');
 
-        assertDoesNotThrow(() -> dataOut.writeBoolean(true));
-        assertDoesNotThrow(() -> dataOut.writeInt(2));
-        assertDoesNotThrow(() -> dataOut.writeInt(1));
-        assertDoesNotThrow(() -> dataOut.writeChar('c'));
-        assertDoesNotThrow(() -> dataOut.writeInt(0));
+        dataOut.writeBoolean(true);
+        dataOut.writeInt(2);
+        dataOut.writeInt(1);
+        dataOut.writeChar('c');
+        dataOut.writeInt(0);
 
         assertDoesNotThrow(dataOut::flush);
     }
 
     @Test
-    void serializeDeserializeBasic() {
+    void serializeDeserializeBasic() throws IOException {
         for (var str: DICT) {
             trie.add(str);
         }
@@ -270,7 +272,7 @@ class TrieTest {
     }
 
     @Test
-    void SerializeDeserializeNotEmpty() {
+    void SerializeDeserializeNotEmpty() throws IOException {
         trie.add("Test String");
         var anotherTrie = new Trie();
         anotherTrie.add("Old String");
@@ -282,7 +284,7 @@ class TrieTest {
     }
 
     @Test
-    void serializeDeserializeFromEmptyTrie() {
+    void serializeDeserializeFromEmptyTrie() throws IOException {
         var anotherTrie = new Trie();
         for (var str : DICT) {
             anotherTrie.add(str);
@@ -294,11 +296,13 @@ class TrieTest {
         assertEquals(trie, anotherTrie);
     }
 
-    private static void sendData(Trie from, Trie to) {
-        var out = new ByteArrayOutputStream();
-        assertDoesNotThrow(() -> from.serialize(out));
-        var in = new ByteArrayInputStream(out.toByteArray());
-        assertDoesNotThrow(() -> to.deserialize(in));
+    private static void sendData(Trie from, Trie to) throws IOException {
+        try (var out = new ByteArrayOutputStream()) {
+            assertDoesNotThrow(() -> from.serialize(out));
+            try (var in = new ByteArrayInputStream(out.toByteArray())) {
+                assertDoesNotThrow(() -> to.deserialize(in));
+            }
+        }
     }
 
     private static String[] getDictionary(int size) {
