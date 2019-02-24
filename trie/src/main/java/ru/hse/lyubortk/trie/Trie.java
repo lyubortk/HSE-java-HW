@@ -82,6 +82,7 @@ public class Trie implements Serializable {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void serialize(@NotNull OutputStream out) throws IOException {
         var dataOut = new DataOutputStream(out);
         serializeSubtree(root, dataOut);
@@ -90,6 +91,7 @@ public class Trie implements Serializable {
     }
 
     /** {@inheritDoc} */
+    @Override
     public void deserialize(@NotNull InputStream in) throws IOException {
         var dataIn = new DataInputStream(in);
         root = new TrieNode();
@@ -100,8 +102,12 @@ public class Trie implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Trie trie = (Trie) o;
         return size == trie.size &&
                 root.equals(trie.root);
@@ -178,8 +184,12 @@ public class Trie implements Serializable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             TrieNode trieNode = (TrieNode) o;
             return isTerminal == trieNode.isTerminal &&
                     depth == trieNode.depth &&
