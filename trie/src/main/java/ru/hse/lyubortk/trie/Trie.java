@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A data structure to store set of strings.
@@ -97,20 +98,18 @@ public class Trie implements Serializable {
 
     }
 
-    /** Checks whether another trie contains the same set of string */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Trie)) {
-            return false;
-        }
-        var anotherTrie = (Trie) o;
-        return (size == anotherTrie.size) && equalsSubtrees(root, anotherTrie.root);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trie trie = (Trie) o;
+        return size == trie.size &&
+                root.equals(trie.root);
     }
 
-    /** returns size of the trie */
     @Override
     public int hashCode() {
-        return size;
+        return Objects.hash(root, size);
     }
 
     /** Inner class which represents nodes of trie. */
@@ -175,6 +174,23 @@ public class Trie implements Serializable {
                 sons.put(c, newSon);
                 return newSon;
             }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TrieNode trieNode = (TrieNode) o;
+            return isTerminal == trieNode.isTerminal &&
+                    depth == trieNode.depth &&
+                    terminalsInSubtree == trieNode.terminalsInSubtree &&
+                    symbol == trieNode.symbol &&
+                    sons.equals(trieNode.sons);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sons, isTerminal, depth, terminalsInSubtree, symbol);
         }
     }
 
@@ -281,28 +297,4 @@ public class Trie implements Serializable {
         }
     }
 
-    private boolean equalsSubtrees(@Nullable TrieNode first, @Nullable TrieNode second) {
-        if (first == null && second == null) {
-            return true;
-        } else if (first != null && second != null) {
-            boolean answer = true;
-            answer &= first.isTerminal == second.isTerminal;
-            answer &= first.depth == second.depth;
-            answer &= first.symbol == second.symbol;
-            answer &= first.terminalsInSubtree == second.terminalsInSubtree;
-            answer &= first.sons.size() == second.sons.size();
-
-            for (Map.Entry<Character, TrieNode> o : first.sons.entrySet()) {
-                var key = o.getKey();
-                if (!second.sons.containsKey(key)) {
-                    answer = false;
-                    break;
-                }
-                answer &= equalsSubtrees(first.sons.get(key), second.sons.get(key));
-            }
-            return answer;
-        } else {
-            return false;
-        }
-    }
 }
