@@ -272,7 +272,7 @@ class TrieTest {
     }
 
     @Test
-    void SerializeDeserializeNotEmpty() throws IOException {
+    void serializeDeserializeNotEmpty() throws IOException {
         trie.add("Test String");
         var anotherTrie = new Trie();
         anotherTrie.add("Old String");
