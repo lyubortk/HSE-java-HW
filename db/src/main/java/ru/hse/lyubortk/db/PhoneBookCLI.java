@@ -48,6 +48,9 @@ public class PhoneBookCLI {
                         System.out.println(r.name + " " + r.number);
                     }
                     break;
+                case 8:
+                    phoneBook.clear();
+                    break;
                 default:
                     System.out.println("Unknown command");
             }

@@ -66,6 +66,10 @@ public class PhoneBook {
         return outputList;
     }
 
+    public void clear() throws SQLException {
+       executeUpdate("DELETE FROM contacts", Collections.emptyList());
+    }
+
     private void executeUpdate(String query, List<String> names) throws SQLException {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name + ".db")) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -82,14 +86,14 @@ public class PhoneBook {
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name + ".db")) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 for (int i = 0; i < names.size(); ++i) {
-                    statement.setString(i+1, names.get(i));
+                    statement.setString(i + 1, names.get(i));
                 }
 
                 try (ResultSet result = statement.executeQuery()) {
                     int numberOfColumns = result.getMetaData().getColumnCount();
                     while (result.next()) {
                         for (int i = 0; i < numberOfColumns; ++i) {
-                            list.add(result.getString(i+1));
+                            list.add(result.getString(i + 1));
                         }
                     }
                 }
