@@ -4,7 +4,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Command Line Interface for PhoneBook class
+ */
 public class PhoneBookCLI {
+    /**
+     * Endless loop with 8 different options for phone book management;
+     * @throws SQLException
+     */
     public static void main(String[] args) throws SQLException {
         var phoneBook = new PhoneBook("phoneBook.db");
         var in = new Scanner(System.in);
@@ -53,6 +60,7 @@ public class PhoneBookCLI {
                     break;
                 default:
                     System.out.println("Unknown command");
+                    break;
             }
         }
     }
