@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class PhoneBookCLI {
     public static void main(String[] args) throws SQLException {
-        var phoneBook = new PhoneBook("test");
+        var phoneBook = new PhoneBook("phoneBook.db");
         var in = new Scanner(System.in);
         boolean finished = false;
         while (!finished) {

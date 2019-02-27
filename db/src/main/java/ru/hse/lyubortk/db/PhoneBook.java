@@ -1,10 +1,7 @@
 package ru.hse.lyubortk.db;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class PhoneBook {
     private String name;
@@ -15,6 +12,24 @@ public class PhoneBook {
         public Record(String name, String number) {
             this.name = name;
             this.number = number;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Record record = (Record) o;
+            return Objects.equals(name, record.name) &&
+                    Objects.equals(number, record.number);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, number);
         }
     }
 
@@ -32,12 +47,12 @@ public class PhoneBook {
     }
 
     public List<String> getNumbersByName(String name) throws SQLException {
-        return executeQuery("SELECT number FROM contacts WHERE name = ?",
+        return executeQuery("SELECT number FROM contacts WHERE name = ? ORDER BY number",
                 Collections.singletonList(name));
     }
 
     public List<String> getNamesByNumber(String number) throws SQLException {
-        return executeQuery("SELECT name FROM contacts WHERE number = ? ORDER BY name ASC",
+        return executeQuery("SELECT name FROM contacts WHERE number = ? ORDER BY name",
                 Collections.singletonList(number));
     }
 
@@ -47,18 +62,18 @@ public class PhoneBook {
     }
 
     public void changeNameOfRecord(Record record, String newName) throws SQLException {
-        executeUpdate("UPDATE contacts SET name = ? WHERE name = ? AND number = ?",
+        executeUpdate("UPDATE OR REPLACE contacts SET name = ? WHERE name = ? AND number = ?",
                 Arrays.asList(newName, record.name, record.number));
     }
 
     public void changeNumberOfRecord(Record record, String newNumber) throws SQLException {
-        executeUpdate("UPDATE contacts SET number = ? WHERE name = ? AND number = ?",
+        executeUpdate("UPDATE OR REPLACE contacts SET number = ? WHERE name = ? AND number = ?",
                 Arrays.asList(newNumber, record.name, record.number));
     }
 
     public List<Record> getAllRecords() throws SQLException {
         var outputList = new ArrayList<Record>();
-        List<String> queryResult = executeQuery("SELECT * FROM contacts ORDER BY name ASC",
+        List<String> queryResult = executeQuery("SELECT * FROM contacts ORDER BY name, number",
                 Collections.emptyList());
         for (int i = 0; i < queryResult.size(); i += 2) {
             outputList.add(new Record(queryResult.get(i), queryResult.get(i+1)));
@@ -71,7 +86,7 @@ public class PhoneBook {
     }
 
     private void executeUpdate(String query, List<String> names) throws SQLException {
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name + ".db")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name)) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 for (int i = 0; i < names.size(); ++i) {
                     statement.setString(i+1, names.get(i));
@@ -83,7 +98,7 @@ public class PhoneBook {
 
     private List<String> executeQuery(String query, List<String> names) throws SQLException {
         var list = new ArrayList<String>();
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name + ".db")) {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + name)) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 for (int i = 0; i < names.size(); ++i) {
                     statement.setString(i + 1, names.get(i));
