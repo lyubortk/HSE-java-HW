@@ -1,9 +1,8 @@
 language: java
+jdk:
+  - oraclejdk11
 os:
-- linux
+  - linux
 env:
-- PROJECT_DIR=hashtable
-- PROJECT_DIR=db
-- PROJECT_DIR=trie
-- PROJECT_DIR=mytreeset
+  - PROJECT_DIR=db
 script: cd $PROJECT_DIR && ./gradlew check
