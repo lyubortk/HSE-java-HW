@@ -3,6 +3,15 @@ jdk:
   - oraclejdk11
 os:
   - linux
-env:
-  - PROJECT_DIR=db
-script: cd $PROJECT_DIR && ./gradlew check
+script: 
+    - result=0;
+      for PROJECT_DIR in $(find -maxdepth 1 -mindepth 1 -type d -not -name '.git'); do
+        cd "$PROJECT_DIR";
+        if ./gradlew check; then
+          result=$((result || 0));
+        else
+          result=$((result || 1));
+        fi;
+        cd ..;
+      done;
+      return $result;
