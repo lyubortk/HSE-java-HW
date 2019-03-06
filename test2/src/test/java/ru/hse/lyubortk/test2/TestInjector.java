@@ -54,4 +54,12 @@ public class TestInjector {
         assertSame(instance.first, instance.second);
         assertEquals(1, ClassWithOneClassDependency.numberOfInstances);
     }
+
+    @Test
+    public void injectorImplementationNotFoundException() {
+        assertThrows(ImplementationNotFoundException.class, () -> Injector.initialize(
+                "ru.hse.lyubortk.test2.ClassWithTwoSameDependencies",
+                Arrays.asList("ru.hse.lyubortk.test2.ClassWithOneClassDependency")
+        ));
+    }
 }
