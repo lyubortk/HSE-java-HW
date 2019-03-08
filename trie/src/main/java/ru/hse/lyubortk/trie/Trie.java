@@ -32,9 +32,8 @@ public class Trie implements Serializable {
             makeNodeTerminal(node);
             size++;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -60,9 +59,8 @@ public class Trie implements Serializable {
             makeNodeNotTerminal(node);
             size--;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /** Returns number of strings which trie contains */
@@ -87,7 +85,6 @@ public class Trie implements Serializable {
         var dataOut = new DataOutputStream(out);
         serializeSubtree(root, dataOut);
         dataOut.flush();
-
     }
 
     /** {@inheritDoc} */
@@ -97,7 +94,6 @@ public class Trie implements Serializable {
         root = new TrieNode();
         deserializeSubtree(root, dataIn);
         size = root.terminalsInSubtree;
-
     }
 
     @Override
@@ -121,7 +117,7 @@ public class Trie implements Serializable {
     /** Inner class which represents nodes of trie. */
     private static class TrieNode {
         /** Map of char and child-node. */
-        private HashMap<Character, TrieNode> sons;
+        private HashMap<Character, TrieNode> children;
 
         /** Whether the node represents full string. */
         private boolean isTerminal;
@@ -133,7 +129,7 @@ public class Trie implements Serializable {
         private int terminalsInSubtree;
 
         /** Reference to parent node. */
-        private TrieNode father;
+        private TrieNode parent;
 
         /** Character on the edge to parent node. */
         private char symbol;
@@ -146,15 +142,15 @@ public class Trie implements Serializable {
         /**
          * Constructor for nodes with parent node.
          * @param depthVal depth of node
-         * @param father reference to parent node
+         * @param parent reference to parent node
          * @param symbol character on the edge to parent node
          */
-        TrieNode(int depthVal, @Nullable TrieNode father, char symbol) {
-            sons = new HashMap<>();
+        TrieNode(int depthVal, @Nullable TrieNode parent, char symbol) {
+            children = new HashMap<>();
             isTerminal = false;
             depth = depthVal;
             terminalsInSubtree = 0;
-            this.father = father;
+            this.parent = parent;
             this.symbol = symbol;
         }
 
@@ -163,7 +159,7 @@ public class Trie implements Serializable {
          * @param c char to search for a child.
          */
         private boolean hasNext(char c) {
-            return sons.containsKey(c);
+            return children.containsKey(c);
         }
 
         /**
@@ -173,11 +169,11 @@ public class Trie implements Serializable {
          * @return corresponding child node
          */
         private TrieNode getNext(char c) {
-            if (sons.containsKey(c)) {
-                return sons.get(c);
+            if (children.containsKey(c)) {
+                return children.get(c);
             } else {
                 var newSon = new TrieNode(depth + 1, this, c);
-                sons.put(c, newSon);
+                children.put(c, newSon);
                 return newSon;
             }
         }
@@ -195,12 +191,12 @@ public class Trie implements Serializable {
                     depth == trieNode.depth &&
                     terminalsInSubtree == trieNode.terminalsInSubtree &&
                     symbol == trieNode.symbol &&
-                    sons.equals(trieNode.sons);
+                    children.equals(trieNode.children);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(sons, isTerminal, depth, terminalsInSubtree, symbol);
+            return Objects.hash(children, isTerminal, depth, terminalsInSubtree, symbol);
         }
     }
 
@@ -211,13 +207,13 @@ public class Trie implements Serializable {
      * @return last existing node on path
      */
     private TrieNode getLastExistingNodeOnPath(@NotNull String element) {
-        var curNode = root;
+        var currentNode = root;
         int i = 0;
-        while (element.length() > i && curNode.hasNext(element.charAt(i))) {
-            curNode = curNode.getNext(element.charAt(i));
+        while (element.length() > i && currentNode.hasNext(element.charAt(i))) {
+            currentNode = currentNode.getNext(element.charAt(i));
             i++;
         }
-        return curNode;
+        return currentNode;
     }
 
     /**
@@ -226,11 +222,11 @@ public class Trie implements Serializable {
      * @return node which represents argument string
      */
     private TrieNode getNode(@NotNull String element) {
-        var curNode = root;
+        var currentNode = root;
         for (char c : element.toCharArray()) {
-            curNode = curNode.getNext(c);
+            currentNode = currentNode.getNext(c);
         }
-        return curNode;
+        return currentNode;
     }
 
     /**
@@ -246,14 +242,14 @@ public class Trie implements Serializable {
         node.isTerminal = false;
         node.terminalsInSubtree--;
 
-        var fatherNode= node.father;
-        while (fatherNode != null) {
-            fatherNode.terminalsInSubtree--;
+        var parentNode= node.parent;
+        while (parentNode != null) {
+            parentNode.terminalsInSubtree--;
             if (node.terminalsInSubtree == 0) {
-                fatherNode.sons.remove(node.symbol);
+                parentNode.children.remove(node.symbol);
             }
-            node = fatherNode;
-            fatherNode = node.father;
+            node = parentNode;
+            parentNode = node.parent;
         }
     }
 
@@ -270,7 +266,7 @@ public class Trie implements Serializable {
 
         while (node != null) {
             node.terminalsInSubtree++;
-            node = node.father;
+            node = node.parent;
         }
     }
 
@@ -281,9 +277,9 @@ public class Trie implements Serializable {
         out.writeInt(node.depth);
         out.writeInt(node.terminalsInSubtree);
         out.writeChar(node.symbol);
-        out.writeInt(node.sons.size());
+        out.writeInt(node.children.size());
 
-        for (Map.Entry<Character, TrieNode> o : node.sons.entrySet()) {
+        for (Map.Entry<Character, TrieNode> o : node.children.entrySet()) {
             out.writeChar(o.getKey());
             serializeSubtree(o.getValue(), out);
         }
@@ -302,8 +298,8 @@ public class Trie implements Serializable {
             char symbolOnEdge = in.readChar();
             TrieNode son = new TrieNode();
             deserializeSubtree(son, in);
-            node.sons.put(symbolOnEdge, son);
-            son.father = node;
+            node.children.put(symbolOnEdge, son);
+            son.parent = node;
         }
     }
 
