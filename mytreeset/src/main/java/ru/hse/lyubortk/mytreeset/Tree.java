@@ -52,37 +52,29 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     /** {@link TreeSet#add} */
     @Override
     public boolean add(@NotNull E e) {
-        if (root == null) {
-            root = new TreeNode<>(e);
-            size++;
-            treeRevision++;
-            return true;
+        var lessOrEqualNode = getLessOrEqualNode(root, e);
+        if (lessOrEqualNode != null && compare(lessOrEqualNode.data, e) == 0) {
+            return false;
         }
 
-        var lessOrEqualNode = getLessOrEqualNode(root, e);
-        if (lessOrEqualNode == null) {
+        if (root == null) {
+            root = new TreeNode<>(e);
+        } else if (lessOrEqualNode == null) {
             var leftmostNode = getLeftmostNodeInSubtree(root);
             leftmostNode.left = new TreeNode<>(e);
-            leftmostNode.left.father = leftmostNode;
-
-            size++;
-            treeRevision++;
-            return true;
+            leftmostNode.left.parent = leftmostNode;
         } else if (compare(lessOrEqualNode.data, e) < 0) {
             var newNode = new TreeNode<>(e);
             newNode.right = lessOrEqualNode.right;
             if (newNode.right != null ) {
-                newNode.right.father = newNode;
+                newNode.right.parent = newNode;
             }
             lessOrEqualNode.right = newNode;
-            newNode.father = lessOrEqualNode;
-
-            size++;
-            treeRevision++;
-            return true;
-        } else {
-            return false;
+            newNode.parent = lessOrEqualNode;
         }
+        size++;
+        treeRevision++;
+        return true;
     }
 
     /** {@link TreeSet#remove} */
@@ -164,6 +156,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         if (greaterOrEqualNode == null) {
             return null;
         }
+
         var greaterNode = greaterOrEqualNode;
         if (compare(greaterOrEqualNode.data, e) == 0) {
             greaterNode = getNextNode(greaterOrEqualNode);
@@ -174,7 +167,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     private static class TreeNode<E> {
         private TreeNode<E> left = null;
         private TreeNode<E> right = null;
-        private TreeNode<E> father = null;
+        private TreeNode<E> parent = null;
         private E data;
 
         private TreeNode(@NotNull E data) {
@@ -219,19 +212,19 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
     private void remove(@NotNull TreeNode<E> node) {
         if (node.left == null && node.right == null) {
-            changeSonTo(node.father, node, null);
+            changeSonTo(node.parent, node, null);
             if (root == node) {
                 root = null;
             }
         } else if (node.left == null) {
-            changeSonTo(node.father, node, node.right);
-            node.right.father = node.father;
+            changeSonTo(node.parent, node, node.right);
+            node.right.parent = node.parent;
             if (root == node) {
                 root = node.right;
             }
         } else if (node.right == null) {
-            changeSonTo(node.father, node, node.left);
-            node.left.father = node.father;
+            changeSonTo(node.parent, node, node.left);
+            node.left.parent = node.parent;
             if (root == node) {
                 root = node.left;
             }
@@ -258,10 +251,10 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         if (node.right != null) {
             return getLeftmostNodeInSubtree(node.right);
         } else {
-            while (node.father != null && node.father.right == node) {
-                node = node.father;
+            while (node.parent != null && node.parent.right == node) {
+                node = node.parent;
             }
-            return node.father;
+            return node.parent;
         }
     }
 
@@ -269,10 +262,10 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         if (node.left != null) {
             return getRightmostNodeInSubtree(node.left);
         } else {
-            while (node.father != null && node.father.left == node) {
-                node = node.father;
+            while (node.parent != null && node.parent.left == node) {
+                node = node.parent;
             }
-            return node.father;
+            return node.parent;
         }
     }
 
