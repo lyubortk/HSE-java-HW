@@ -10,7 +10,7 @@ import java.util.Scanner;
 public class PhoneBookCLI {
     /**
      * Endless loop with 8 different options for phone book management;
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public static void main(String[] args) throws SQLException {
         var phoneBook = new PhoneBook("phoneBook.db");

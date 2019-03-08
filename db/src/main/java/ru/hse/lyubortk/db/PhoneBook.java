@@ -47,7 +47,7 @@ public class PhoneBook {
      * Constructor accepts name/path to sqlite database file.
      * If file doesn't exist SQLite-jdbc automatically creates it.
      * @param name the name of database file
-     * @throws SQLException
+     * @throws SQLException if database file could not be properly created
      */
     public PhoneBook(@NotNull String name) throws SQLException {
         this.name = name;
@@ -61,7 +61,7 @@ public class PhoneBook {
      * Adds record to database. If database already contains this record then
      * the record won't be added twice.
      * @param record a record to add to phone book
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public void addRecord(@NotNull Record record) throws SQLException {
         executeUpdate("INSERT OR IGNORE INTO contacts VALUES (?, ?)",
@@ -72,7 +72,7 @@ public class PhoneBook {
      * Returns list of telephone numbers which belong to a specified name.
      * @param name a name to search for numbers
      * @return list of found numbers
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public @NotNull List<String> getNumbersByName(@NotNull String name) throws SQLException {
         return executeQuery("SELECT number FROM contacts WHERE name = ? ORDER BY number",
@@ -83,7 +83,7 @@ public class PhoneBook {
      * Returns list of names which use specified number.
      * @param number a number to search for names of owners
      * @return list of found names
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public @NotNull List<String> getNamesByNumber(@NotNull String number) throws SQLException {
         return executeQuery("SELECT name FROM contacts WHERE number = ? ORDER BY name",
@@ -94,7 +94,7 @@ public class PhoneBook {
      * Deletes specified record from database. If database does not contain this record
      * then nothing is changed.
      * @param record a record to delete.
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public void eraseRecord(@NotNull Record record) throws SQLException {
         executeUpdate("DELETE FROM contacts WHERE name = ? AND number = ?",
@@ -105,7 +105,7 @@ public class PhoneBook {
      * Changes name in the specified record. If changed record is identical
      * to another record in database then duplicates are merged into one record.
      * @param newName new value of the name field of the given record
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public void changeNameOfRecord(@NotNull Record record,
                                    @NotNull String newName) throws SQLException {
@@ -117,7 +117,7 @@ public class PhoneBook {
      * Changes phone number in the specified record. If changed record is identical
      * to another record in database then duplicates are merged into one record
      * @param newNumber new value of the number field of the given record
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public void changeNumberOfRecord(@NotNull Record record,
                                      @NotNull String newNumber) throws SQLException {
@@ -127,7 +127,7 @@ public class PhoneBook {
 
     /**
      * Returns list of all records in the database.
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public @NotNull List<Record> getAllRecords() throws SQLException {
         var outputList = new ArrayList<Record>();
@@ -141,7 +141,7 @@ public class PhoneBook {
 
     /**
      * Deletes all records from the database leaving it empty.
-     * @throws SQLException
+     * @throws SQLException in case of error with database file
      */
     public void clear() throws SQLException {
        executeUpdate("DELETE FROM contacts", Collections.emptyList());
