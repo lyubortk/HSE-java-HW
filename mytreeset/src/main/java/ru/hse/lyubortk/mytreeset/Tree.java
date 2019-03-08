@@ -40,7 +40,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
     @Override
     public @NotNull Iterator<E> descendingIterator() {
         return new TreeIterator(root != null ? getRightmostNodeInSubtree(root) : null,
-                                this::getPrevNode);
+                                this::getPreviousNode);
     }
 
     /** {@inheritDoc} */
@@ -130,7 +130,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
         var lessNode = lessOrEqualNode;
         if (compare(lessOrEqualNode.data, e) == 0) {
-            lessNode = getPrevNode(lessOrEqualNode);
+            lessNode = getPreviousNode(lessOrEqualNode);
         }
         return lessNode != null ? lessNode.data : null;
     }
@@ -212,18 +212,18 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
 
     private void remove(@NotNull TreeNode<E> node) {
         if (node.left == null && node.right == null) {
-            changeSonTo(node.parent, node, null);
+            changeChild(node.parent, node, null);
             if (root == node) {
                 root = null;
             }
         } else if (node.left == null) {
-            changeSonTo(node.parent, node, node.right);
+            changeChild(node.parent, node, node.right);
             node.right.parent = node.parent;
             if (root == node) {
                 root = node.right;
             }
         } else if (node.right == null) {
-            changeSonTo(node.parent, node, node.left);
+            changeChild(node.parent, node, node.left);
             node.left.parent = node.parent;
             if (root == node) {
                 root = node.left;
@@ -236,14 +236,14 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    private void changeSonTo(@Nullable TreeNode<E> father, @NotNull TreeNode<E> son,
+    private void changeChild(@Nullable TreeNode<E> parent, @NotNull TreeNode<E> child,
                              @Nullable TreeNode<E> replacement) {
-        if (father == null) return;
-        if (father.left == son) {
-            father.left = replacement;
+        if (parent == null) return;
+        if (parent.left == child) {
+            parent.left = replacement;
         }
-        if (father.right == son) {
-            father.right = replacement;
+        if (parent.right == child) {
+            parent.right = replacement;
         }
     }
 
@@ -258,7 +258,7 @@ public class Tree<E> extends AbstractSet<E> implements MyTreeSet<E>  {
         }
     }
 
-    private @Nullable TreeNode<E> getPrevNode(@NotNull TreeNode<E> node) {
+    private @Nullable TreeNode<E> getPreviousNode(@NotNull TreeNode<E> node) {
         if (node.left != null) {
             return getRightmostNodeInSubtree(node.left);
         } else {
