@@ -44,18 +44,8 @@ public class Reflector {
         var secondFields = new HashSet<String>();
         getAllFields(firstClass, firstFields);
         getAllFields(secondClass, secondFields);
-
         removeIntersection(firstFields, secondFields);
-
-        System.out.println(firstClass.getSimpleName() + " unique fields:" + firstFields.size());
-        for(var str: firstFields) {
-            System.out.println(str);
-        }
-        System.out.println();
-        System.out.println(secondClass.getSimpleName() + " unique fields:" + secondFields.size());
-        for(var str: secondFields) {
-            System.out.println(str);
-        }
+        printUnique(firstFields, secondFields, "fields");
     }
 
     private static void printDifferentMethods(Class<?> firstClass, Class<?> secondClass) {
@@ -65,14 +55,17 @@ public class Reflector {
         getAllMethods(secondClass, secondMethods);
 
         removeIntersection(firstMethods, secondMethods);
+        printUnique(firstMethods, secondMethods, "methods");
+    }
 
-        System.out.println(firstClass.getSimpleName() + " unique methods:" + firstMethods.size());
-        for(var str: firstMethods) {
+    private static void printUnique(Set<String> first, Set<String> second, String type) {
+        System.out.println("first class unique " + type + ":" + first.size());
+        for(var str: first) {
             System.out.println(str);
         }
         System.out.println();
-        System.out.println(secondClass.getSimpleName() + " unique methods:" + secondMethods.size());
-        for(var str: secondMethods) {
+        System.out.println("second class unique " + type + ":" + second.size());
+        for(var str: second) {
             System.out.println(str);
         }
     }
@@ -90,7 +83,7 @@ public class Reflector {
         }
         for (var field: clazz.getDeclaredFields()) {
             String fixedField = declareField(field).replace('$', '.');
-            fieldSet.add(fixedField.replace(clazz.getCanonicalName() + ".", ""));
+            fieldSet.add(fixedField.replace(clazz.getCanonicalName(), "ClassName"));
         }
         getAllFields(clazz.getSuperclass(), fieldSet);
     }
@@ -101,7 +94,7 @@ public class Reflector {
         }
         for (var method: clazz.getDeclaredMethods()) {
             String fixedName = declareMethod(method).replace('$', '.');
-            methodSet.add(fixedName.replace(clazz.getCanonicalName() + ".", ""));
+            methodSet.add(fixedName.replace(clazz.getCanonicalName(), "ClassName"));
         }
         getAllMethods(clazz.getSuperclass(), methodSet);
     }
@@ -164,7 +157,8 @@ public class Reflector {
             output.append(declareModifiers(constructor.getModifiers()));
             output.append(declareTypeParameters(constructor.getTypeParameters()));
             output.append(name).append('(');
-            output.append(declareParameters(constructor.getParameters()));
+            var genericTypes = constructor.getGenericParameterTypes();
+            output.append(declareParameters(genericTypes));
             output.append(") {\n}\n");
         }
     }
@@ -181,7 +175,8 @@ public class Reflector {
     }
 
     private static String declareField(Field field) {
-        return field.getGenericType().getTypeName() + " " + field.getName();
+        return declareModifiers(field.getModifiers()) +
+                field.getGenericType().getTypeName() + " " + field.getName();
     }
 
     private static String declareMethod(Method method) {
@@ -189,13 +184,18 @@ public class Reflector {
                 declareTypeParameters(method.getTypeParameters())
                 + method.getGenericReturnType().getTypeName() + ' '
                 + method.getName() + "(" +
-                declareParameters(method.getParameters()) + ")";
+                declareParameters(method.getGenericParameterTypes()) + ")";
     }
 
-    private static String declareParameters(Parameter[] parameters) {
-        return Arrays.stream(parameters)
-                .map(a -> a.getParameterizedType().getTypeName() + " " + a.getName())
-                .collect(Collectors.joining(", "));
+    private static String declareParameters(Type[] types) {
+        var output = new StringBuilder();
+        for (int i = 0; i < types.length; ++i) {
+            output.append(types[i].getTypeName()).append(' ').append("arg").append(i);
+            if (i != types.length - 1) {
+                output.append(", ");
+            }
+        }
+        return output.toString();
     }
 
     private static void printSubclasses(@NotNull Class<?> someClass,
