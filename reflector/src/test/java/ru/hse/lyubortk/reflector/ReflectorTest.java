@@ -6,18 +6,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.hse.lyubortk.reflector.testclasses.*;
 
+import javax.tools.ToolProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ReflectorTest {
     private final ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private static final String DIFF_CLASSES_SAME_STRING =
+    private static final String DIFF_CLASSES_SAME =
             "first class unique fields:0\n\n" +
             "second class unique fields:0\n\n" +
             "first class unique methods:0\n\n" +
@@ -70,10 +76,13 @@ class ReflectorTest {
                         "    public SomeClass.Nested2 nested2;\n" +
                         "    SomeClass(SomeClass.Inner1 arg0, SomeClass.Nested2 arg1) {\n" +
                         "    }\n" +
-                        "    protected static class Nested2 extends java.lang.Object  {\n" +
+                        "    private abstract static interface Interface1  {\n" +
+                        "    }\n" +
+                        "    protected static class Nested2 extends java.lang.Object " +
+                        "       implements SomeClass.Interface1 {\n" +
                         "        protected Nested2() {\n" +
                         "        }\n" +
-                        "    }\n" +
+                        "    }"+
                         "    private class Inner2 extends java.lang.Object  {\n" +
                         "        private Inner2(SomeClass arg0) {\n" +
                         "        }\n" +
@@ -213,13 +222,13 @@ class ReflectorTest {
     @Test
     void diffClassesTestSame1() {
         Reflector.diffClasses(GenericClass1.class, GenericClass1Copy.class);
-        assertEquals(DIFF_CLASSES_SAME_STRING, arrayOut.toString());
+        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
     }
 
     @Test
     void diffClassesTestSame2() {
         Reflector.diffClasses(Hashtable.class, HashtableCopy.class);
-        assertEquals(DIFF_CLASSES_SAME_STRING, arrayOut.toString());
+        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
     }
 
     @Test
@@ -243,11 +252,77 @@ class ReflectorTest {
                 "public java.lang.String put(java.lang.String arg0, java.lang.String arg1)\n" +
                 "private void copyContentTo(ClassName arg0)\n\n" +
                 "second class unique methods:1\n" +
-                "public void dummyMethod(int arg0, int arg1)", arrayOut.toString());
+                "public void dummyMethod(int arg0, int arg1)\n", arrayOut.toString());
     }
 
-    static void printCompileAndCompare(@NotNull Class<?> clazz) {
+    @Test
+    void printLoadAndCompareSimple1() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(SimpleClass1.class);
+    }
 
+    @Test
+    void printLoadAndCompareSimple2() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(SimpleClass2.class);
+    }
+
+    @Test
+    void printLoadAndCompareHashtable() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(Hashtable.class);
+    }
+
+    @Test
+    void printLoadAndCompareMyList() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(MyList.class);
+    }
+
+    @Test
+    void printLoadAndCompareGenericClass1() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(GenericClass1.class);
+    }
+
+    @Test
+    void printLoadAndCompareNestedClass1() throws IOException, ClassNotFoundException {
+        printLoadAndCompare(NestedClass1.class);
+    }
+
+    void printLoadAndCompare(@NotNull Class<?> clazz)
+            throws IOException, ClassNotFoundException {
+        Reflector.printStructure(clazz);
+
+        var fileToCompile = new File("SomeClass.java");
+
+        Path projectRootFolderPath = fileToCompile.getAbsoluteFile().getParentFile().toPath();
+        Path tempDirectory = Files.createTempDirectory(projectRootFolderPath, "temp");
+        String packageRelativeDir = clazz.getPackageName().replace('.', File.separatorChar);
+        Path packagePath = Paths.get(tempDirectory + File.separator + packageRelativeDir);
+
+        Files.createDirectories(packagePath);
+
+        var compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null,
+                "-d", tempDirectory.toString(), fileToCompile.getPath());
+
+        var classLoader = new URLClassLoader(new URL[]{tempDirectory.toUri().toURL()});
+        Class<?> someClass = classLoader.loadClass(clazz.getPackageName() + ".SomeClass");
+        Reflector.diffClasses(clazz, someClass);
+        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
+
+        fileToCompile.deleteOnExit();
+        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path directory, IOException exception)
+                    throws IOException {
+                Files.delete(directory);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     static void testStructure(@NotNull Class<?> clazz, String expected) throws IOException {

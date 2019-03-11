@@ -18,6 +18,9 @@ public class NestedClass1 {
     private class Inner2 {
     }
 
-    protected static class Nested2 {
+    protected static class Nested2 implements Interface1 {
+    }
+
+    private interface Interface1{
     }
 }
