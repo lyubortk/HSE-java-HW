@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test;
 import ru.hse.lyubortk.reflector.testclasses.*;
 
 import javax.tools.ToolProvider;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
@@ -22,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ReflectorTest {
     private static final String DIFF_CLASSES_SAME =
-                    "first class unique fields:0\n\n"
-                    + "second class unique fields:0\n\n"
-                    + "first class unique methods:0\n\n"
-                    + "second class unique methods:0\n";
+            "first class unique fields:0\n\n"
+            + "second class unique fields:0\n\n"
+            + "first class unique methods:0\n\n"
+            + "second class unique methods:0\n";
 
     private final ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
@@ -44,199 +41,202 @@ class ReflectorTest {
 
     @AfterEach
     void clearFiles() throws IOException {
-        Files.delete(Paths.get("SomeClass.java"));
-        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
+        Files.deleteIfExists(Paths.get("SomeClass.java"));
+        if (tempDirectory != null) {
+            Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                        throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path directory, IOException exception)
-                    throws IOException {
-                Files.delete(directory);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(Path directory, IOException exception)
+                        throws IOException {
+                    Files.delete(directory);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
     }
 
     @Test
     void printStructureSimple1() throws IOException {
         testStructure(SimpleClass1.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                "public class SomeClass  {\n" +
-                "    public int field1;\n" +
-                "    public SomeClass() {\n" +
-                "    } }");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass {\n"
+                        + "    public int field1;\n"
+                        + "    public SomeClass() {\n"
+                        + "    }\n"
+                        + "}");
     }
 
     @Test
     void printStructureSimple2() throws IOException {
         testStructure(SimpleClass2.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass {\n" +
-                        "    public int field1;\n" +
-                        "    private double field2;\n" +
-                        "    protected SomeClass field3;\n" +
-                        "    public SomeClass() {\n" +
-                        "    }\n" +
-                        "    private SomeClass(SomeClass arg0) {\n" +
-                        "    }\n" +
-                        "}");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass {\n"
+                        + "    public int field1;\n"
+                        + "    private double field2;\n"
+                        + "    protected SomeClass field3;\n"
+                        + "    public SomeClass() {\n"
+                        + "    }\n"
+                        + "    private SomeClass(SomeClass arg0) {\n"
+                        + "    }\n"
+                        + "}");
     }
 
     @Test
     void printStructureNested1() throws IOException {
         testStructure(NestedClass1.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass   {\n" +
-                        "    SomeClass.Inner1 inner1;\n" +
-                        "    protected SomeClass.Inner2 inner2;\n" +
-                        "    private SomeClass.Nested1 nested1;\n" +
-                        "    public SomeClass.Nested2 nested2;\n" +
-                        "    SomeClass(SomeClass.Inner1 arg0, SomeClass.Nested2 arg1) {\n" +
-                        "    }\n" +
-                        "    public class Inner1  {\n" +
-                        "        public Inner1(SomeClass arg0) {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "    private class Inner2   {\n" +
-                        "        private Inner2(SomeClass arg0) {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "    private abstract static interface Interface1  {\n" +
-                        "    }\n" +
-                        "    public static class Nested1  {\n" +
-                        "        public Nested1() {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "    protected static class Nested2  " +
-                        "       implements SomeClass.Interface1 {\n" +
-                        "        protected Nested2() {\n" +
-                        "        }\n" +
-                        "    }\n"+
-                        "}");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass {\n"
+                        + "    SomeClass.Inner1 inner1;\n"
+                        + "    protected SomeClass.Inner2 inner2;\n"
+                        + "    private SomeClass.Nested1 nested1;\n"
+                        + "    public SomeClass.Nested2 nested2;\n"
+                        + "    SomeClass(SomeClass.Inner1 arg0, SomeClass.Nested2 arg1) {\n"
+                        + "    }\n"
+                        + "    public class Inner1 {\n"
+                        + "        public Inner1(SomeClass arg0) {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "    private class Inner2 {\n"
+                        + "        private Inner2(SomeClass arg0) {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "    private abstract static interface Interface1 {\n"
+                        + "    }\n"
+                        + "    public static class Nested1 {\n"
+                        + "        public Nested1() {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "    protected static class Nested2 implements SomeClass.Interface1 {\n"
+                        + "        protected Nested2() {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}");
     }
 
     @Test
     void printStructureHashtable() throws IOException {
         testStructure(Hashtable.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass {\n" +
-                        "    private ru.hse.lyubortk.reflector.testclasses.MyList[] bucketArray;\n" +
-                        "    private int bucketsNumber;\n" +
-                        "    private int size;\n" +
-                        "    public SomeClass() {\n" +
-                        "    }\n" +
-                        "    public SomeClass(int arg0) {\n" +
-                        "    }\n" +
-                        "    private void checkBucketsNumber()  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public void clear()  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public boolean contains(java.lang.String arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    private void copyContentTo(SomeClass arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    private void copyFrom(SomeClass arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public java.lang.String get(java.lang.String arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    private int getBucketIndex(java.lang.String arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public java.lang.String put(java.lang.String arg0, " +
-                        "                                java.lang.String arg1)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public java.lang.String remove(java.lang.String arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public int size()  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    private static class StringPair {\n" +
-                        "        private java.lang.String key;\n" +
-                        "        private java.lang.String val;\n" +
-                        "        private StringPair(java.lang.String arg0, " +
-                        "                           java.lang.String arg1) {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass {\n"
+                        + "    private ru.hse.lyubortk.reflector.testclasses.MyList[] \n"
+                        + "            bucketArray;\n"
+                        + "    private int bucketsNumber;\n"
+                        + "    private int size;\n"
+                        + "    public SomeClass() {\n"
+                        + "    }\n"
+                        + "    public SomeClass(int arg0) {\n"
+                        + "    }\n"
+                        + "    private void checkBucketsNumber()  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public void clear()  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public boolean contains(java.lang.String arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    private void copyContentTo(SomeClass arg0) {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    private void copyFrom(SomeClass arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public java.lang.String get(java.lang.String arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    private int getBucketIndex(java.lang.String arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public java.lang.String put(java.lang.String arg0, \n"
+                        + "                                java.lang.String arg1)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public java.lang.String remove(java.lang.String arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public int size()  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    private static class StringPair {\n"
+                        + "        private java.lang.String key;\n"
+                        + "        private java.lang.String val;\n"
+                        + "        private StringPair(java.lang.String arg0, \n"
+                        + "                           java.lang.String arg1) {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}\n");
     }
 
     @Test
     void printStructureMyList() throws IOException {
         testStructure(MyList.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass implements " +
-                        "        java.lang.Iterable<java.lang.Object> {\n" +
-                        "    private SomeClass.ListNode head;\n" +
-                        "    public SomeClass() {\n" +
-                        "    }\n" +
-                        "    public void insertObject(java.lang.Object arg0)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public SomeClass.MyListIterator iterator()  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    private static class ListNode {\n" +
-                        "        private java.lang.Object data;\n" +
-                        "        private SomeClass.ListNode nextNode;\n" +
-                        "        private SomeClass.ListNode prevNode;\n" +
-                        "        private ListNode(java.lang.Object arg0) {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "    private class MyListIterator " +
-                        "            implements java.util.Iterator<java.lang.Object> {\n" +
-                        "        private SomeClass.ListNode nextNode;\n" +
-                        "        private SomeClass.ListNode prevNode;\n" +
-                        "        private MyListIterator(SomeClass arg0, " +
-                        "                               SomeClass.ListNode arg1) {\n" +
-                        "        }\n" +
-                        "        public boolean hasNext()  {\n" +
-                        "            throw new UnsupportedOperationException();\n" +
-                        "        }\n" +
-                        "        public java.lang.Object next()  {\n" +
-                        "            throw new UnsupportedOperationException();\n" +
-                        "        }\n" +
-                        "        public void remove()  {\n" +
-                        "            throw new UnsupportedOperationException();\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass \n"
+                        + "        implements java.lang.Iterable<java.lang.Object> {\n"
+                        + "    private SomeClass.ListNode head;\n"
+                        + "    public SomeClass() {\n"
+                        + "    }\n"
+                        + "    public void insertObject(java.lang.Object arg0)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    public SomeClass.MyListIterator iterator()  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    private static class ListNode {\n"
+                        + "        private java.lang.Object data;\n"
+                        + "        private SomeClass.ListNode nextNode;\n"
+                        + "        private SomeClass.ListNode prevNode;\n"
+                        + "        private ListNode(java.lang.Object arg0) {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "    private class MyListIterator \n"
+                        + "            implements java.util.Iterator<java.lang.Object> {\n"
+                        + "        private SomeClass.ListNode nextNode;\n"
+                        + "        private SomeClass.ListNode prevNode;\n"
+                        + "        private MyListIterator(SomeClass arg0, \n"
+                        + "                               SomeClass.ListNode arg1) {\n"
+                        + "        }\n"
+                        + "        public boolean hasNext()  {\n"
+                        + "            throw new UnsupportedOperationException();\n"
+                        + "        }\n"
+                        + "        public java.lang.Object next()  {\n"
+                        + "            throw new UnsupportedOperationException();\n"
+                        + "        }\n"
+                        + "        public void remove()  {\n"
+                        + "            throw new UnsupportedOperationException();\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}\n");
     }
 
     @Test
     void printStructureGeneric() throws IOException {
         testStructure(GenericClass1.class,
-                "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass <T extends java.lang.Object, \n" +
-                        "        E extends java.util.List<T>> {\n" +
-                        "    T field1;\n" +
-                        "    E field2;\n" +
-                        "    SomeClass(T arg0) {\n" +
-                        "    }\n" +
-                        "    <B extends java.lang.Object> SomeClass(B arg0, T arg1) {\n" +
-                        "    }\n" +
-                        "    public T genericMethod(java.util.List<? super E> arg0, \n" +
-                        "                           java.util.Map<T, ? extends T> arg1)  {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    static class genericNestedClass <B extends java.lang.Object> {\n" +
-                        "        B field1;\n" +
-                        "        genericNestedClass() {\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "}");
+                "package ru.hse.lyubortk.reflector.testclasses;\n"
+                        + "public class SomeClass <T extends java.lang.Object, \n"
+                        + "        E extends java.util.List<T>> {\n"
+                        + "    T field1;\n"
+                        + "    E field2;\n"
+                        + "    SomeClass(T arg0) {\n"
+                        + "    }\n"
+                        + "    <B extends java.lang.Object> SomeClass(B arg0, T arg1) {\n"
+                        + "    }\n"
+                        + "    public T genericMethod(java.util.List<? super E> arg0, \n"
+                        + "                           java.util.Map<T, ? extends T> arg1)  {\n"
+                        + "        throw new UnsupportedOperationException();\n"
+                        + "    }\n"
+                        + "    static class genericNestedClass <B extends java.lang.Object> {\n"
+                        + "        B field1;\n"
+                        + "        genericNestedClass() {\n"
+                        + "        }\n"
+                        + "    }\n"
+                        + "}\n");
     }
 
     @Test
@@ -254,25 +254,23 @@ class ReflectorTest {
     @Test
     void diffClassesTestDifferentFields() {
         Reflector.diffClasses(SimpleClass2.class, SimpleClass2Different.class);
-        assertEquals(
-                "first class unique fields:1\n" +
-                "public int field1\n\n" +
-                "second class unique fields:1\n" +
-                "public java.util.List<java.lang.Object> field4\n\n" +
-                "first class unique methods:0\n\n" +
-                "second class unique methods:0\n", arrayOut.toString());
+        assertEquals("first class unique fields:1\n"
+                + "public int field1\n\nsecond class unique fields:1\n"
+                + "public java.util.List<java.lang.Object> field4\n\n"
+                + "first class unique methods:0\n\n"
+                + "second class unique methods:0\n", arrayOut.toString());
     }
 
     @Test
     void diffClassesTestDifferentMethods() {
         Reflector.diffClasses(Hashtable.class, HashtableDifferent.class);
-        assertEquals("first class unique fields:0\n\n" +
-                "second class unique fields:0\n\n" +
-                "first class unique methods:2\n" +
-                "private void copyContentTo(ClassName arg0) \n" +
-                "public java.lang.String put(java.lang.String arg0, java.lang.String arg1) \n\n" +
-                "second class unique methods:1\n" +
-                "public void dummyMethod(int arg0, int arg1) \n", arrayOut.toString());
+        assertEquals("first class unique fields:0\n\n"
+                + "second class unique fields:0\n\n"
+                + "first class unique methods:2\n"
+                + "private void copyContentTo(ClassName arg0) \n"
+                + "public java.lang.String put(java.lang.String arg0, java.lang.String arg1) \n\n"
+                + "second class unique methods:1\n"
+                + "public void dummyMethod(int arg0, int arg1) \n", arrayOut.toString());
     }
 
     @Test
@@ -312,7 +310,7 @@ class ReflectorTest {
         var fileToCompile = new File("SomeClass.java");
 
         Path projectRootFolderPath = fileToCompile.getAbsoluteFile().getParentFile().toPath();
-        Path tempDirectory = Files.createTempDirectory(projectRootFolderPath, "temp");
+        tempDirectory = Files.createTempDirectory(projectRootFolderPath, "temp");
         String packageRelativeDir = clazz.getPackageName().replace('.', File.separatorChar);
         Path packagePath = Paths.get(tempDirectory + File.separator + packageRelativeDir);
 
