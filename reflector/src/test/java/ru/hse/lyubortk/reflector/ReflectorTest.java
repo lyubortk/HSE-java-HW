@@ -21,13 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ReflectorTest {
+    private static final String DIFF_CLASSES_SAME =
+                    "first class unique fields:0\n\n"
+                    + "second class unique fields:0\n\n"
+                    + "first class unique methods:0\n\n"
+                    + "second class unique methods:0\n";
+
     private final ByteArrayOutputStream arrayOut = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private static final String DIFF_CLASSES_SAME =
-            "first class unique fields:0\n\n" +
-            "second class unique fields:0\n\n" +
-            "first class unique methods:0\n\n" +
-            "second class unique methods:0\n";
+    private Path tempDirectory;
+
 
     @BeforeEach
     void setOutStream() {
@@ -37,6 +40,26 @@ class ReflectorTest {
     @AfterEach
     void restoreOutStream(){
         System.setOut(originalOut);
+    }
+
+    @AfterEach
+    void clearFiles() throws IOException {
+        Files.delete(Paths.get("SomeClass.java"));
+        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path directory, IOException exception)
+                    throws IOException {
+                Files.delete(directory);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     @Test
@@ -75,25 +98,25 @@ class ReflectorTest {
                         "    public SomeClass.Nested2 nested2;\n" +
                         "    SomeClass(SomeClass.Inner1 arg0, SomeClass.Nested2 arg1) {\n" +
                         "    }\n" +
-                        "    private abstract static interface Interface1  {\n" +
-                        "    }\n" +
-                        "    protected static class Nested2  " +
-                        "       implements SomeClass.Interface1 {\n" +
-                        "        protected Nested2() {\n" +
+                        "    public class Inner1  {\n" +
+                        "        public Inner1(SomeClass arg0) {\n" +
                         "        }\n" +
-                        "    }"+
+                        "    }\n" +
                         "    private class Inner2   {\n" +
                         "        private Inner2(SomeClass arg0) {\n" +
                         "        }\n" +
+                        "    }\n" +
+                        "    private abstract static interface Interface1  {\n" +
                         "    }\n" +
                         "    public static class Nested1  {\n" +
                         "        public Nested1() {\n" +
                         "        }\n" +
                         "    }\n" +
-                        "    public class Inner1  {\n" +
-                        "        public Inner1(SomeClass arg0) {\n" +
+                        "    protected static class Nested2  " +
+                        "       implements SomeClass.Interface1 {\n" +
+                        "        protected Nested2() {\n" +
                         "        }\n" +
-                        "    }\n" +
+                        "    }\n"+
                         "}");
     }
 
@@ -165,6 +188,13 @@ class ReflectorTest {
                         "    public SomeClass.MyListIterator iterator()  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
+                        "    private static class ListNode {\n" +
+                        "        private java.lang.Object data;\n" +
+                        "        private SomeClass.ListNode nextNode;\n" +
+                        "        private SomeClass.ListNode prevNode;\n" +
+                        "        private ListNode(java.lang.Object arg0) {\n" +
+                        "        }\n" +
+                        "    }\n" +
                         "    private class MyListIterator " +
                         "            implements java.util.Iterator<java.lang.Object> {\n" +
                         "        private SomeClass.ListNode nextNode;\n" +
@@ -180,13 +210,6 @@ class ReflectorTest {
                         "        }\n" +
                         "        public void remove()  {\n" +
                         "            throw new UnsupportedOperationException();\n" +
-                        "        }\n" +
-                        "    }\n" +
-                        "    private static class ListNode {\n" +
-                        "        private java.lang.Object data;\n" +
-                        "        private SomeClass.ListNode nextNode;\n" +
-                        "        private SomeClass.ListNode prevNode;\n" +
-                        "        private ListNode(java.lang.Object arg0) {\n" +
                         "        }\n" +
                         "    }\n" +
                         "}");
@@ -303,23 +326,6 @@ class ReflectorTest {
         Class<?> someClass = classLoader.loadClass(clazz.getPackageName() + ".SomeClass");
         Reflector.diffClasses(clazz, someClass);
         assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
-
-        fileToCompile.deleteOnExit();
-        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path directory, IOException exception)
-                    throws IOException {
-                Files.delete(directory);
-                return FileVisitResult.CONTINUE;
-            }
-        });
     }
 
     static void testStructure(@NotNull Class<?> clazz, String expected) throws IOException {
@@ -331,6 +337,5 @@ class ReflectorTest {
             }
             assertFalse(expectedScanner.hasNext());
         }
-        new File("SomeClass.java").deleteOnExit();
     }
 }

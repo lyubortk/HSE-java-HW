@@ -40,7 +40,7 @@ public class Reflector {
         printFields(someClass, output);
         printConstructors(someClass, name, output);
         printMethods(someClass, output);
-        printSubclasses(someClass, output);
+        printNestedClasses(someClass, output);
         output.append("}\n");
     }
 
@@ -194,9 +194,11 @@ public class Reflector {
         }
     }
 
-    private static void printSubclasses(@NotNull Class<?> someClass,
-                                        @NotNull StringBuilder output) {
-        for (var clazz : someClass.getDeclaredClasses()) {
+    private static void printNestedClasses(@NotNull Class<?> someClass,
+                                           @NotNull StringBuilder output) {
+        var nestedClasses = someClass.getDeclaredClasses();
+        Arrays.sort(nestedClasses, Comparator.comparing(Class::getSimpleName));
+        for (var clazz : nestedClasses) {
             printClassOrInterface(clazz, clazz.getSimpleName(), output);
         }
     }
