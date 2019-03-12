@@ -44,7 +44,7 @@ class ReflectorTest {
 
     @AfterEach
     void clearFiles() throws IOException {
-        //Files.deleteIfExists(Paths.get("SomeClass.java"));
+        Files.deleteIfExists(Paths.get("SomeClass.java"));
         if (tempDirectory != null) {
             Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
                 @Override
