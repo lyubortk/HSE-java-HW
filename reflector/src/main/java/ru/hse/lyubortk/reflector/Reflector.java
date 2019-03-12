@@ -10,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class Reflector {
@@ -18,9 +19,8 @@ public class Reflector {
         printPackage(someClass, result);
         printClassOrInterface(someClass, "SomeClass", result);
         result = repairIndentationAndTypes(someClass, result);
-        writeToFile(someClass.getSimpleName() + ".java", result);
+        writeToFile("SomeClass.java", result);
     }
-
 
     public static void printClassOrInterface(@NotNull Class<?> someClass,
                                              @NotNull String name,
@@ -49,8 +49,8 @@ public class Reflector {
     }
 
     private static void printDifferentMethods(Class<?> firstClass, Class<?> secondClass) {
-        var firstMethods = new HashSet<String>();
-        var secondMethods = new HashSet<String>();
+        var firstMethods = new TreeSet<String>();
+        var secondMethods = new TreeSet<String>();
         getAllMethods(firstClass, firstMethods);
         getAllMethods(secondClass, secondMethods);
 
@@ -115,7 +115,8 @@ public class Reflector {
         output.append(name).append(' ');
         output.append(declareTypeParameters(someClass.getTypeParameters()));
 
-        if (someClass.getGenericSuperclass() != null) {
+        if (someClass.getGenericSuperclass() != null &&
+                someClass.getGenericSuperclass() != Object.class) {
             output.append("extends ");
             output.append(someClass.getGenericSuperclass().getTypeName()).append(' ');
         }
@@ -131,9 +132,9 @@ public class Reflector {
                             .map(Type::getTypeName)
                             .collect(Collectors.joining(", "))
             );
+            output.append(' ');
         }
-
-        output.append(" {\n");
+        output.append("{\n");
     }
 
     private static void printFields(@NotNull Class<?> someClass, @NotNull StringBuilder output) {
@@ -159,7 +160,9 @@ public class Reflector {
             output.append(name).append('(');
             var genericTypes = constructor.getGenericParameterTypes();
             output.append(declareParameters(genericTypes));
-            output.append(") {\n}\n");
+            output.append(") ");
+            output.append(declareExceptions(constructor.getGenericExceptionTypes()));
+            output.append("{\n}\n");
         }
     }
 
@@ -170,21 +173,33 @@ public class Reflector {
             }
             output.append('\n');
             output.append(declareMethod(method));
-            output.append(" {\nthrow new UnsupportedOperationException();\n}\n");
+            if (Modifier.isAbstract(method.getModifiers())) {
+                output.append(";\n");
+            } else {
+                output.append(" {\nthrow new UnsupportedOperationException();\n}\n");
+            }
+        }
+    }
+
+    private static void printSubclasses(@NotNull Class<?> someClass,
+                                        @NotNull StringBuilder output) {
+        for (var clazz : someClass.getDeclaredClasses()) {
+            printClassOrInterface(clazz, clazz.getSimpleName(), output);
         }
     }
 
     private static String declareField(Field field) {
-        return declareModifiers(field.getModifiers()) +
-                field.getGenericType().getTypeName() + " " + field.getName();
+        return declareModifiers(field.getModifiers())
+                + field.getGenericType().getTypeName() + " " + field.getName();
     }
 
     private static String declareMethod(Method method) {
-        return declareModifiers(method.getModifiers()) +
-                declareTypeParameters(method.getTypeParameters())
+        return declareModifiers(method.getModifiers())
+                + declareTypeParameters(method.getTypeParameters())
                 + method.getGenericReturnType().getTypeName() + ' '
-                + method.getName() + "(" +
-                declareParameters(method.getGenericParameterTypes()) + ")";
+                + method.getName() + "("
+                + declareParameters(method.getGenericParameterTypes()) + ") "
+                + declareExceptions(method.getGenericExceptionTypes());
     }
 
     private static String declareParameters(Type[] types) {
@@ -198,11 +213,12 @@ public class Reflector {
         return output.toString();
     }
 
-    private static void printSubclasses(@NotNull Class<?> someClass,
-                                        @NotNull StringBuilder output) {
-        for (var clazz : someClass.getDeclaredClasses()) {
-            printClassOrInterface(clazz, clazz.getSimpleName(), output);
+    private static String declareExceptions(Type[] types) {
+        if (types.length > 0) {
+            return "throws " + Arrays.stream(types)
+                    .map(Type::getTypeName).collect(Collectors.joining(", ")) + ' ';
         }
+        return "";
     }
 
     private static String declareTypeParameters(
@@ -231,6 +247,7 @@ public class Reflector {
         }
         return "";
     }
+    
     private static StringBuilder repairIndentationAndTypes(@NotNull Class<?> someClass,
                                                            StringBuilder input) {
         var output = new StringBuilder();
@@ -258,7 +275,7 @@ public class Reflector {
 
     private static void writeToFile(@NotNull String fileName, @NotNull StringBuilder source)
             throws IOException {
-        var outputFIle = new File("SomeClass.java");
+        var outputFIle = new File(fileName);
         try (var fileWriter = new FileWriter(outputFIle)) {
             try (var bufferedWriter = new BufferedWriter(fileWriter)) {
                 bufferedWriter.write(source.toString());

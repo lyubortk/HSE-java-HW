@@ -39,12 +39,11 @@ class ReflectorTest {
         System.setOut(originalOut);
     }
 
-
     @Test
     void printStructureSimple1() throws IOException {
         testStructure(SimpleClass1.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                "public class SomeClass extends java.lang.Object  {\n" +
+                "public class SomeClass  {\n" +
                 "    public int field1;\n" +
                 "    public SomeClass() {\n" +
                 "    } }");
@@ -54,7 +53,7 @@ class ReflectorTest {
     void printStructureSimple2() throws IOException {
         testStructure(SimpleClass2.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass extends java.lang.Object  {\n" +
+                        "public class SomeClass {\n" +
                         "    public int field1;\n" +
                         "    private double field2;\n" +
                         "    protected SomeClass field3;\n" +
@@ -69,7 +68,7 @@ class ReflectorTest {
     void printStructureNested1() throws IOException {
         testStructure(NestedClass1.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass extends java.lang.Object  {\n" +
+                        "public class SomeClass   {\n" +
                         "    SomeClass.Inner1 inner1;\n" +
                         "    protected SomeClass.Inner2 inner2;\n" +
                         "    private SomeClass.Nested1 nested1;\n" +
@@ -78,20 +77,20 @@ class ReflectorTest {
                         "    }\n" +
                         "    private abstract static interface Interface1  {\n" +
                         "    }\n" +
-                        "    protected static class Nested2 extends java.lang.Object " +
+                        "    protected static class Nested2  " +
                         "       implements SomeClass.Interface1 {\n" +
                         "        protected Nested2() {\n" +
                         "        }\n" +
                         "    }"+
-                        "    private class Inner2 extends java.lang.Object  {\n" +
+                        "    private class Inner2   {\n" +
                         "        private Inner2(SomeClass arg0) {\n" +
                         "        }\n" +
                         "    }\n" +
-                        "    public static class Nested1 extends java.lang.Object  {\n" +
+                        "    public static class Nested1  {\n" +
                         "        public Nested1() {\n" +
                         "        }\n" +
                         "    }\n" +
-                        "    public class Inner1 extends java.lang.Object  {\n" +
+                        "    public class Inner1  {\n" +
                         "        public Inner1(SomeClass arg0) {\n" +
                         "        }\n" +
                         "    }\n" +
@@ -102,7 +101,7 @@ class ReflectorTest {
     void printStructureHashtable() throws IOException {
         testStructure(Hashtable.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass extends java.lang.Object  {\n" +
+                        "public class SomeClass  {\n" +
                         "    private int size;\n" +
                         "    private int bucketsNumber;\n" +
                         "    private ru.hse.lyubortk.reflector.testclasses.MyList[] " +
@@ -142,7 +141,7 @@ class ReflectorTest {
                         "    public int size() {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    private static class StringPair extends java.lang.Object  {\n" +
+                        "    private static class StringPair {\n" +
                         "        private java.lang.String key;\n" +
                         "        private java.lang.String val;\n" +
                         "        private StringPair(java.lang.String arg0, " +
@@ -156,7 +155,7 @@ class ReflectorTest {
     void printStructureMyList() throws IOException {
         testStructure(MyList.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass extends java.lang.Object " +
+                        "public class SomeClass " +
                         "implements java.lang.Iterable<java.lang.Object> {\n" +
                         "    private SomeClass.ListNode head;\n" +
                         "    public SomeClass() {\n" +
@@ -167,7 +166,7 @@ class ReflectorTest {
                         "    public SomeClass.MyListIterator iterator() {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    private class MyListIterator extends java.lang.Object " +
+                        "    private class MyListIterator " +
                         "implements java.util.Iterator<java.lang.Object> {\n" +
                         "        private SomeClass.ListNode nextNode;\n" +
                         "        private SomeClass.ListNode prevNode;\n" +
@@ -184,7 +183,7 @@ class ReflectorTest {
                         "            throw new UnsupportedOperationException();\n" +
                         "        }\n" +
                         "    }\n" +
-                        "    private static class ListNode extends java.lang.Object  {\n" +
+                        "    private static class ListNode {\n" +
                         "        private java.lang.Object data;\n" +
                         "        private SomeClass.ListNode prevNode;\n" +
                         "        private SomeClass.ListNode nextNode;\n" +
@@ -199,7 +198,7 @@ class ReflectorTest {
         testStructure(GenericClass1.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
                         "public class SomeClass <T extends java.lang.Object, " +
-                        "E extends java.util.List<T>> extends java.lang.Object  {\n" +
+                        "E extends java.util.List<T>> {\n" +
                         "    T field1;\n" +
                         "    E field2;\n" +
                         "    <B extends java.lang.Object> SomeClass(B arg0, T arg1) {\n" +
@@ -210,8 +209,7 @@ class ReflectorTest {
                         "java.util.Map<T, ? extends T> arg1) {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    static class genericNestedClass <B extends java.lang.Object> " +
-                        "extends java.lang.Object  {\n" +
+                        "    static class genericNestedClass <B extends java.lang.Object> {\n" +
                         "        B field1;\n" +
                         "        genericNestedClass() {\n" +
                         "        }\n" +
@@ -249,10 +247,10 @@ class ReflectorTest {
         assertEquals("first class unique fields:0\n\n" +
                 "second class unique fields:0\n\n" +
                 "first class unique methods:2\n" +
-                "public java.lang.String put(java.lang.String arg0, java.lang.String arg1)\n" +
-                "private void copyContentTo(ClassName arg0)\n\n" +
+                "private void copyContentTo(ClassName arg0) \n" +
+                "public java.lang.String put(java.lang.String arg0, java.lang.String arg1) \n\n" +
                 "second class unique methods:1\n" +
-                "public void dummyMethod(int arg0, int arg1)\n", arrayOut.toString());
+                "public void dummyMethod(int arg0, int arg1) \n", arrayOut.toString());
     }
 
     @Test
@@ -308,7 +306,7 @@ class ReflectorTest {
         assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
 
         fileToCompile.deleteOnExit();
-        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException {
@@ -334,5 +332,6 @@ class ReflectorTest {
             }
             assertFalse(expectedScanner.hasNext());
         }
+        new File("SomeClass.java").deleteOnExit();
     }
 }
