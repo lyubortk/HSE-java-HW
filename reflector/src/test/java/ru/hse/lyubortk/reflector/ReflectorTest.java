@@ -101,112 +101,111 @@ class ReflectorTest {
     void printStructureHashtable() throws IOException {
         testStructure(Hashtable.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass  {\n" +
-                        "    private int size;\n" +
+                        "public class SomeClass {\n" +
+                        "    private ru.hse.lyubortk.reflector.testclasses.MyList[] bucketArray;\n" +
                         "    private int bucketsNumber;\n" +
-                        "    private ru.hse.lyubortk.reflector.testclasses.MyList[] " +
-                        "bucketArray;\n" +
+                        "    private int size;\n" +
                         "    public SomeClass() {\n" +
                         "    }\n" +
                         "    public SomeClass(int arg0) {\n" +
                         "    }\n" +
-                        "    private void checkBucketsNumber() {\n" +
+                        "    private void checkBucketsNumber()  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    private void copyFrom(SomeClass arg0) {\n" +
+                        "    public void clear()  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    private void copyContentTo(SomeClass arg0) {\n" +
+                        "    public boolean contains(java.lang.String arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    private int getBucketIndex(java.lang.String arg0) {\n" +
+                        "    private void copyContentTo(SomeClass arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    public java.lang.String remove(java.lang.String arg0) {\n" +
+                        "    private void copyFrom(SomeClass arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    public java.lang.String get(java.lang.String arg0) {\n" +
+                        "    public java.lang.String get(java.lang.String arg0)  {\n" +
+                        "        throw new UnsupportedOperationException();\n" +
+                        "    }\n" +
+                        "    private int getBucketIndex(java.lang.String arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
                         "    public java.lang.String put(java.lang.String arg0, " +
-                        "java.lang.String arg1) {\n" +
+                        "                                java.lang.String arg1)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    public void clear() {\n" +
+                        "    public java.lang.String remove(java.lang.String arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    public boolean contains(java.lang.String arg0) {\n" +
-                        "        throw new UnsupportedOperationException();\n" +
-                        "    }\n" +
-                        "    public int size() {\n" +
+                        "    public int size()  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
                         "    private static class StringPair {\n" +
                         "        private java.lang.String key;\n" +
                         "        private java.lang.String val;\n" +
                         "        private StringPair(java.lang.String arg0, " +
-                        "java.lang.String arg1) {\n" +
+                        "                           java.lang.String arg1) {\n" +
                         "        }\n" +
                         "    }\n" +
-                        "}\n");
+                        "}");
     }
 
     @Test
     void printStructureMyList() throws IOException {
         testStructure(MyList.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass " +
-                        "implements java.lang.Iterable<java.lang.Object> {\n" +
+                        "public class SomeClass implements " +
+                        "        java.lang.Iterable<java.lang.Object> {\n" +
                         "    private SomeClass.ListNode head;\n" +
                         "    public SomeClass() {\n" +
                         "    }\n" +
-                        "    public void insertObject(java.lang.Object arg0) {\n" +
+                        "    public void insertObject(java.lang.Object arg0)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
-                        "    public SomeClass.MyListIterator iterator() {\n" +
+                        "    public SomeClass.MyListIterator iterator()  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
                         "    private class MyListIterator " +
-                        "implements java.util.Iterator<java.lang.Object> {\n" +
+                        "            implements java.util.Iterator<java.lang.Object> {\n" +
                         "        private SomeClass.ListNode nextNode;\n" +
                         "        private SomeClass.ListNode prevNode;\n" +
                         "        private MyListIterator(SomeClass arg0, " +
-                        "SomeClass.ListNode arg1) {\n" +
+                        "                               SomeClass.ListNode arg1) {\n" +
                         "        }\n" +
-                        "        public void remove() {\n" +
+                        "        public boolean hasNext()  {\n" +
                         "            throw new UnsupportedOperationException();\n" +
                         "        }\n" +
-                        "        public java.lang.Object next() {\n" +
+                        "        public java.lang.Object next()  {\n" +
                         "            throw new UnsupportedOperationException();\n" +
                         "        }\n" +
-                        "        public boolean hasNext() {\n" +
+                        "        public void remove()  {\n" +
                         "            throw new UnsupportedOperationException();\n" +
                         "        }\n" +
                         "    }\n" +
                         "    private static class ListNode {\n" +
                         "        private java.lang.Object data;\n" +
-                        "        private SomeClass.ListNode prevNode;\n" +
                         "        private SomeClass.ListNode nextNode;\n" +
+                        "        private SomeClass.ListNode prevNode;\n" +
                         "        private ListNode(java.lang.Object arg0) {\n" +
                         "        }\n" +
                         "    }\n" +
-                        "}\n");
+                        "}");
     }
 
     @Test
     void printStructureGeneric() throws IOException {
         testStructure(GenericClass1.class,
                 "package ru.hse.lyubortk.reflector.testclasses;\n" +
-                        "public class SomeClass <T extends java.lang.Object, " +
-                        "E extends java.util.List<T>> {\n" +
+                        "public class SomeClass <T extends java.lang.Object, \n" +
+                        "        E extends java.util.List<T>> {\n" +
                         "    T field1;\n" +
                         "    E field2;\n" +
-                        "    <B extends java.lang.Object> SomeClass(B arg0, T arg1) {\n" +
-                        "    }\n" +
                         "    SomeClass(T arg0) {\n" +
                         "    }\n" +
-                        "    public T genericMethod(java.util.List<? super E> arg0, " +
-                        "java.util.Map<T, ? extends T> arg1) {\n" +
+                        "    <B extends java.lang.Object> SomeClass(B arg0, T arg1) {\n" +
+                        "    }\n" +
+                        "    public T genericMethod(java.util.List<? super E> arg0, \n" +
+                        "                           java.util.Map<T, ? extends T> arg1)  {\n" +
                         "        throw new UnsupportedOperationException();\n" +
                         "    }\n" +
                         "    static class genericNestedClass <B extends java.lang.Object> {\n" +

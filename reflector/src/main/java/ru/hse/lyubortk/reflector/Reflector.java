@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /** This class contains static methods for retrieving, saving and comparing class declarations */
@@ -147,8 +144,10 @@ public class Reflector {
     }
 
     private static void printFields(@NotNull Class<?> someClass, @NotNull StringBuilder output) {
+        var fields = someClass.getDeclaredFields();
+        Arrays.sort(fields, Comparator.comparing(Field::getName));
         output.append('\n');
-        for (var field : someClass.getDeclaredFields()) {
+        for (var field : fields) {
             if (field.isSynthetic()) {
                 continue;
             }
@@ -159,7 +158,9 @@ public class Reflector {
     private static void printConstructors(@NotNull Class<?> someClass,
                                           @NotNull String name,
                                           @NotNull StringBuilder output) {
-        for (var constructor : someClass.getDeclaredConstructors()) {
+        var constructors = someClass.getDeclaredConstructors();
+        Arrays.sort(constructors, Comparator.comparing(Constructor::getParameterCount));
+        for (var constructor : constructors) {
             if (constructor.isSynthetic()) {
                 continue;
             }
@@ -176,7 +177,10 @@ public class Reflector {
     }
 
     private static void printMethods(@NotNull Class<?> someClass, @NotNull StringBuilder output) {
-        for (var method : someClass.getDeclaredMethods()) {
+        var methods = someClass.getDeclaredMethods();
+        Arrays.sort(methods, Comparator.comparing(Method::getName)
+                .thenComparing(Method::getParameterCount));
+        for (var method : methods) {
             if (method.isSynthetic()) {
                 continue;
             }
