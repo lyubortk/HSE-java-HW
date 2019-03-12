@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /** This class contains static methods for retrieving, saving and comparing class declarations */
@@ -88,8 +89,7 @@ public class Reflector {
             return;
         }
         for (var field: clazz.getDeclaredFields()) {
-            String fixedField = declareField(field).replace('$', '.');
-            fieldSet.add(fixedField.replace(clazz.getCanonicalName(), "ClassName"));
+            fieldSet.add(fixTypes(clazz, declareField(field), "ClassName"));
         }
         getAllFields(clazz.getSuperclass(), fieldSet);
     }
@@ -99,8 +99,7 @@ public class Reflector {
             return;
         }
         for (var method: clazz.getDeclaredMethods()) {
-            String fixedName = declareMethodHeader(method).replace('$', '.');
-            methodSet.add(fixedName.replace(clazz.getCanonicalName(), "ClassName"));
+            methodSet.add(fixTypes(clazz, declareMethodHeader(method), "ClassName"));
         }
         getAllMethods(clazz.getSuperclass(), methodSet);
     }
@@ -227,7 +226,7 @@ public class Reflector {
     }
 
     private static String declareMethodHeader(Method method) {
-        return declareModifiers(method.getModifiers())
+        return declareModifiers(method.getModifiers()).replace("transient", "")
                 + declareTypeParameters(method.getTypeParameters())
                 + method.getGenericReturnType().getTypeName() + ' '
                 + method.getName() + "("
@@ -237,7 +236,8 @@ public class Reflector {
     }
 
     private static String declareMethodBody(Method method) {
-        if (Modifier.isAbstract(method.getModifiers())) {
+        if (Modifier.isAbstract(method.getModifiers())
+                || Modifier.isNative(method.getModifiers())) {
             return ";\n";
         } else if (method.getReturnType() == void.class) {
             return " {\nreturn; \n}\n";
@@ -307,7 +307,7 @@ public class Reflector {
         var output = new StringBuilder();
         int currentIndentation = 0;
         for (var line : input.toString().split("\n")) {
-            line = fixTypes(someClass, line);
+            line = fixTypes(someClass, line, "SomeClass");
             if (line.length() != 0 && line.charAt(line.length() - 1) == '}')
                 currentIndentation -= 4;
 
@@ -322,9 +322,12 @@ public class Reflector {
         return output;
     }
 
-    private static String fixTypes(@NotNull Class<?> someClass, @NotNull String source) {
+    private static String fixTypes(@NotNull Class<?> someClass, @NotNull String source,
+                                   @NotNull String className) {
         source = source.replace('$', '.');
-        return source.replace(someClass.getCanonicalName(), "SomeClass");
+        String regex = "(?<![a-zA-Z0-9\\.])"
+                + someClass.getCanonicalName().replace(".", "\\.") + "\\b";
+        return source.replaceAll(regex, className);
     }
 
     private static void writeToFile(@NotNull String fileName, @NotNull StringBuilder source)
