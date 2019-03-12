@@ -34,8 +34,8 @@ public class Reflector {
     }
 
     private static void printClassOrInterface(@NotNull Class<?> someClass,
-                                             @NotNull String name,
-                                             @NotNull StringBuilder output) {
+                                              @NotNull String name,
+                                              @NotNull StringBuilder output) {
         printDeclaration(someClass, name, output);
         printFields(someClass, output);
         printConstructors(someClass, name, output);
@@ -99,7 +99,7 @@ public class Reflector {
             return;
         }
         for (var method: clazz.getDeclaredMethods()) {
-            String fixedName = declareMethod(method).replace('$', '.');
+            String fixedName = declareMethodHeader(method).replace('$', '.');
             methodSet.add(fixedName.replace(clazz.getCanonicalName(), "ClassName"));
         }
         getAllMethods(clazz.getSuperclass(), methodSet);
@@ -146,12 +146,16 @@ public class Reflector {
     private static void printFields(@NotNull Class<?> someClass, @NotNull StringBuilder output) {
         var fields = someClass.getDeclaredFields();
         Arrays.sort(fields, Comparator.comparing(Field::getName));
-        output.append('\n');
+        if (fields.length > 0) {
+            output.append('\n');
+        }
         for (var field : fields) {
             if (field.isSynthetic()) {
                 continue;
             }
-            output.append(declareField(field)).append(";\n");
+            output.append(declareField(field));
+            output.append(declareFieldDefaultValue(field));
+            output.append(";\n");
         }
     }
 
@@ -168,11 +172,18 @@ public class Reflector {
             output.append(declareModifiers(constructor.getModifiers()));
             output.append(declareTypeParameters(constructor.getTypeParameters()));
             output.append(name).append('(');
+
             var genericTypes = constructor.getGenericParameterTypes();
-            output.append(declareParameters(genericTypes));
-            output.append(") ");
+            // Method::isSynthetic does not work for inner class constructor parameter
+            boolean firstParameterIsSynthetic = someClass.isMemberClass()
+                    && !Modifier.isStatic(someClass.getModifiers())
+                    && constructor.getParameterCount()
+                        == constructor.getGenericParameterTypes().length;
+            output.append(declareParameters(genericTypes, firstParameterIsSynthetic));
+
+            output.append(")");
             output.append(declareExceptions(constructor.getGenericExceptionTypes()));
-            output.append("{\n}\n");
+            output.append(" {\n}\n");
         }
     }
 
@@ -185,12 +196,8 @@ public class Reflector {
                 continue;
             }
             output.append('\n');
-            output.append(declareMethod(method));
-            if (Modifier.isAbstract(method.getModifiers())) {
-                output.append(";\n");
-            } else {
-                output.append(" {\nthrow new UnsupportedOperationException();\n}\n");
-            }
+            output.append(declareMethodHeader(method));
+            output.append(declareMethodBody(method));
         }
     }
 
@@ -199,6 +206,9 @@ public class Reflector {
         var nestedClasses = someClass.getDeclaredClasses();
         Arrays.sort(nestedClasses, Comparator.comparing(Class::getSimpleName));
         for (var clazz : nestedClasses) {
+            if(clazz.isSynthetic()) {
+                continue;
+            }
             printClassOrInterface(clazz, clazz.getSimpleName(), output);
         }
     }
@@ -208,18 +218,47 @@ public class Reflector {
                 + field.getGenericType().getTypeName() + " " + field.getName();
     }
 
-    private static String declareMethod(Method method) {
+    private static String declareFieldDefaultValue(Field field) {
+        if (!Modifier.isFinal(field.getModifiers())) {
+            return "";
+        } else {
+            return " = " + declareTypeDefaultValue(field.getType());
+        }
+    }
+
+    private static String declareMethodHeader(Method method) {
         return declareModifiers(method.getModifiers())
                 + declareTypeParameters(method.getTypeParameters())
                 + method.getGenericReturnType().getTypeName() + ' '
                 + method.getName() + "("
-                + declareParameters(method.getGenericParameterTypes()) + ") "
+                + declareParameters(method.getGenericParameterTypes(),
+                false) + ")"
                 + declareExceptions(method.getGenericExceptionTypes());
     }
 
-    private static String declareParameters(Type[] types) {
+    private static String declareMethodBody(Method method) {
+        if (Modifier.isAbstract(method.getModifiers())) {
+            return ";\n";
+        } else if (method.getReturnType() == void.class) {
+            return " {\nreturn; \n}\n";
+        } else {
+            return " {\nreturn " + declareTypeDefaultValue(method.getReturnType()) +";\n}\n";
+        }
+    }
+
+    private static String declareTypeDefaultValue(Class<?> clazz) {
+        if (!clazz.isPrimitive()) {
+            return "null";
+        } else if (clazz == boolean.class) {
+            return "false";
+        } else {
+            return "0";
+        }
+    }
+    private static String declareParameters(Type[] types, boolean firstParameterIsSynthetic) {
         var output = new StringBuilder();
-        for (int i = 0; i < types.length; ++i) {
+        int startNumber = firstParameterIsSynthetic ? 1 : 0;
+        for (int i = startNumber; i < types.length; ++i) {
             output.append(types[i].getTypeName()).append(' ').append("arg").append(i);
             if (i != types.length - 1) {
                 output.append(", ");
@@ -230,8 +269,8 @@ public class Reflector {
 
     private static String declareExceptions(Type[] types) {
         if (types.length > 0) {
-            return "throws " + Arrays.stream(types)
-                    .map(Type::getTypeName).collect(Collectors.joining(", ")) + ' ';
+            return " throws " + Arrays.stream(types)
+                    .map(Type::getTypeName).collect(Collectors.joining(", "));
         }
         return "";
     }

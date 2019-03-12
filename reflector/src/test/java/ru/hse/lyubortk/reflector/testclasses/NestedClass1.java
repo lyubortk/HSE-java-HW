@@ -16,9 +16,25 @@ public class NestedClass1 {
     }
 
     private class Inner2 {
+        <T> Inner2(T a, T b) {
+        }
+
+        Inner2(int a, int b, double c) {
+        }
+
+        Inner2() {
+        }
     }
 
     protected static class Nested2 implements Interface1 {
+        <T> Nested2(T a, T b) {
+        }
+
+        Nested2(int a, int b, double c) {
+        }
+
+        Nested2() {
+        }
     }
 
     private interface Interface1{

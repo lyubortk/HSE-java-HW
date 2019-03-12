@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test;
 import ru.hse.lyubortk.reflector.testclasses.*;
 
 import javax.tools.ToolProvider;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.*;
@@ -41,7 +44,7 @@ class ReflectorTest {
 
     @AfterEach
     void clearFiles() throws IOException {
-        Files.deleteIfExists(Paths.get("SomeClass.java"));
+        //Files.deleteIfExists(Paths.get("SomeClass.java"));
         if (tempDirectory != null) {
             Files.walkFileTree(tempDirectory, new SimpleFileVisitor<>() {
                 @Override
@@ -99,12 +102,18 @@ class ReflectorTest {
                         + "    SomeClass(SomeClass.Inner1 arg0, SomeClass.Nested2 arg1) {\n"
                         + "    }\n"
                         + "    public class Inner1 {\n"
-                        + "        public Inner1(SomeClass arg0) {\n"
+                        + "        public Inner1() {\n"
                         + "        }\n"
                         + "    }\n"
                         + "    private class Inner2 {\n"
-                        + "        private Inner2(SomeClass arg0) {\n"
+                        + "        Inner2() {\n"
                         + "        }\n"
+                        + "        \n"
+                        + "        <T extends java.lang.Object> Inner2(T arg0, T arg1) {\n"
+                        + "        }\n"
+                        + "        \n"
+                        + "        Inner2(int arg1, int arg2, double arg3) {\n"
+                        + "        }"
                         + "    }\n"
                         + "    private abstract static interface Interface1 {\n"
                         + "    }\n"
@@ -113,8 +122,12 @@ class ReflectorTest {
                         + "        }\n"
                         + "    }\n"
                         + "    protected static class Nested2 implements SomeClass.Interface1 {\n"
-                        + "        protected Nested2() {\n"
+                        + "        Nested2() {\n"
                         + "        }\n"
+                        + "        <T extends java.lang.Object> Nested2(T arg0, T arg1) {\n"
+                        + "        }\n"
+                        + "        Nested2(int arg0, int arg1, double arg2) {\n"
+                        + "        }"
                         + "    }\n"
                         + "}");
     }
@@ -133,35 +146,35 @@ class ReflectorTest {
                         + "    public SomeClass(int arg0) {\n"
                         + "    }\n"
                         + "    private void checkBucketsNumber()  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return;\n"
                         + "    }\n"
                         + "    public void clear()  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return;\n"
                         + "    }\n"
                         + "    public boolean contains(java.lang.String arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return false;\n"
                         + "    }\n"
                         + "    private void copyContentTo(SomeClass arg0) {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return;\n"
                         + "    }\n"
                         + "    private void copyFrom(SomeClass arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return;\n"
                         + "    }\n"
                         + "    public java.lang.String get(java.lang.String arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return null;\n"
                         + "    }\n"
                         + "    private int getBucketIndex(java.lang.String arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return 0;\n"
                         + "    }\n"
                         + "    public java.lang.String put(java.lang.String arg0, \n"
                         + "                                java.lang.String arg1)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return null;\n"
                         + "    }\n"
                         + "    public java.lang.String remove(java.lang.String arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return null;\n"
                         + "    }\n"
                         + "    public int size()  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return 0;\n"
                         + "    }\n"
                         + "    private static class StringPair {\n"
                         + "        private java.lang.String key;\n"
@@ -183,10 +196,10 @@ class ReflectorTest {
                         + "    public SomeClass() {\n"
                         + "    }\n"
                         + "    public void insertObject(java.lang.Object arg0)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return;\n"
                         + "    }\n"
                         + "    public SomeClass.MyListIterator iterator()  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return null;\n"
                         + "    }\n"
                         + "    private static class ListNode {\n"
                         + "        private java.lang.Object data;\n"
@@ -199,17 +212,16 @@ class ReflectorTest {
                         + "            implements java.util.Iterator<java.lang.Object> {\n"
                         + "        private SomeClass.ListNode nextNode;\n"
                         + "        private SomeClass.ListNode prevNode;\n"
-                        + "        private MyListIterator(SomeClass arg0, \n"
-                        + "                               SomeClass.ListNode arg1) {\n"
+                        + "        private MyListIterator(SomeClass.ListNode arg1) {\n"
                         + "        }\n"
                         + "        public boolean hasNext()  {\n"
-                        + "            throw new UnsupportedOperationException();\n"
+                        + "            return false;\n"
                         + "        }\n"
                         + "        public java.lang.Object next()  {\n"
-                        + "            throw new UnsupportedOperationException();\n"
+                        + "            return null;\n"
                         + "        }\n"
                         + "        public void remove()  {\n"
-                        + "            throw new UnsupportedOperationException();\n"
+                        + "            return;\n"
                         + "        }\n"
                         + "    }\n"
                         + "}\n");
@@ -229,7 +241,7 @@ class ReflectorTest {
                         + "    }\n"
                         + "    public T genericMethod(java.util.List<? super E> arg0, \n"
                         + "                           java.util.Map<T, ? extends T> arg1)  {\n"
-                        + "        throw new UnsupportedOperationException();\n"
+                        + "        return null;\n"
                         + "    }\n"
                         + "    static class genericNestedClass <B extends java.lang.Object> {\n"
                         + "        B field1;\n"
@@ -267,10 +279,10 @@ class ReflectorTest {
         assertEquals("first class unique fields:0\n\n"
                 + "second class unique fields:0\n\n"
                 + "first class unique methods:2\n"
-                + "private void copyContentTo(ClassName arg0) \n"
-                + "public java.lang.String put(java.lang.String arg0, java.lang.String arg1) \n\n"
+                + "private void copyContentTo(ClassName arg0)\n"
+                + "public java.lang.String put(java.lang.String arg0, java.lang.String arg1)\n\n"
                 + "second class unique methods:1\n"
-                + "public void dummyMethod(int arg0, int arg1) \n", arrayOut.toString());
+                + "public void dummyMethod(int arg0, int arg1)\n", arrayOut.toString());
     }
 
     @Test
