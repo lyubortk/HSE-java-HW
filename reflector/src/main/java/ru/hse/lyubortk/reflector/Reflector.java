@@ -13,7 +13,14 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/** This class contains static methods for retrieving, saving and comparing class declarations */
 public class Reflector {
+    /** Extracts information about class' members (variables, methods, constructors and nested
+     *  classes) and produces compilable java class SomeClass which imitates the argument class.
+     *  Output code is saved in the working directory.
+     * @param someClass a class which members are used for SomeClass code production
+     * @throws IOException if error with writing SomeClass.java to disk occurs
+     */
     public static void printStructure(@NotNull Class<?> someClass) throws IOException {
         var result = new StringBuilder();
         printPackage(someClass, result);
@@ -22,7 +29,14 @@ public class Reflector {
         writeToFile("SomeClass.java", result);
     }
 
-    public static void printClassOrInterface(@NotNull Class<?> someClass,
+    /** Compares two classes and prints unique methods and fields of each class.*/
+    public static void diffClasses(Class<?> firstClass, Class<?> secondClass) {
+        printDifferentFields(firstClass, secondClass);
+        System.out.println();
+        printDifferentMethods(firstClass, secondClass);
+    }
+
+    private static void printClassOrInterface(@NotNull Class<?> someClass,
                                              @NotNull String name,
                                              @NotNull StringBuilder output) {
         printDeclaration(someClass, name, output);
@@ -33,11 +47,6 @@ public class Reflector {
         output.append("}\n");
     }
 
-    public static void diffClasses(Class<?> firstClass, Class<?> secondClass) {
-        printDifferentFields(firstClass, secondClass);
-        System.out.println();
-        printDifferentMethods(firstClass, secondClass);
-    }
 
     private static void printDifferentFields(Class<?> firstClass, Class<?> secondClass) {
         var firstFields = new HashSet<String>();
@@ -247,7 +256,7 @@ public class Reflector {
         }
         return "";
     }
-    
+
     private static StringBuilder repairIndentationAndTypes(@NotNull Class<?> someClass,
                                                            StringBuilder input) {
         var output = new StringBuilder();
