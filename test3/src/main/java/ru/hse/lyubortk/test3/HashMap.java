@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * A simple Hash table class. May contain null as key and stored value.
- * Hash table implements separate chaining method and uses {@link HashMapList} for buckets.
+ * A simple HashMap class. May contain null as key and stored value.
+ * Hash table implements separate chaining method.
  */
 public class HashMap<K, V> extends AbstractMap<K, V> {
     private int size;
@@ -21,7 +21,8 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         this(16);
     }
 
-    /** A constructor with initial number of buckets as argument.
+    /**
+     * A constructor with initial number of buckets as argument.
      * @param buckets initial number of buckets *
      */
     public HashMap(int buckets) {
@@ -69,7 +70,6 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
      * @param value a non-null value to be mapped to key
      * @return previous value stored by that key or null if there was none
      */
-    // TODO
     @Override
     public V put(@Nullable K key, @Nullable V value) {
         V prevValue = remove(key);
@@ -104,9 +104,11 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         return foundValue;
     }
 
-    /** Removes everything from hash table and sets number of buckets to a default value.
-     *  In other words, method makes the hash table identical to one constructed
-     *  by default constructor */
+    /**
+     * Removes everything from hash table and sets number of buckets to a default value.
+     * In other words, method makes the hash table identical to one constructed
+     * by default constructor
+     */
     @Override
     public void clear() {
         makeIdenticalTo(new HashMap<>());
@@ -124,6 +126,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         } else {
             tailEntry.after = entry;
             entry.before = tailEntry;
+            tailEntry = entry;
         }
     }
 
@@ -159,13 +162,15 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
             entry.next.prev = entry.prev;
         }
         if (bucketArray[bucketNumber] == entry) {
-            bucketArray[bucketNumber] = entry.after;
+            bucketArray[bucketNumber] = entry.next;
         }
     }
 
-    /** Checks whether the number of elements in hash table is greater than
-     *  the half of the number of buckets and reallocates memory (doubling the number of buckets)
-     *  if such situation occurs. */
+    /**
+     * Checks whether the number of elements in hash table is greater than
+     * the half of the number of buckets and reallocates memory (doubling the number of buckets)
+     * if such situation occurs.
+     */
     private void checkBucketsNumber() {
         if (size * 2 > bucketsNumber) {
             var newHashtable = new HashMap<K, V>(bucketsNumber * 2);
@@ -185,11 +190,15 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         bucketArray = table.bucketArray;
     }
 
-    /** Adds (by calling method {@link HashMap#put}) every pair of (key, value) stored in the
+    /**
+     * Adds (by calling method {@link HashMap#put}) every pair of (key, value) stored in the
      * hash table to another table.
-     * @param table another hash table to copy all stored data to */
+     * @param table another hash table to copy all stored data to
+     */
     private void copyContentTo(HashMap<K, V> table) {
-
+        for (var entry : entrySet()) {
+            table.put(entry.getKey(), entry.getValue());
+        }
     }
 
     /** Calculates index in bucket array. */
@@ -216,7 +225,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     private class SetView extends AbstractSet<Entry<K, V>> {
         @Override
         public int size() {
-            return HashMap.this.size();
+            return size;
         }
 
         @Override
