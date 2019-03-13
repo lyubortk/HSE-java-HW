@@ -115,7 +115,42 @@ class HashMapTest {
             assertEquals(Integer.toString(i + 1000), entry.getValue());
         }
     }
-    
+
+    @Test
+    void kek() {
+        var testTable = new HashMap<Integer, Boolean>();
+        testTable.put(1, false);
+        testTable.put(1, false);
+
+        var iterator = testTable.entrySet().iterator();
+        assertEquals(1, (int)iterator.next().getKey());
+        assertEquals(1, (int)iterator.next().getKey());
+    }
+
+    @Test
+    void orderChangesWhenPutTest() {
+        // testing on something other than just Strings
+        var testTable = new HashMap<Integer, Boolean>();
+        for (int i = 0; i < 10; ++i) {
+            testTable.put(i, false);
+        }
+
+        testTable.put(5, true);
+        testTable.put(7, true);
+
+        var iterator = testTable.entrySet().iterator();
+
+        assertEquals(0, (int)iterator.next().getKey());
+        assertEquals(1, (int)iterator.next().getKey());
+        assertEquals(2, (int)iterator.next().getKey());
+        assertEquals(3, (int)iterator.next().getKey());
+        assertEquals(4, (int)iterator.next().getKey());
+        assertEquals(6, (int)iterator.next().getKey());
+        assertEquals(8, (int)iterator.next().getKey());
+        assertEquals(9, (int)iterator.next().getKey());
+        assertEquals(5, (int)iterator.next().getKey());
+        assertEquals(7, (int)iterator.next().getKey());
+    }
 
     private void putThousandIntegers() {
         for (int i = 0; i < 1000; ++i) {

@@ -188,6 +188,8 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         size = table.size;
         bucketsNumber = table.bucketsNumber;
         bucketArray = table.bucketArray;
+        headEntry = table.headEntry;
+        tailEntry = table.tailEntry;
     }
 
     /**
