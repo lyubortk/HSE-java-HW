@@ -12,7 +12,7 @@ import java.util.*;
 public class HashMap<K, V> extends AbstractMap<K, V> {
     private int size;
     private int bucketsNumber;
-    private HashMapList<HashMapEntry<K, V>>[] bucketArray;
+    private HashMapEntry<K, V>[] bucketArray;
     private HashMapEntry<K, V> headEntry;
     private HashMapEntry<K, V> tailEntry;
 
@@ -27,11 +27,8 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     public HashMap(int buckets) {
         bucketsNumber = buckets;
         @SuppressWarnings("unchecked")
-        HashMapList<HashMapEntry<K, V>>[] tempArray = new HashMapList[buckets];
+        HashMapEntry<K, V>[] tempArray = new HashMapEntry[buckets];
         bucketArray = tempArray;
-        for (int i = 0; i< buckets; i++) {
-            bucketArray[i] = new HashMapList<>();
-        }
     }
 
     /**
@@ -42,7 +39,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     @Override
     public boolean containsKey(@Nullable Object key) {
         int bucket = getBucketIndex(key);
-        for (var entry : bucketArray[bucket]) {
+        for (var entry = bucketArray[bucket]; entry != null; entry = entry.next) {
             if (Objects.equals(entry.getKey(), key)) {
                 return true;
             }
@@ -58,7 +55,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     @Override
     public V get(@Nullable Object key) {
         int bucket = getBucketIndex(key);
-        for (var entry : bucketArray[bucket]) {
+        for (var entry = bucketArray[bucket]; entry != null; entry = entry.next) {
             if (Objects.equals(entry.getKey(), key)) {
                 return entry.getValue();
             }
@@ -78,7 +75,7 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
         V prevValue = remove(key);
         int bucket = getBucketIndex(key);
         var entry = new HashMapEntry<>(key, value);
-        bucketArray[bucket].insertToFront(entry);
+        addEntryToBucket(bucket, entry);
         addEntryToEntryList(entry);
         size++;
         checkBucketsNumber();
@@ -94,11 +91,10 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     public V remove(@Nullable Object key) {
         int bucket = getBucketIndex(key);
         V foundValue = null;
-        for (var iterator = bucketArray[bucket].iterator(); iterator.hasNext();) {
-            var entry = iterator.next();
+        for (var entry = bucketArray[bucket]; entry != null; entry = entry.next) {
             if (Objects.equals(entry.getKey(), key)){
                 foundValue = entry.getValue();
-                iterator.remove();
+                deleteEntryFromBucket(bucket, entry);
                 deleteEntryFromEntryList(entry);
                 size--;
                 break;
@@ -148,11 +144,23 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     }
 
     private void addEntryToBucket(int bucketNumber, HashMapEntry<K, V> entry) {
-
+        if (bucketArray[bucketNumber] != null) {
+            entry.next = bucketArray[bucketNumber];
+            bucketArray[bucketNumber].prev = entry;
+        }
+        bucketArray[bucketNumber] = entry;
     }
 
     private void deleteEntryFromBucket(int bucketNumber, HashMapEntry<K, V> entry) {
-        
+        if (entry.prev != null) {
+            entry.prev.next = entry.next;
+        }
+        if (entry.next != null) {
+            entry.next.prev = entry.prev;
+        }
+        if (bucketArray[bucketNumber] == entry) {
+            bucketArray[bucketNumber] = entry.after;
+        }
     }
 
     /** Checks whether the number of elements in hash table is greater than
@@ -194,6 +202,9 @@ public class HashMap<K, V> extends AbstractMap<K, V> {
     }
 
     private static class HashMapEntry<K, V> extends SimpleEntry<K, V> {
+        HashMapEntry<K, V> next;
+        HashMapEntry<K, V> prev;
+
         HashMapEntry<K, V> after;
         HashMapEntry<K, V> before;
 
