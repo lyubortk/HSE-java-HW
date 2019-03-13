@@ -115,17 +115,7 @@ class HashMapTest {
             assertEquals(Integer.toString(i + 1000), entry.getValue());
         }
     }
-
-    @Test
-    void kek() {
-        var testTable = new HashMap<Integer, Boolean>();
-        testTable.put(1, false);
-        testTable.put(1, false);
-
-        var iterator = testTable.entrySet().iterator();
-        assertEquals(1, (int)iterator.next().getKey());
-        assertEquals(1, (int)iterator.next().getKey());
-    }
+    
 
     @Test
     void orderChangesWhenPutTest() {
