@@ -254,19 +254,19 @@ class ReflectorTest {
     @Test
     void diffClassesTestSame1() {
         Reflector.diffClasses(GenericClass1.class, GenericClass1Copy.class);
-        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
+        compareWords(DIFF_CLASSES_SAME, arrayOut.toString());
     }
 
     @Test
     void diffClassesTestSame2() {
         Reflector.diffClasses(Hashtable.class, HashtableCopy.class);
-        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
+        compareWords(DIFF_CLASSES_SAME, arrayOut.toString());
     }
 
     @Test
     void diffClassesTestDifferentFields() {
         Reflector.diffClasses(SimpleClass2.class, SimpleClass2Different.class);
-        assertEquals("first class unique fields:1\n"
+        compareWords("first class unique fields:1\n"
                 + "public int field1\n\nsecond class unique fields:1\n"
                 + "public java.util.List<java.lang.Object> field4\n\n"
                 + "first class unique methods:0\n\n"
@@ -276,7 +276,7 @@ class ReflectorTest {
     @Test
     void diffClassesTestDifferentMethods() {
         Reflector.diffClasses(Hashtable.class, HashtableDifferent.class);
-        assertEquals("first class unique fields:0\n\n"
+        compareWords("first class unique fields:0\n\n"
                 + "second class unique fields:0\n\n"
                 + "first class unique methods:2\n"
                 + "private void copyContentTo(ClassName arg0)\n"
@@ -335,7 +335,7 @@ class ReflectorTest {
         var classLoader = new URLClassLoader(new URL[]{tempDirectory.toUri().toURL()});
         Class<?> someClass = classLoader.loadClass(clazz.getPackageName() + ".SomeClass");
         Reflector.diffClasses(clazz, someClass);
-        assertEquals(DIFF_CLASSES_SAME, arrayOut.toString());
+        compareWords(DIFF_CLASSES_SAME, arrayOut.toString());
     }
 
     static void testStructure(@NotNull Class<?> clazz, String expected) throws IOException {
@@ -347,5 +347,16 @@ class ReflectorTest {
             }
             assertFalse(expectedScanner.hasNext());
         }
+    }
+
+    void compareWords(String expected, String result) {
+        var scanner1 = new Scanner(expected);
+        var scanner2 = new Scanner(result);
+
+        while (scanner1.hasNext() && scanner2.hasNext()) {
+            assertEquals(scanner1.next(), scanner2.next());
+        }
+        assertFalse(scanner1.hasNext());
+        assertFalse(scanner2.hasNext());
     }
 }
