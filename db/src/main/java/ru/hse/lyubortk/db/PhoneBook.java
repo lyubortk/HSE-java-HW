@@ -2,6 +2,8 @@ package ru.hse.lyubortk.db;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 
@@ -66,10 +68,8 @@ public class PhoneBook {
      */
     public PhoneBook(@NotNull String name) throws SQLException {
         this.name = name;
-        executeUpdate("CREATE TABLE IF NOT EXISTS contacts (" +
-                "name TEXT," +
-                "number TEXT," +
-                "UNIQUE(name, number));", Collections.emptyList());
+        executeUpdate("CREATE TABLE IF NOT EXISTS " + getTableSchema(),
+                Collections.emptyList());
     }
 
     /**
@@ -194,5 +194,10 @@ public class PhoneBook {
             }
         }
         return list;
+    }
+
+    private static @NotNull String getTableSchema() {
+        InputStream schemaStream = PhoneBook.class.getResourceAsStream("/tableSchema");
+        return new Scanner(schemaStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
     }
 }

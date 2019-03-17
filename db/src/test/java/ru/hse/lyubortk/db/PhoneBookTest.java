@@ -41,10 +41,10 @@ class PhoneBookTest {
     void addRecordBasic() throws SQLException {
         phoneBook.addRecord(records[4]);
         assertEquals(Collections.singletonList(records[4]), phoneBook.getAllRecords());
-        assertEquals(Collections.singletonList(records[4].name),
-                phoneBook.getNamesByNumber(records[4].number));
-        assertEquals(Collections.singletonList(records[4].number),
-                phoneBook.getNumbersByName(records[4].name));
+        assertEquals(Collections.singletonList(records[4].getName()),
+                phoneBook.getNamesByNumber(records[4].getNumber()));
+        assertEquals(Collections.singletonList(records[4].getNumber()),
+                phoneBook.getNumbersByName(records[4].getName()));
     }
 
     @Test
@@ -54,8 +54,8 @@ class PhoneBookTest {
             phoneBook.addRecord(records[i]);
         }
         var sortedRecords = new ArrayList<>(Arrays.asList(records));
-        sortedRecords.sort(Comparator.comparing((PhoneBook.Record a) -> a.name).
-                thenComparing(a -> a.number));
+        sortedRecords.sort(Comparator.comparing(PhoneBook.Record::getName).
+                thenComparing(PhoneBook.Record::getNumber));
         assertEquals(phoneBook.getAllRecords(), sortedRecords);
     }
 
@@ -72,9 +72,9 @@ class PhoneBookTest {
         for (var r : records) {
             phoneBook.addRecord(r);
         }
-        var expectedResult = Arrays.asList(records[2].number, records[3].number);
+        var expectedResult = Arrays.asList(records[2].getNumber(), records[3].getNumber());
         expectedResult.sort(Comparator.comparing(a -> a));
-        assertEquals(phoneBook.getNumbersByName(records[2].name), expectedResult);
+        assertEquals(phoneBook.getNumbersByName(records[2].getName()), expectedResult);
     }
 
     @Test
@@ -82,9 +82,9 @@ class PhoneBookTest {
         for (var r : records) {
             phoneBook.addRecord(r);
         }
-        var expectedResult = Arrays.asList(records[3].name, records[4].name);
+        var expectedResult = Arrays.asList(records[3].getName(), records[4].getName());
         expectedResult.sort(Comparator.comparing(a -> a));
-        assertEquals(phoneBook.getNamesByNumber(records[3].number), expectedResult);
+        assertEquals(phoneBook.getNamesByNumber(records[3].getNumber()), expectedResult);
     }
 
     @Test
@@ -107,13 +107,13 @@ class PhoneBookTest {
         var record = new PhoneBook.Record("Miku Miku", "12345 56789");
         phoneBook.addRecord(record);
         phoneBook.changeNameOfRecord(record, "Hatsune Miku");
-        assertEquals("Hatsune Miku", phoneBook.getNamesByNumber(record.number).get(0));
+        assertEquals("Hatsune Miku", phoneBook.getNamesByNumber(record.getNumber()).get(0));
         assertEquals("Hatsune Miku", phoneBook.getNamesByNumber("12345 56789").get(0));
     }
 
     @Test
     void changeNameOfRecordCollision() throws SQLException {
-        var anotherRecord = new PhoneBook.Record("Trump", records[4].number);
+        var anotherRecord = new PhoneBook.Record("Trump", records[4].getNumber());
         phoneBook.addRecord(records[4]);
         phoneBook.addRecord(anotherRecord);
         assertEquals(2, phoneBook.getAllRecords().size());
@@ -127,13 +127,13 @@ class PhoneBookTest {
         var record = new PhoneBook.Record("Miku Miku", "12345 56789");
         phoneBook.addRecord(record);
         phoneBook.changeNumberOfRecord(record, "2019");
-        assertEquals("2019", phoneBook.getNumbersByName(record.name).get(0));
+        assertEquals("2019", phoneBook.getNumbersByName(record.getName()).get(0));
         assertEquals("2019", phoneBook.getNumbersByName("Miku Miku").get(0));
     }
 
     @Test
     void changeNumberOfRecordCollision() throws SQLException {
-        var anotherRecord = new PhoneBook.Record(records[4].name, ":-)");
+        var anotherRecord = new PhoneBook.Record(records[4].getName(), ":-)");
         phoneBook.addRecord(records[4]);
         phoneBook.addRecord(anotherRecord);
         assertEquals(2, phoneBook.getAllRecords().size());
@@ -149,8 +149,8 @@ class PhoneBookTest {
             assertEquals(list, phoneBook.getAllRecords());
             phoneBook.addRecord(records[i]);
             list.add(i, records[i]);
-            list.sort(Comparator.comparing((PhoneBook.Record a) -> a.name).
-                    thenComparing(a -> a.number));
+            list.sort(Comparator.comparing(PhoneBook.Record::getName).
+                    thenComparing(PhoneBook.Record::getNumber));
         }
 
         assertEquals(list, phoneBook.getAllRecords());
