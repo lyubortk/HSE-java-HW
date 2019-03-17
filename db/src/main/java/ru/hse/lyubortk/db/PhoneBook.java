@@ -10,12 +10,14 @@ import java.util.*;
  * Implementation uses SQLite-jdbc for database.
  */
 public class PhoneBook {
-    private @NotNull String name;
+    private final @NotNull String name;
 
     /** Pair of strings: name and phone number */
     public static class Record {
-        public @NotNull String name;
-        public @NotNull String number;
+        private @NotNull String name;
+        private @NotNull String number;
+
+        /** Record constructor which accepts record's name and phone number */
         public Record(@NotNull String name, @NotNull String number) {
             this.name = name;
             this.number = number;
@@ -37,6 +39,22 @@ public class PhoneBook {
         @Override
         public int hashCode() {
             return Objects.hash(name, number);
+        }
+
+        public @NotNull String getName() {
+            return name;
+        }
+
+        public void setName(@NotNull String name) {
+            this.name = name;
+        }
+
+        public @NotNull String getNumber() {
+            return number;
+        }
+
+        public void setNumber(@NotNull String number) {
+            this.number = number;
         }
     }
 

@@ -50,7 +50,7 @@ public class PhoneBookCLI {
                 case 7:
                     List<PhoneBook.Record> records = phoneBook.getAllRecords();
                     for (var r: records) {
-                        System.out.println(r.name + " " + r.number);
+                        System.out.println(r.getName() + " " + r.getNumber());
                     }
                     break;
                 case 8:
