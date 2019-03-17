@@ -8,10 +8,10 @@ import java.util.Scanner;
 
 /** Command Line Interface for PhoneBook class */
 public class PhoneBookCLI {
-    private static final String RECORD_NOT_FOUND_MESSAGE = "PhoneBook does not contain this record."
-                                                           + " Leaving database unchanged.";
+    private static final String RECORD_NOT_FOUND_MESSAGE = "PhoneBook does not contain this "
+                                                           + "record. Leaving database unchanged.";
     private static final String AMBIGUOUS_RECORD_MESSAGE = "Performed operation could result in "
-                                                           + "identical records in the PhoneBook."
+                                                           + "identical records in the PhoneBook. "
                                                            + "Leaving database unchanged.";
 
     /**
@@ -44,7 +44,7 @@ public class PhoneBookCLI {
                     phoneBook.getNamesByNumber(in.nextLine()).forEach(System.out::println);
                     break;
                 case 4:
-                    System.out.println("Enter name and number on two different lines:");
+                    System.out.println("Enter name and number on two separate lines:");
                     try {
                         phoneBook.eraseRecord(new PhoneBook.Record(in.nextLine(), in.nextLine()));
                     } catch (RecordNotFoundException e) {
@@ -53,7 +53,7 @@ public class PhoneBookCLI {
                     break;
                 case 5:
                     System.out.println("Enter old name, number and new name "
-                            + "on three separate lines:");
+                                       + "on three separate lines:");
                     try {
                         phoneBook.changeNameOfRecord(
                                 new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
@@ -64,8 +64,8 @@ public class PhoneBookCLI {
                     }
                     break;
                 case 6:
-                    System.out.println("Enter name, old number and new number " +
-                            "on three separate lines:");
+                    System.out.println("Enter name, old number and new number "
+                                       + "on three separate lines:");
                     try {
                         phoneBook.changeNumberOfRecord(
                                 new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
@@ -84,15 +84,18 @@ public class PhoneBookCLI {
                 case 8:
                     phoneBook.clear();
                     break;
+                case 9:
+                    printHelp();
+                    break;
                 default:
-                    System.out.println("Unknown command");
+                    System.out.println("Unknown command. Enter 9 to show list of commands.");
                     break;
             }
         }
     }
 
     private static int getCommand(@NotNull Scanner in) {
-        System.out.println("\nEnter command number");
+        System.out.println("\nEnter command number (9 to show list of available commands).");
         int result;
         try {
             result = Integer.parseInt(in.nextLine());
@@ -100,5 +103,20 @@ public class PhoneBookCLI {
             result = -1;
         }
         return result;
+    }
+
+    private static void printHelp() {
+        System.out.println("o--------------------------------o");
+        System.out.println("| 0 - exit                       |");
+        System.out.println("| 1 - add record                 |");
+        System.out.println("| 2 - print all numbers by name  |");
+        System.out.println("| 3 - print all names by number  |");
+        System.out.println("| 4 - erase record               |");
+        System.out.println("| 5 - change name of record      |");
+        System.out.println("| 6 - change number of record    |");
+        System.out.println("| 7 - print all records          |");
+        System.out.println("| 8 - erase all records          |");
+        System.out.println("| 9 - print help                 |");
+        System.out.println("o--------------------------------o");
     }
 }

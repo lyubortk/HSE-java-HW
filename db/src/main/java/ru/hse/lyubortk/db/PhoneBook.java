@@ -133,7 +133,8 @@ public class PhoneBook {
         if (!containsRecord(record)) {
             throw new RecordNotFoundException();
         }
-        if (containsRecord(new Record(newName, record.getNumber()))) {
+        if (!record.getName().equals(newName) &&
+            containsRecord(new Record(newName, record.getNumber()))) {
             throw new AmbiguousRecordException();
         }
         executeUpdate("UPDATE contacts SET name = ? WHERE name = ? AND number = ?",
@@ -151,7 +152,8 @@ public class PhoneBook {
         if (!containsRecord(record)) {
             throw new RecordNotFoundException();
         }
-        if (containsRecord(new Record(record.getName(), newNumber))) {
+        if (!record.getNumber().equals(newNumber) &&
+            containsRecord(new Record(record.getName(), newNumber))) {
             throw new AmbiguousRecordException();
         }
         executeUpdate("UPDATE OR REPLACE contacts SET number = ? WHERE name = ? AND number = ?",
