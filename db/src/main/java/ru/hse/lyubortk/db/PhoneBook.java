@@ -78,8 +78,11 @@ public class PhoneBook {
      * @param record a record to add to phone book
      * @throws SQLException in case of error with database file
      */
-    public void addRecord(@NotNull Record record) throws SQLException {
-        executeUpdate("INSERT OR IGNORE INTO contacts VALUES (?, ?)",
+    public void addRecord(@NotNull Record record) throws SQLException, AmbiguousRecordException {
+        if (containsRecord(record)) {
+            throw new AmbiguousRecordException();
+        }
+        executeUpdate("INSERT INTO contacts VALUES (?, ?)",
                 Arrays.asList(record.name, record.number));
     }
 
@@ -111,7 +114,10 @@ public class PhoneBook {
      * @param record a record to delete.
      * @throws SQLException in case of error with database file
      */
-    public void eraseRecord(@NotNull Record record) throws SQLException {
+    public void eraseRecord(@NotNull Record record) throws SQLException, RecordNotFoundException {
+        if (!containsRecord(record)) {
+            throw new RecordNotFoundException();
+        }
         executeUpdate("DELETE FROM contacts WHERE name = ? AND number = ?",
                 Arrays.asList(record.name, record.number));
     }
@@ -122,9 +128,15 @@ public class PhoneBook {
      * @param newName new value of the name field of the given record
      * @throws SQLException in case of error with database file
      */
-    public void changeNameOfRecord(@NotNull Record record,
-                                   @NotNull String newName) throws SQLException {
-        executeUpdate("UPDATE OR REPLACE contacts SET name = ? WHERE name = ? AND number = ?",
+    public void changeNameOfRecord(@NotNull Record record, @NotNull String newName)
+            throws SQLException, RecordNotFoundException, AmbiguousRecordException {
+        if (!containsRecord(record)) {
+            throw new RecordNotFoundException();
+        }
+        if (containsRecord(new Record(newName, record.getNumber()))) {
+            throw new AmbiguousRecordException();
+        }
+        executeUpdate("UPDATE contacts SET name = ? WHERE name = ? AND number = ?",
                 Arrays.asList(newName, record.name, record.number));
     }
 
@@ -134,8 +146,14 @@ public class PhoneBook {
      * @param newNumber new value of the number field of the given record
      * @throws SQLException in case of error with database file
      */
-    public void changeNumberOfRecord(@NotNull Record record,
-                                     @NotNull String newNumber) throws SQLException {
+    public void changeNumberOfRecord(@NotNull Record record, @NotNull String newNumber)
+            throws SQLException, RecordNotFoundException, AmbiguousRecordException {
+        if (!containsRecord(record)) {
+            throw new RecordNotFoundException();
+        }
+        if (containsRecord(new Record(record.getName(), newNumber))) {
+            throw new AmbiguousRecordException();
+        }
         executeUpdate("UPDATE OR REPLACE contacts SET number = ? WHERE name = ? AND number = ?",
                 Arrays.asList(newNumber, record.name, record.number));
     }
@@ -160,6 +178,12 @@ public class PhoneBook {
      */
     public void clear() throws SQLException {
        executeUpdate("DELETE FROM contacts", Collections.emptyList());
+    }
+
+    private boolean containsRecord(@NotNull Record record) throws SQLException {
+        return executeQuery("SELECT * FROM CONTACTS WHERE name = ? AND number = ?",
+                Arrays.asList(record.getName(), record.getNumber()))
+                .size() != 0;
     }
 
     private void executeUpdate(@NotNull String query,

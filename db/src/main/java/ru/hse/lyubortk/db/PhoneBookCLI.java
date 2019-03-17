@@ -1,11 +1,19 @@
 package ru.hse.lyubortk.db;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
 /** Command Line Interface for PhoneBook class */
 public class PhoneBookCLI {
+    private static final String RECORD_NOT_FOUND_MESSAGE = "PhoneBook does not contain this record."
+                                                           + " Leaving database unchanged.";
+    private static final String AMBIGUOUS_RECORD_MESSAGE = "Performed operation could result in "
+                                                           + "identical records in the PhoneBook."
+                                                           + "Leaving database unchanged.";
+
     /**
      * Endless loop with 8 different options for phone book management;
      * @throws SQLException in case of error with database file
@@ -21,7 +29,11 @@ public class PhoneBookCLI {
                     break;
                 case 1:
                     System.out.println("Enter name and number on two separate lines:");
-                    phoneBook.addRecord(new PhoneBook.Record(in.nextLine(), in.nextLine()));
+                    try {
+                        phoneBook.addRecord(new PhoneBook.Record(in.nextLine(), in.nextLine()));
+                    } catch (AmbiguousRecordException e) {
+                        System.out.println(AMBIGUOUS_RECORD_MESSAGE);
+                    }
                     break;
                 case 2:
                     System.out.println("Enter name:");
@@ -33,19 +45,35 @@ public class PhoneBookCLI {
                     break;
                 case 4:
                     System.out.println("Enter name and number on two different lines:");
-                    phoneBook.eraseRecord(new PhoneBook.Record(in.nextLine(), in.nextLine()));
+                    try {
+                        phoneBook.eraseRecord(new PhoneBook.Record(in.nextLine(), in.nextLine()));
+                    } catch (RecordNotFoundException e) {
+                        System.out.println(RECORD_NOT_FOUND_MESSAGE);
+                    }
                     break;
                 case 5:
-                    System.out.println("Enter old name, number and new name " +
-                            "on three separate lines:");
-                    phoneBook.changeNameOfRecord(
-                            new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
+                    System.out.println("Enter old name, number and new name "
+                            + "on three separate lines:");
+                    try {
+                        phoneBook.changeNameOfRecord(
+                                new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
+                    } catch (RecordNotFoundException e) {
+                        System.out.println(RECORD_NOT_FOUND_MESSAGE);
+                    } catch (AmbiguousRecordException e) {
+                        System.out.println(AMBIGUOUS_RECORD_MESSAGE);
+                    }
                     break;
                 case 6:
                     System.out.println("Enter name, old number and new number " +
                             "on three separate lines:");
-                    phoneBook.changeNumberOfRecord(
-                            new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
+                    try {
+                        phoneBook.changeNumberOfRecord(
+                                new PhoneBook.Record(in.nextLine(), in.nextLine()), in.nextLine());
+                    } catch (RecordNotFoundException e) {
+                        System.out.println(RECORD_NOT_FOUND_MESSAGE);
+                    } catch (AmbiguousRecordException e) {
+                        System.out.println(AMBIGUOUS_RECORD_MESSAGE);
+                    }
                     break;
                 case 7:
                     List<PhoneBook.Record> records = phoneBook.getAllRecords();
@@ -63,7 +91,7 @@ public class PhoneBookCLI {
         }
     }
 
-    private static int getCommand(Scanner in) {
+    private static int getCommand(@NotNull Scanner in) {
         System.out.println("\nEnter command number");
         int result;
         try {

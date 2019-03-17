@@ -39,7 +39,7 @@ class PhoneBookTest {
 
     @Test
     void addRecordBasic() throws SQLException {
-        phoneBook.addRecord(records[4]);
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[4]));
         assertEquals(Collections.singletonList(records[4]), phoneBook.getAllRecords());
         assertEquals(Collections.singletonList(records[4].getName()),
                 phoneBook.getNamesByNumber(records[4].getNumber()));
@@ -50,19 +50,21 @@ class PhoneBookTest {
     @Test
     void addMultipleRecords() throws SQLException {
         for (int i = 0; i < records.length; i++) {
+            int index = i;
             assertEquals(i, phoneBook.getAllRecords().size());
-            phoneBook.addRecord(records[i]);
+            assertDoesNotThrow(() -> phoneBook.addRecord(records[index]));
         }
         var sortedRecords = new ArrayList<>(Arrays.asList(records));
         sortedRecords.sort(Comparator.comparing(PhoneBook.Record::getName).
                 thenComparing(PhoneBook.Record::getNumber));
-        assertEquals(phoneBook.getAllRecords(), sortedRecords);
+        assertEquals(sortedRecords, phoneBook.getAllRecords());
     }
 
     @Test
     void addSameRecord() throws SQLException {
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[0]));
         for (int i = 0; i < 10; i++) {
-            phoneBook.addRecord(records[0]);
+            assertThrows(AmbiguousRecordException.class, () -> phoneBook.addRecord(records[0]));
         }
         assertEquals(1, phoneBook.getAllRecords().size());
     }
@@ -70,17 +72,17 @@ class PhoneBookTest {
     @Test
     void getNumbersByName() throws SQLException {
         for (var r : records) {
-            phoneBook.addRecord(r);
+            assertDoesNotThrow(() -> phoneBook.addRecord(r));
         }
         var expectedResult = Arrays.asList(records[2].getNumber(), records[3].getNumber());
         expectedResult.sort(Comparator.comparing(a -> a));
-        assertEquals(phoneBook.getNumbersByName(records[2].getName()), expectedResult);
+        assertEquals(expectedResult, phoneBook.getNumbersByName(records[2].getName()));
     }
 
     @Test
     void getNamesByNumber() throws SQLException {
         for (var r : records) {
-            phoneBook.addRecord(r);
+            assertDoesNotThrow(() -> phoneBook.addRecord(r));
         }
         var expectedResult = Arrays.asList(records[3].getName(), records[4].getName());
         expectedResult.sort(Comparator.comparing(a -> a));
@@ -90,23 +92,23 @@ class PhoneBookTest {
     @Test
     void eraseRecord() throws SQLException {
         assertEquals(phoneBook.getAllRecords(), Collections.emptyList());
-        phoneBook.addRecord(records[2]);
-        phoneBook.addRecord(records[3]);
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[2]));
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[3]));
 
         assertEquals(2, phoneBook.getAllRecords().size());
 
-        phoneBook.eraseRecord(records[2]);
+        assertDoesNotThrow(() -> phoneBook.eraseRecord(records[2]));
         assertEquals(Collections.singletonList(records[3]), phoneBook.getAllRecords());
 
-        phoneBook.eraseRecord(records[3]);
+        assertDoesNotThrow(() -> phoneBook.eraseRecord(records[3]));
         assertEquals(0, phoneBook.getAllRecords().size());
     }
 
     @Test
     void changeNameOfRecordBasic() throws SQLException {
         var record = new PhoneBook.Record("Miku Miku", "12345 56789");
-        phoneBook.addRecord(record);
-        phoneBook.changeNameOfRecord(record, "Hatsune Miku");
+        assertDoesNotThrow(() -> phoneBook.addRecord(record));
+        assertDoesNotThrow(() -> phoneBook.changeNameOfRecord(record, "Hatsune Miku"));
         assertEquals("Hatsune Miku", phoneBook.getNamesByNumber(record.getNumber()).get(0));
         assertEquals("Hatsune Miku", phoneBook.getNamesByNumber("12345 56789").get(0));
     }
@@ -114,19 +116,20 @@ class PhoneBookTest {
     @Test
     void changeNameOfRecordCollision() throws SQLException {
         var anotherRecord = new PhoneBook.Record("Trump", records[4].getNumber());
-        phoneBook.addRecord(records[4]);
-        phoneBook.addRecord(anotherRecord);
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[4]));
+        assertDoesNotThrow(() -> phoneBook.addRecord(anotherRecord));
         assertEquals(2, phoneBook.getAllRecords().size());
 
-        phoneBook.changeNameOfRecord(records[4], "Trump");
-        assertEquals(1, phoneBook.getAllRecords().size());
+        assertThrows(AmbiguousRecordException.class,
+                () -> phoneBook.changeNameOfRecord(records[4], "Trump"));
+        assertEquals(2, phoneBook.getAllRecords().size());
     }
 
     @Test
     void changeNumberOfRecordBasic() throws SQLException {
         var record = new PhoneBook.Record("Miku Miku", "12345 56789");
-        phoneBook.addRecord(record);
-        phoneBook.changeNumberOfRecord(record, "2019");
+        assertDoesNotThrow(() -> phoneBook.addRecord(record));
+        assertDoesNotThrow(() -> phoneBook.changeNumberOfRecord(record, "2019"));
         assertEquals("2019", phoneBook.getNumbersByName(record.getName()).get(0));
         assertEquals("2019", phoneBook.getNumbersByName("Miku Miku").get(0));
     }
@@ -134,20 +137,22 @@ class PhoneBookTest {
     @Test
     void changeNumberOfRecordCollision() throws SQLException {
         var anotherRecord = new PhoneBook.Record(records[4].getName(), ":-)");
-        phoneBook.addRecord(records[4]);
-        phoneBook.addRecord(anotherRecord);
+        assertDoesNotThrow(() -> phoneBook.addRecord(records[4]));
+        assertDoesNotThrow(() -> phoneBook.addRecord(anotherRecord));
         assertEquals(2, phoneBook.getAllRecords().size());
 
-        phoneBook.changeNumberOfRecord(records[4], ":-)");
-        assertEquals(1, phoneBook.getAllRecords().size());
+        assertThrows(AmbiguousRecordException.class,
+                () -> phoneBook.changeNumberOfRecord(records[4], ":-)"));
+        assertEquals(2, phoneBook.getAllRecords().size());
     }
 
     @Test
     void getAllRecordsAndClear() throws SQLException {
         var list = new ArrayList<PhoneBook.Record>();
         for (int i = 0; i < records.length; i++) {
+            int index = i;
             assertEquals(list, phoneBook.getAllRecords());
-            phoneBook.addRecord(records[i]);
+            assertDoesNotThrow(() -> phoneBook.addRecord(records[index]));
             list.add(i, records[i]);
             list.sort(Comparator.comparing(PhoneBook.Record::getName).
                     thenComparing(PhoneBook.Record::getNumber));
