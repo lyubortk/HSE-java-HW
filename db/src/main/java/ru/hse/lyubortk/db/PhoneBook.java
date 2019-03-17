@@ -12,9 +12,7 @@ import java.util.*;
 public class PhoneBook {
     private @NotNull String name;
 
-    /**
-     * Pair of strings: name and phone number.
-     */
+    /** Pair of strings: name and phone number */
     public static class Record {
         public @NotNull String name;
         public @NotNull String number;
@@ -22,7 +20,6 @@ public class PhoneBook {
             this.name = name;
             this.number = number;
         }
-
 
         @Override
         public boolean equals(Object o) {

@@ -4,9 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Command Line Interface for PhoneBook class
- */
+/** Command Line Interface for PhoneBook class */
 public class PhoneBookCLI {
     /**
      * Endless loop with 8 different options for phone book management;
@@ -64,7 +62,6 @@ public class PhoneBookCLI {
             }
         }
     }
-
 
     private static int getCommand(Scanner in) {
         System.out.println("\nEnter command number");
