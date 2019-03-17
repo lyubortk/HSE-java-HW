@@ -74,9 +74,10 @@ public class PhoneBook {
 
     /**
      * Adds record to database. If database already contains this record then
-     * the record won't be added twice.
+     * the record won't be added twice but {@link AmbiguousRecordException} will be thrown.
      * @param record a record to add to phone book
      * @throws SQLException in case of error with database file
+     * @throws AmbiguousRecordException if database already contains this record
      */
     public void addRecord(@NotNull Record record) throws SQLException, AmbiguousRecordException {
         if (containsRecord(record)) {
@@ -110,9 +111,10 @@ public class PhoneBook {
 
     /**
      * Deletes specified record from database. If database does not contain this record
-     * then nothing is changed.
+     * then database remains unchanged but {@link RecordNotFoundException} will be thrown.
      * @param record a record to delete.
      * @throws SQLException in case of error with database file
+     * @throws RecordNotFoundException if record does not exist
      */
     public void eraseRecord(@NotNull Record record) throws SQLException, RecordNotFoundException {
         if (!containsRecord(record)) {
@@ -123,10 +125,12 @@ public class PhoneBook {
     }
 
     /**
-     * Changes name in the specified record. If changed record is identical
-     * to another record in database then duplicates are merged into one record.
+     * Changes name in the specified record. If changed record is identical to another record
+     * in database then operation is not performed and {@link AmbiguousRecordException} is thrown.
      * @param newName new value of the name field of the given record
      * @throws SQLException in case of error with database file
+     * @throws RecordNotFoundException if database does not contain specified record
+     * @throws AmbiguousRecordException if changed record is identical to another one stored
      */
     public void changeNameOfRecord(@NotNull Record record, @NotNull String newName)
             throws SQLException, RecordNotFoundException, AmbiguousRecordException {
@@ -142,10 +146,13 @@ public class PhoneBook {
     }
 
     /**
-     * Changes phone number in the specified record. If changed record is identical
-     * to another record in database then duplicates are merged into one record
+     * Changes phone number in the specified record. If changed record is identical to another
+     * record in database then operation is not performed
+     * and {@link AmbiguousRecordException} is thrown.
      * @param newNumber new value of the number field of the given record
      * @throws SQLException in case of error with database file
+     * @throws RecordNotFoundException if database does not contain specified record
+     * @throws AmbiguousRecordException if changed record is identical to another one stored
      */
     public void changeNumberOfRecord(@NotNull Record record, @NotNull String newNumber)
             throws SQLException, RecordNotFoundException, AmbiguousRecordException {
