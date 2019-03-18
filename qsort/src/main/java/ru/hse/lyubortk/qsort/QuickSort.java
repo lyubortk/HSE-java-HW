@@ -32,7 +32,9 @@ public class QuickSort {
         ExecutorService threadPool = Executors.newFixedThreadPool(numberOfCores);
 
         var numberOfSortedElements = new AtomicInteger();
-        threadPool.submit(new SortTask(threadPool, listToSort, numberOfSortedElements));
+        threadPool.submit(
+                new SortTask(threadPool, listToSort, numberOfSortedElements, list.size())
+        );
 
         synchronized (numberOfSortedElements) {
             while (numberOfSortedElements.get() != list.size()) {
@@ -52,34 +54,44 @@ public class QuickSort {
     }
 
     private static class SortTask implements Runnable {
+        private static final int INSERTION_SORT_THRESHOLD = 40;
         private static final @NotNull Random RANDOM = new Random();
+
         private final @NotNull ExecutorService threadPool;
         private final @NotNull List<Integer> listToSort;
         private final @NotNull AtomicInteger numberOfSortedElements;
+        private final int originListSize;
 
         private SortTask(@NotNull ExecutorService threadPool, @NotNull List<Integer> listToSort,
-                         @NotNull AtomicInteger numberOfSortedElements) {
+                         @NotNull AtomicInteger numberOfSortedElements, int originListSize) {
             this.threadPool = threadPool;
             this.listToSort = listToSort;
             this.numberOfSortedElements = numberOfSortedElements;
+            this.originListSize = originListSize;
         }
 
         @Override
         public void run() {
-            if (listToSort.size() < 40) {
+            if (listToSort.size() < INSERTION_SORT_THRESHOLD) {
                 insertionSort(listToSort);
                 synchronized (numberOfSortedElements) {
-                    numberOfSortedElements.addAndGet(listToSort.size());
-                    numberOfSortedElements.notifyAll();
+                    int actualNumber = numberOfSortedElements.addAndGet(listToSort.size());
+                    if (actualNumber == originListSize) {
+                        numberOfSortedElements.notifyAll();
+                    }
                 }
                 return;
             }
 
             int middle = partition(listToSort);
-            threadPool.submit(new SortTask(threadPool,
-                    listToSort.subList(0, middle), numberOfSortedElements));
-            threadPool.submit(new SortTask(threadPool,
-                    listToSort.subList(middle, listToSort.size()), numberOfSortedElements));
+            threadPool.submit(
+                    new SortTask(threadPool, listToSort.subList(0, middle),
+                            numberOfSortedElements, originListSize)
+            );
+            threadPool.submit(
+                    new SortTask(threadPool, listToSort.subList(middle, listToSort.size()),
+                            numberOfSortedElements, originListSize)
+            );
         }
 
         private static void insertionSort(List<Integer> list) {
