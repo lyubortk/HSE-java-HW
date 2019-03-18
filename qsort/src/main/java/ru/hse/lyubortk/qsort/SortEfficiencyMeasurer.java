@@ -25,9 +25,9 @@ public class SortEfficiencyMeasurer {
             System.out.println("Multi-thread QuickSort execution time: " + quickSortTime + " ms");
             System.out.println("Collections::sort execution time: " + collectionsSortTime + " ms");
             if (quickSortTime > collectionsSortTime) {
-                System.out.println("Multi-thread is faster");
-            } else {
                 System.out.println("Collections::sort is faster");
+            } else {
+                System.out.println("Multi-thread QuickSort is fasterq");
             }
             System.out.println();
         }
