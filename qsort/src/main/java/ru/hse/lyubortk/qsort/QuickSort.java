@@ -43,6 +43,8 @@ public class QuickSort {
             }
         }
 
+        threadPool.shutdown();
+
         if (!isArrayList) {
             list.clear();
             list.addAll(listToSort);

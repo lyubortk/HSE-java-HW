@@ -10,7 +10,7 @@ public class SortEfficiencyMeasurer {
 
     /** Sorts arrays of different sizes with two sorting methods and prints their execution time */
     public static void main(String[] args) {
-        for (int i = 100; i <= 10_000_000;
+        for (int i = 10; i <= 10_000_000;
              i *= (Integer.valueOf(i).toString().contains("5") ? 2 : 5)) {
             var list1 = new ArrayList<Integer>();
             for (int j = 0; j < i; ++j) {
