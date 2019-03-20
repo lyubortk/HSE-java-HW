@@ -1,0 +1,4 @@
+contacts (
+name TEXT,
+number TEXT,
+UNIQUE(name, number));
