@@ -41,8 +41,14 @@ public class CountdownLatchTest {
     @Test
     void checkAids() {
         var latch = new CountdownLatch(0);
-
+        var piss = new AtomicInteger(1);
+        var actor = new Thread(() -> {
+            piss.decrementAndGet();
+            latch.countDown();
+            assertNotEquals(0, piss.get());
+        });
+        piss.incrementAndGet();
+        latch.countUp();
     }
-
 
 }
