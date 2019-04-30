@@ -31,8 +31,12 @@ public class ThreadPool {
         }
     }
 
-    public <T> LightFuture<T> addTask(@NotNull Supplier<T> supplier) {
-        var task = new Task<>(supplier);
+    public <T> LightFuture<T> addTask(@NotNull Supplier<? extends T> supplier) {
+        if (wasShutdown) {
+            throw new IllegalStateException();
+        }
+
+        var task = new Task<T>(supplier);
         taskQueue.put(task);
         return task;
     }
@@ -48,12 +52,12 @@ public class ThreadPool {
         private volatile boolean isReady = false;
         private T result = null;
         private final List<Task<?>> thenApplyTasksQueue = new ArrayList<>();
-        private final Supplier<T> targetSupplier;
+        private final Supplier<? extends T> targetSupplier;
         private Throwable caughtThrowable = null;
 
         private final Object mutex = new Object();
 
-        private Task(@NotNull Supplier<T> targetSupplier) {
+        private Task(@NotNull Supplier<? extends T> targetSupplier) {
             this.targetSupplier = targetSupplier;
         }
 
@@ -116,6 +120,7 @@ public class ThreadPool {
 
         private synchronized void put(@Nullable T value) {
             queue.offer(value);
+            notify();
         }
 
         private synchronized T take() throws InterruptedException {
