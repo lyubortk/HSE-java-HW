@@ -96,6 +96,10 @@ public class ThreadPool {
 
         @Override
         public <S> LightFuture<S> thenApply(@NotNull Function<? super T, ? extends S> function) {
+            if (wasShutdown) {
+                throw new IllegalStateException();
+            }
+
             var task = new Task<S>(() -> {
                 if (caughtThrowable != null) {
                     throw new RuntimeException(caughtThrowable);
