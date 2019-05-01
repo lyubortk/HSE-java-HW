@@ -81,7 +81,7 @@ class ThreadPoolTest {
 
     @RepeatedTest(REPEATED_TEST_NUMBER)
     void testThenApplyOneChain() throws LightExecutionException, InterruptedException {
-        var lightFuture = threadPool.execute(() -> 1);
+        var lightFuture = threadPool.execute(() -> 0);
         for (int i = 0; i < 100; i++) {
             lightFuture = lightFuture.thenApply((a) -> a + 1);
         }
