@@ -10,16 +10,25 @@ import java.util.Queue;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** A simple thread pool class with fixed number of threads */
 public class ThreadPool {
-    private volatile boolean wasShutdown = false;
+    private volatile boolean isShutdown = false;
     private final Thread[] threads;
     private final BlockingQueue<Task<?>> taskQueue = new BlockingQueue<>();
 
+    /**
+     * Creates a new ThreadPool with given number of threads. The number of threads
+     * has to be greater than zero.
+     */
     public ThreadPool(int numberOfThreads) {
+        if (numberOfThreads < 1) {
+            throw new IllegalArgumentException();
+        }
+
         threads = new Thread[numberOfThreads];
         for (int i = 0; i < numberOfThreads; i++) {
             threads[i] = new Thread(() -> {
-                while (!wasShutdown) {
+                while (!isShutdown) {
                     try {
                         var task = taskQueue.take();
                         task.run();
@@ -31,8 +40,12 @@ public class ThreadPool {
         }
     }
 
-    public <T> LightFuture<T> addTask(@NotNull Supplier<? extends T> supplier) {
-        if (wasShutdown) {
+    /**
+     * Adds task to the ThreadPool. The task will be computed when any worker thread is free and
+     * there is no other tasks submitted before this task.
+     */
+    public <T> LightFuture<T> execute(@NotNull Supplier<? extends T> supplier) {
+        if (isShutdown) {
             throw new IllegalStateException();
         }
 
@@ -41,9 +54,14 @@ public class ThreadPool {
         return task;
     }
 
-    public void shutDown() {
-        wasShutdown = true;
-        for (Thread thread : threads) {
+    /**
+     * Initiates a shutdown of the ThreadPool.
+     * Attempts to stop all currently executing tasks by interrupting worker threads.
+     * No new tasks will be accepted after this operation.
+     */
+    public void shutdown() {
+        isShutdown = true;
+        for (var thread : threads) {
             thread.interrupt();
         }
     }
@@ -51,9 +69,9 @@ public class ThreadPool {
     private class Task<T> implements LightFuture<T>, Runnable {
         private volatile boolean isReady = false;
         private T result = null;
-        private final List<Task<?>> thenApplyTasksQueue = new ArrayList<>();
-        private final Supplier<? extends T> targetSupplier;
         private Throwable caughtThrowable = null;
+        private final List<Task<?>> thenApplyTasksQueue = new ArrayList<>();
+        private Supplier<? extends T> targetSupplier;
 
         private final Object mutex = new Object();
 
@@ -61,6 +79,7 @@ public class ThreadPool {
             this.targetSupplier = targetSupplier;
         }
 
+        /** {@inheritDoc} */
         @Override
         public void run() {
             try {
@@ -68,6 +87,8 @@ public class ThreadPool {
             } catch (Throwable throwable) {
                 caughtThrowable = throwable;
             }
+            //prevents holding of LightFuture chain from thenApply method
+            targetSupplier = null;
             isReady = true;
 
             synchronized (mutex) {
@@ -76,11 +97,13 @@ public class ThreadPool {
             }
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean isReady() {
             return isReady;
         }
 
+        /** {@inheritDoc} */
         @Override
         public T get() throws InterruptedException, LightExecutionException {
             synchronized (mutex) {
@@ -94,9 +117,10 @@ public class ThreadPool {
             return result;
         }
 
+        /** {@inheritDoc} */
         @Override
         public <S> LightFuture<S> thenApply(@NotNull Function<? super T, ? extends S> function) {
-            if (wasShutdown) {
+            if (isShutdown) {
                 throw new IllegalStateException();
             }
 
@@ -132,10 +156,6 @@ public class ThreadPool {
                 wait();
             }
             return queue.poll();
-        }
-
-        private synchronized int size() {
-            return queue.size();
         }
     }
 }
