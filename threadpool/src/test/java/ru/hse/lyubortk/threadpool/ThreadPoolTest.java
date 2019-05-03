@@ -177,13 +177,13 @@ class ThreadPoolTest {
     }
 
     @RepeatedTest(REPEATED_TEST_NUMBER)
-    void testExecuteAfterShutdown() {
+    void testExecuteAfterShutdown() throws InterruptedException {
         threadPool.shutdown();
         assertThrows(IllegalStateException.class, () -> threadPool.execute(() -> null));
     }
 
     @RepeatedTest(REPEATED_TEST_NUMBER)
-    void testThenApplyAfterShutdown() {
+    void testThenApplyAfterShutdown() throws InterruptedException {
         var lightFuture = threadPool.execute(() -> null);
         threadPool.shutdown();
         assertThrows(IllegalStateException.class, () -> lightFuture.thenApply((a) -> a));

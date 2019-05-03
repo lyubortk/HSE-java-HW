@@ -59,10 +59,13 @@ public class ThreadPool {
      * Attempts to stop all currently executing tasks by interrupting worker threads.
      * No new tasks will be accepted after this operation.
      */
-    public void shutdown() {
+    public void shutdown() throws InterruptedException {
         isShutdown = true;
         for (var thread : threads) {
             thread.interrupt();
+        }
+        for (var thread : threads) {
+            thread.join();
         }
     }
 
