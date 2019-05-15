@@ -4,7 +4,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Console application which computes MD5 hash of folder/file and compares execution
+ * time of different implementations.
+ */
 public class MD5HasherConsole {
+    /** Accepts one argument -- path of target folder or file */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Wrong number of arguments");

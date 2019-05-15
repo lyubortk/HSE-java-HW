@@ -15,10 +15,15 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Collectors;
 
+/**
+ * Factory class which provides two implementations of MD5 hasher:
+ * single-thread and multi-thread one.
+ */
 public class MD5HasherFactory {
     private static int BUFFER_SIZE = 512;
     private static String ALGORITHM = "MD5";
 
+    /** Creates single-thread hasher */
     public static MD5Hasher createSingleThreadHasher() {
         return new MD5Hasher() {
             @Override
@@ -46,6 +51,7 @@ public class MD5HasherFactory {
         };
     }
 
+    /** Creates multi-thread hasher */
     public static MD5Hasher createConcurrentHasher() {
         return path -> {
             var pool = new ForkJoinPool();
