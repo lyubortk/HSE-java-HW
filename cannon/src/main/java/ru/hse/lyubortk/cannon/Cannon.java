@@ -4,23 +4,34 @@ import javafx.geometry.Point2D;
 
 import java.util.List;
 
-class Cannon {
-    static final int MOVEMENT_SPEED = 100;
-    static final int TOWER_SPEED = 100;
-    static final int CANNON_RADIUS = 10;
-    static final int TOWER_WIDTH = 10;
-    static final int TOWER_LENGTH = 20;
-    static final int WHEEL_RADIUS = 10;
+/** This class represents cannon and contains methods which manage cannon's movement and position*/
+public class Cannon {
+    public static final int MOVEMENT_SPEED = 100;
+    public static final int TOWER_SPEED = 100;
+    public static final int CANNON_RADIUS = 10;
+    public static final int TOWER_WIDTH = 10;
+    public static final int TOWER_LENGTH = 20;
+    public static final int WHEEL_RADIUS = 10;
 
     private Point2D coordinate;
     private double towerAngle = 0;
     private List<Point2D> ground;
 
+    /**
+     * This constructor accepts an initial position of cannon and a list of points which
+     * represent surface (used to perform movements).
+     */
     Cannon(Point2D startCoordinate, List<Point2D> ground) {
         coordinate = startCoordinate;
         this.ground = ground;
     }
 
+    /**
+     * Updates position of cannon and its tower.
+     * @param timeDeltaSeconds time since last update.
+     * @param cannonMove current cannon movement direction
+     * @param towerMove current tower movement direction
+     */
     void update(double timeDeltaSeconds, CannonGameCore.MoveDirection cannonMove,
                 CannonGameCore.MoveDirection towerMove) {
         moveCannon(timeDeltaSeconds * MOVEMENT_SPEED, cannonMove);

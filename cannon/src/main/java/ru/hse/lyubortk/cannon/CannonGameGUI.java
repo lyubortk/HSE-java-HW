@@ -4,6 +4,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -12,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
@@ -20,15 +22,18 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static javafx.scene.paint.Color.BLACK;
 import static javafx.scene.paint.Color.BLUEVIOLET;
 
+/** Cannon game javafx GUI class */
 public class CannonGameGUI extends Application {
     private CannonGameCore cannonCore = new CannonGameCore();
-    private ArrayList<String> inputKeys = new ArrayList<>();
+    private EnumSet<KeyCode> inputKeys = EnumSet.noneOf(KeyCode.class);
     private Group root = new Group();
     private Group shellGroup = new Group();
 
@@ -37,17 +42,18 @@ public class CannonGameGUI extends Application {
     private Rectangle tower;
     private Circle target;
 
+    /** Launches the game. */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /** Javafx start method. */
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Drawing Operations Test");
-
-        Canvas canvas = new Canvas(CannonGameCore.WIDTH, CannonGameCore.HEIGHT);
+        primaryStage.setTitle("Cannon");
 
         setupSprites();
+        Canvas canvas = new Canvas(CannonGameCore.WIDTH, CannonGameCore.HEIGHT);
 
         root.getChildren().addAll(canvas, ground, cannon, shellGroup, tower, target);
         Scene mainScene = new Scene(root);
@@ -56,15 +62,15 @@ public class CannonGameGUI extends Application {
 
         mainScene.setOnKeyPressed(
                 keyEvent -> {
-                    String code = keyEvent.getCode().toString();
-                    if (!inputKeys.contains(code))
-                        inputKeys.add(code);
+                    var key = keyEvent.getCode();
+                    if (!inputKeys.contains(key))
+                        inputKeys.add(key);
                 });
 
         mainScene.setOnKeyReleased(
                 keyEvent -> {
-                    String code = keyEvent.getCode().toString();
-                    inputKeys.remove(code);
+                    var key = keyEvent.getCode();
+                    inputKeys.remove(key);
                 });
 
         new AnimationTimer()
@@ -95,19 +101,29 @@ public class CannonGameGUI extends Application {
             }
         }.start();
 
-        cannonCore.setGameOverListener(string -> {
-            inputKeys.clear();
-            Alert gameOverAlert = new Alert(Alert.AlertType.INFORMATION, string);
-            Button exitButton = (Button) gameOverAlert.getDialogPane().lookupButton(
-                    ButtonType.OK
-            );
-            exitButton.setText("Exit");
-            exitButton.setOnTouchPressed(event -> Platform.exit());
-            gameOverAlert.setHeaderText("Game Over");
-            gameOverAlert.initModality(Modality.APPLICATION_MODAL);
-            gameOverAlert.initOwner(primaryStage);
-            gameOverAlert.setOnHidden(event -> Platform.exit());
-            gameOverAlert.show();
+        cannonCore.setGameOverListener(new Consumer<>() {
+            private boolean wasCalled = false;
+
+            @Override
+            public void accept(String string) {
+                if (wasCalled) {
+                    return;
+                }
+                wasCalled = true;
+
+                inputKeys.clear();
+                Alert gameOverAlert = new Alert(Alert.AlertType.INFORMATION, string);
+                Button exitButton = (Button) gameOverAlert.getDialogPane().lookupButton(
+                        ButtonType.OK
+                );
+                exitButton.setText("Exit");
+                exitButton.setOnTouchPressed(event -> Platform.exit());
+                gameOverAlert.setHeaderText("Game Over");
+                gameOverAlert.initModality(Modality.APPLICATION_MODAL);
+                gameOverAlert.initOwner(primaryStage);
+                gameOverAlert.setOnHidden(event -> Platform.exit());
+                gameOverAlert.show();
+            }
         });
 
         primaryStage.setResizable(false);
@@ -147,18 +163,19 @@ public class CannonGameGUI extends Application {
 
     private void setupShellMenu() {
         final int ITEM_SIZE = 24;
-        var listView = new ListView<>(
-                FXCollections.observableList(Arrays.asList("small", "medium", "big")));
+        ObservableList<String> list =
+                FXCollections.observableList(
+                        Arrays.stream(ShellType.values())
+                                .map(a -> a.name())
+                                .collect(Collectors.toList())
+                );
+
+        var listView = new ListView<>(list);
         root.getChildren().add(listView);
 
         listView.setOnMouseClicked(event -> {
-            if (listView.getSelectionModel().getSelectedIndex() == 0) {
-                updateShellType(ShellType.SMALL);
-            } else if (listView.getSelectionModel().getSelectedIndex() == 1) {
-                updateShellType(ShellType.MEDIUM);
-            } else {
-                updateShellType(ShellType.BIG);
-            }
+            updateShellType(ShellType.values()[listView.getSelectionModel().getSelectedIndex()]);
+
         });
         listView.getSelectionModel().select(0);
         listView.setFocusTraversable(false);
@@ -168,11 +185,11 @@ public class CannonGameGUI extends Application {
     }
 
     private void handleInput() {
-        boolean left = inputKeys.contains("LEFT");
-        boolean right = inputKeys.contains("RIGHT");
-        boolean up = inputKeys.contains("UP");
-        boolean down = inputKeys.contains("DOWN");
-        boolean enter = inputKeys.contains("ENTER");
+        boolean left = inputKeys.contains(KeyCode.LEFT);
+        boolean right = inputKeys.contains(KeyCode.RIGHT);
+        boolean up = inputKeys.contains(KeyCode.UP);
+        boolean down = inputKeys.contains(KeyCode.DOWN);
+        boolean enter = inputKeys.contains(KeyCode.ENTER);
 
         if (!left && !right || left && right) {
             cannonCore.setCannonMove(CannonGameCore.MoveDirection.NONE);

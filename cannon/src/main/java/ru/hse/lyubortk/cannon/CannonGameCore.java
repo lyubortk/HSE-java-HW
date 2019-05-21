@@ -16,11 +16,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/** This class represents game model */
 public class CannonGameCore {
     public static final int TARGET_RADIUS = 20;
     public static final int WIDTH = 1280;
     public static final int HEIGHT = 720;
-    public static final int FIRE_COOLDOWN_MILLIS = 100;
+    public static final int FIRE_COOLDOWN_MILLIS = 250;
 
     private long lastUpdateTimeNano = 0;
 
@@ -43,6 +44,7 @@ public class CannonGameCore {
 
     private Consumer<String> gameOverListener = null;
 
+    /** Initializes model and loads map from resources */
     public CannonGameCore() {
         var mapStream = CannonGameCore.class.getResourceAsStream("/map.txt");
         var in = new Scanner(mapStream);
@@ -71,7 +73,7 @@ public class CannonGameCore {
         cannon = new Cannon(new Point2D(cannonX, cannonY), ground);
     }
 
-
+    /** Direction of different movements */
     public enum MoveDirection {
         LEFT(-1), RIGHT(1), NONE(0);
 
@@ -86,6 +88,10 @@ public class CannonGameCore {
         }
     }
 
+    /**
+     * Updates game state.
+     * @param currentTimeNano current frame timestamp
+     */
     public void update(long currentTimeNano) {
         double timeDifferenceSec = (currentTimeNano - lastUpdateTimeNano) / 1e9;
 
@@ -114,29 +120,27 @@ public class CannonGameCore {
             var shell = iterator.next();
             shell.update(timeDifferenceSec);
 
+            if (gameOverListener == null) {
+                gameOverListener = (string -> {});
+            }
+
             if (shell.getPoint().getX() < 0 || shell.getPoint().getX() > WIDTH) {
                 shell.kill(false);
                 iterator.remove();
             } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
                        < shell.getType().getBulletRadius() + TARGET_RADIUS) {
                 shell.kill(true);
-                if (gameOverListener != null) {
-                    gameOverListener.accept("You won");
-                }
+                gameOverListener.accept("You won");
                 iterator.remove();
             } else if (groundPolygon.contains(shell.getPoint())) {
                 shell.kill(true);
 
                 if (shell.getPoint().distance(cannon.getCoordinate())
                     < shell.getType().getExplosionRadius()) {
-                    if (gameOverListener != null) {
-                        gameOverListener.accept("You killed yourself");
-                    }
+                    gameOverListener.accept("You killed yourself");
                 } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
                            < shell.getType().getExplosionRadius() + TARGET_RADIUS) {
-                    if (gameOverListener != null) {
                         gameOverListener.accept("You won");
-                    }
                 }
                 iterator.remove();
             }
@@ -145,18 +149,25 @@ public class CannonGameCore {
         lastUpdateTimeNano = currentTimeNano;
     }
 
+    /** Sets whether player is trying to fire */
     public void setCannonFire(boolean fire) {
         cannonFire = fire;
     }
 
+    /** Sets current cannon movement direction */
     public void setCannonMove(MoveDirection cannonMove) {
         this.cannonMove = cannonMove;
     }
 
+    /** Sets current tower movement direction */
     public void setTowerMove(MoveDirection towerMove) {
         this.towerMove = towerMove;
     }
 
+    /**
+     * Sets listener which will be called when cannon shell touches the ground or the target.
+     * Listener accepts touch point.
+     */
     public void setExplosionListener(Consumer<Point2D> listener) {
         explosionListener = listener;
     }
@@ -165,10 +176,15 @@ public class CannonGameCore {
         this.shellType = shellType;
     }
 
+    /** Sets supplier which will be called for creating cannon shell visual nodes */
     public void setShellNodeSupplier(Supplier<Node> supplier) {
         shellNodeSupplier = supplier;
     }
 
+    /**
+     * Sets listener which will be called when the game ends.
+     * Listener accepts additional message.
+     */
     public void setGameOverListener(Consumer<String> listener) {
         gameOverListener = listener;
     }
@@ -177,6 +193,7 @@ public class CannonGameCore {
         return cannon.getCoordinate();
     }
 
+    /** Returns tower angle in degrees */
     public double getTowerAngle() {
         return cannon.getTowerAngle();
     }
@@ -185,6 +202,10 @@ public class CannonGameCore {
         return targetCoordinate;
     }
 
+    /**
+     *  Get a list of points which represent ground surface.
+     * The format is compatible with javafx.Polygon methods.
+     */
     public List<Double> getGroundPoints() {
         return groundPolygon.getPoints();
     }

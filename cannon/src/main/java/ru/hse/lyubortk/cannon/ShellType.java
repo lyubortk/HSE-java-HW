@@ -1,6 +1,7 @@
 package ru.hse.lyubortk.cannon;
 
-enum ShellType {
+/** Different available shell types */
+public enum ShellType {
     SMALL(400, 3,10),
     MEDIUM(300, 6,20),
     BIG(200, 8,40);
@@ -15,15 +16,15 @@ enum ShellType {
         this.explosionRadius = explosionRadius;
     }
 
-    double getStartSpeed() {
+    public double getStartSpeed() {
         return startSpeed;
     }
 
-    double getBulletRadius() {
+    public double getBulletRadius() {
         return bulletRadius;
     }
 
-    double getExplosionRadius() {
+    public double getExplosionRadius() {
         return explosionRadius;
     }
 }
