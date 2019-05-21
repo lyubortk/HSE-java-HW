@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.7'
 }
 
 group 'ru.hse.lyubortk'
@@ -10,6 +12,13 @@ sourceCompatibility = 11
 repositories {
     mavenCentral()
 }
+
+javafx {
+    version = "11.0.2"
+    modules = [ 'javafx.controls' ]
+}
+
+mainClassName = 'ru.hse.lyubortk.cannon.CannonGameGUI'
 
 dependencies {
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
