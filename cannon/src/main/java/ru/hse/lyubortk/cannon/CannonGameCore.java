@@ -20,6 +20,7 @@ public class CannonGameCore {
     public static final int TARGET_RADIUS = 20;
     public static final int WIDTH = 1280;
     public static final int HEIGHT = 720;
+    public static final int FIRE_COOLDOWN_MILLIS = 100;
 
     private long lastUpdateTimeNano = 0;
 
@@ -90,7 +91,8 @@ public class CannonGameCore {
 
         cannon.update(timeDifferenceSec, cannonMove, towerMove);
 
-        if (cannonFire && Duration.ofNanos(currentTimeNano - lastCannonFireNano).toSeconds() > 1) {
+        if (cannonFire && Duration.ofNanos(currentTimeNano - lastCannonFireNano).toMillis()
+                          >= FIRE_COOLDOWN_MILLIS) {
             lastCannonFireNano = currentTimeNano;
             double towerAngleRad = Math.toRadians(cannon.getTowerAngle());
 
