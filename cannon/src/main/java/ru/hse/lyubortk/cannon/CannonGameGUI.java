@@ -48,10 +48,11 @@ public class CannonGameGUI extends Application {
         Canvas canvas = new Canvas(CannonGameCore.WIDTH, CannonGameCore.HEIGHT);
 
         setupSprites();
-        setupShellMenu();
 
         root.getChildren().addAll(canvas, ground, cannon, shellGroup, tower, target);
         Scene mainScene = new Scene(root);
+
+        setupShellMenu();
 
         mainScene.setOnKeyPressed(
                 keyEvent -> {
