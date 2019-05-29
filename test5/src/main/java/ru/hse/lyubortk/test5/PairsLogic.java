@@ -83,11 +83,12 @@ public class PairsLogic {
      *                               Second one is the delayed action itself. Should return
      *                               runnable, which could be called to perform action immediately.
      */
-    public void setOnDelayedActionCreator(BiFunction<Integer, Runnable, Runnable> onDelayedActionCreator) {
+    public void setOnDelayedActionCreator(
+            BiFunction<Integer, Runnable, Runnable> onDelayedActionCreator) {
         this.onDelayedActionCreator = onDelayedActionCreator;
     }
 
-    /** This method is called when user picks a card */
+    /** This method should be called when user picks a card. */
     public void pickCard(int index) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException();
@@ -102,37 +103,49 @@ public class PairsLogic {
         }
 
         if (status == GameStatus.PICK_FIRST_CARD) {
-            if (delayedActionImmediateExecutor != null) {
-                delayedActionImmediateExecutor.run();
-                delayedActionImmediateExecutor = null;
-            }
-            firstCard = index;
-            status = GameStatus.PICK_SECOND_CARD;
+            pickFirstCard(index);
         } else if (values[firstCard] == values[index]) {
-            foundMatches++;
-            if (size / 2 == foundMatches) {
-                status = GameStatus.GAME_OVER;
-                if (onGameOverListener != null) {
-                    onGameOverListener.run();
-                }
-            } else {
-                status = GameStatus.PICK_FIRST_CARD;
+            pickSecondCardRight();
+        } else {
+            pickSecondCardWrong(index);
+        }
+    }
+
+    private void pickSecondCardWrong(int index) {
+        status = GameStatus.PICK_FIRST_CARD;
+        final int previousCard = firstCard;
+        Runnable closeRunnable = (() -> {
+            if (onCardCloseListener != null) {
+                isOpen[index] = false;
+                isOpen[previousCard] = false;
+                onCardCloseListener.accept(index);
+                onCardCloseListener.accept(previousCard);
+            }
+        });
+        if (onDelayedActionCreator != null) {
+            delayedActionImmediateExecutor =
+                    onDelayedActionCreator.apply(OPEN_DELAY_MILLIS, closeRunnable);
+        }
+    }
+
+    private void pickSecondCardRight() {
+        foundMatches++;
+        if (size / 2 == foundMatches) {
+            status = GameStatus.GAME_OVER;
+            if (onGameOverListener != null) {
+                onGameOverListener.run();
             }
         } else {
             status = GameStatus.PICK_FIRST_CARD;
-            final int previousCard = firstCard;
-            Runnable closeRunnable = (() -> {
-                if (onCardCloseListener != null) {
-                    isOpen[index] = false;
-                    isOpen[previousCard] = false;
-                    onCardCloseListener.accept(index);
-                    onCardCloseListener.accept(previousCard);
-                }
-            });
-            if (onDelayedActionCreator != null) {
-                delayedActionImmediateExecutor =
-                        onDelayedActionCreator.apply(OPEN_DELAY_MILLIS, closeRunnable);
-            }
         }
+    }
+
+    private void pickFirstCard(int index) {
+        if (delayedActionImmediateExecutor != null) {
+            delayedActionImmediateExecutor.run();
+            delayedActionImmediateExecutor = null;
+        }
+        firstCard = index;
+        status = GameStatus.PICK_SECOND_CARD;
     }
 }
