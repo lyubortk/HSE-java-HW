@@ -130,11 +130,32 @@ public class PairsGUI extends Application {
         }
 
     }
+
     private Button createButton(int index) {
         Button button = new Button(" ");
         button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         button.setMinSize(0, 0);
         button.setOnAction(event -> logic.pickCard(index));
+        button.layoutBoundsProperty().addListener((event, oldBounds, newBounds) ->
+                scaleButton(button));
         return button;
+    }
+
+    private void scaleButton(Button button) {
+        double currentWidth = button.getWidth();
+        double currentHeight = button.getHeight();
+        double prefWidth = button.prefWidth(-1);
+        double prefHeight = button.prefHeight(-1);
+
+        if (currentWidth == 0 || currentHeight == 0 || prefWidth == 0 || prefHeight == 0) {
+            return;
+        }
+
+        double horizontalScale = currentWidth / prefWidth;
+        double verticalScale = currentHeight / prefHeight;
+        double scale = Math.min(horizontalScale, verticalScale);
+
+        button.lookup(".text").setScaleX(scale);
+        button.lookup(".text").setScaleY(scale);
     }
 }

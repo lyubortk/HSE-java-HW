@@ -110,7 +110,7 @@ class PairsLogicTest {
 
         assertFalse(open[0]);
         assertFalse(open[1]);
-        assertFalse(open[2]);
+        assertTrue(open[2]);
         assertFalse(open[3]);
     }
 }
