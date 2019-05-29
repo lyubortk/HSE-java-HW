@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
+/** Main class of Pairs game */
 public class PairsGUI extends Application {
     private static final int BUTTON_MIN_SIZE = 40;
     private static final int BUTTON_PREFFERED_SIZE = 70;
@@ -48,10 +49,12 @@ public class PairsGUI extends Application {
     private List<Button> buttons = new ArrayList<>();
     private GridPane grid;
 
+    /** Run game */
     public static void main(String[] args) {
         Application.launch(args);
     }
 
+    /** Javafx method which is run at the start of looper thread */
     @Override
     public void start(Stage primaryStage) throws Exception {
         List<String> arguments = getParameters().getRaw();

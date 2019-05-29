@@ -9,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+/** This class manages logic of Pairs game */
 public class PairsLogic {
     public static final int MAX_SIZE = 14 * 14;
     public static final int OPEN_DELAY_MILLIS = 1500;
@@ -34,6 +35,7 @@ public class PairsLogic {
         GAME_OVER
     }
 
+    /** Initializes game. Size has to be positive even integer less than or equal to MAX_SIZE **/
     public PairsLogic(int size, @NotNull Random random) {
         if (size <= 0 || size > MAX_SIZE || size % 2 == 1) {
             throw new IllegalArgumentException("Wrong size");
@@ -54,22 +56,38 @@ public class PairsLogic {
         }
     }
 
+    /**
+     * Sets listener which is called when a card opens.
+     * @param onCardOpenListener Listener. First parameter is the index of the card; Second one
+     *                           is the number, which this card represents.
+     */
     public void setOnCardOpenListener(BiConsumer<Integer, String> onCardOpenListener) {
         this.onCardOpenListener = onCardOpenListener;
     }
 
+    /**
+     * Sets listener which is called when a card closes.
+     * @param onCardCloseListener Listener. Parameter is the index of the card.
+     */
     public void setOnCardCloseListener(Consumer<Integer> onCardCloseListener) {
         this.onCardCloseListener = onCardCloseListener;
     }
 
+    /** This callback is called when the game ends **/
     public void setOnGameOverListener(Runnable onGameOverListener) {
         this.onGameOverListener = onGameOverListener;
     }
 
+    /** Sets listener which is called to create delayed action.
+     * @param onDelayedActionCreator Listener. First parameters is the delay in milliseconds;
+     *                               Second one is the delayed action itself. Should return
+     *                               runnable, which could be called to perform action immediately.
+     */
     public void setOnDelayedActionCreator(BiFunction<Integer, Runnable, Runnable> onDelayedActionCreator) {
         this.onDelayedActionCreator = onDelayedActionCreator;
     }
 
+    /** This method is called when user picks a card */
     public void pickCard(int index) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException();
