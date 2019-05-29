@@ -41,9 +41,6 @@ public class PairsLogic {
         this.size = size;
 
         isOpen = new boolean[size];
-        for (int i = 0; i < size; i++) {
-            isOpen[i] = false;
-        }
 
         var indexes = new ArrayList<Integer>();
         for (int i = 0; i < size; i++) {
