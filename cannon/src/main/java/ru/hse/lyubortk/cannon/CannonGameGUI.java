@@ -166,17 +166,16 @@ public class CannonGameGUI extends Application {
         ObservableList<String> list =
                 FXCollections.observableList(
                         Arrays.stream(ShellType.values())
-                                .map(a -> a.name())
+                                .map(Enum::name)
                                 .collect(Collectors.toList())
                 );
 
         var listView = new ListView<>(list);
         root.getChildren().add(listView);
 
-        listView.setOnMouseClicked(event -> {
-            updateShellType(ShellType.values()[listView.getSelectionModel().getSelectedIndex()]);
+        listView.setOnMouseClicked(event -> updateShellType(
+                ShellType.values()[listView.getSelectionModel().getSelectedIndex()]));
 
-        });
         listView.getSelectionModel().select(0);
         listView.setFocusTraversable(false);
         listView.setPrefHeight(ITEM_SIZE * listView.getItems().size() + 2);

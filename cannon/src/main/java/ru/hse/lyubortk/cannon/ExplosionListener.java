@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 /** Implementation of consumer that could be used in CannonGameCore to draw shell explosions */
-class ExplosionListener implements Consumer<Point2D> {
+public class ExplosionListener implements Consumer<Point2D> {
     private static final int SIZE = 5;
     private static final Paint COLOR = Color.hsb(20, 1, 1);
     private static final long DURATION_MILLIS = 500;
@@ -23,7 +23,7 @@ class ExplosionListener implements Consumer<Point2D> {
     private final Random random = new Random();
 
     /** Creates listener which will draw explosions of given radius in given javafx group */
-    ExplosionListener(Group group, double radius) {
+    public ExplosionListener(Group group, double radius) {
         this.group = group;
         this.radius = radius + 10;
     }

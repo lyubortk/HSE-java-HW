@@ -23,7 +23,7 @@ public class CannonGameCore {
     public static final int HEIGHT = 720;
     public static final int FIRE_COOLDOWN_MILLIS = 250;
 
-    private long lastUpdateTimeNano = 0;
+    private long lastUpdateTimeNano;
 
     private Cannon cannon;
 
@@ -31,7 +31,7 @@ public class CannonGameCore {
 
     private MoveDirection cannonMove = MoveDirection.NONE;
     private MoveDirection towerMove = MoveDirection.NONE;
-    private boolean cannonFire = false;
+    private boolean cannonFire;
 
     private List<Point2D> ground = new ArrayList<>();
     private Polygon groundPolygon;
@@ -42,7 +42,7 @@ public class CannonGameCore {
     private Consumer<Point2D> explosionListener;
     private ShellType shellType = ShellType.SMALL;
 
-    private Consumer<String> gameOverListener = null;
+    private Consumer<String> gameOverListener;
 
     /** Initializes model and loads map from resources */
     public CannonGameCore() {
@@ -115,14 +115,14 @@ public class CannonGameCore {
             shells.add(shell);
         }
 
+        if (gameOverListener == null) {
+            gameOverListener = (string -> {});
+        }
+
         var iterator = shells.iterator();
         while (iterator.hasNext()) {
             var shell = iterator.next();
             shell.update(timeDifferenceSec);
-
-            if (gameOverListener == null) {
-                gameOverListener = (string -> {});
-            }
 
             if (shell.getPoint().getX() < 0 || shell.getPoint().getX() > WIDTH) {
                 shell.kill(false);

@@ -14,14 +14,14 @@ public class Cannon {
     public static final int WHEEL_RADIUS = 10;
 
     private Point2D coordinate;
-    private double towerAngle = 0;
+    private double towerAngle;
     private List<Point2D> ground;
 
     /**
      * This constructor accepts an initial position of cannon and a list of points which
      * represent surface (used to perform movements).
      */
-    Cannon(Point2D startCoordinate, List<Point2D> ground) {
+    public Cannon(Point2D startCoordinate, List<Point2D> ground) {
         coordinate = startCoordinate;
         this.ground = ground;
     }
@@ -32,10 +32,10 @@ public class Cannon {
      * @param cannonMove current cannon movement direction
      * @param towerMove current tower movement direction
      */
-    void update(double timeDeltaSeconds, CannonGameCore.MoveDirection cannonMove,
+    public void update(double timeDeltaSeconds, CannonGameCore.MoveDirection cannonMove,
                 CannonGameCore.MoveDirection towerMove) {
         moveCannon(timeDeltaSeconds * MOVEMENT_SPEED, cannonMove);
-        towerAngle = towerAngle -timeDeltaSeconds*TOWER_SPEED*towerMove.getValue();
+        towerAngle = towerAngle - timeDeltaSeconds * TOWER_SPEED * towerMove.getValue();
         towerAngle %= 360;
     }
 
@@ -74,11 +74,11 @@ public class Cannon {
         }
     }
 
-    Point2D getCoordinate() {
+    public Point2D getCoordinate() {
         return coordinate;
     }
 
-    double getTowerAngle() {
+    public double getTowerAngle() {
         return towerAngle;
     }
 }

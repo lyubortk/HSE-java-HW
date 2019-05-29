@@ -7,19 +7,19 @@ import javafx.scene.Node;
 import java.util.function.Consumer;
 
 /** This class represents currently active (flying) cannon shells. Used in CannonGameCore logic */
-class Shell {
+public class Shell {
     private static final double GRAVITY_ACCELERATION = 300;
 
     private double speedX;
     private double speedY;
     private Point2D coordinate;
-    ShellType shellType = null;
+    private ShellType shellType;
 
-    private Node node = null;
-    private Consumer<Point2D> explosionListener = null;
+    private Node node;
+    private Consumer<Point2D> explosionListener;
 
     /** Creates a shell with given initial parameters. */
-    Shell(double speedX, double speedY, Point2D startCoordinate, ShellType type) {
+    public Shell(double speedX, double speedY, Point2D startCoordinate, ShellType type) {
         this.speedX = speedX;
         this.speedY = speedY;
         this.coordinate = startCoordinate;
@@ -27,12 +27,12 @@ class Shell {
     }
 
     /** Binds a javafx ui node to this shell. */
-    void setUINode(Node node) {
+    public void setUINode(Node node) {
         this.node = node;
     }
 
     /** Sets listener which will be called in order to create explosion. */
-    void setExplosionListener(Consumer<Point2D> consumer) {
+    public void setExplosionListener(Consumer<Point2D> consumer) {
         explosionListener = consumer;
     }
 
@@ -40,7 +40,7 @@ class Shell {
      * Updates shell position.
      * @param timeDeltaSeconds time since last update.
      */
-    void update(double timeDeltaSeconds) {
+    public void update(double timeDeltaSeconds) {
         coordinate = coordinate.add(speedX * timeDeltaSeconds,
                 speedY * timeDeltaSeconds
                 + GRAVITY_ACCELERATION / 2 * timeDeltaSeconds * timeDeltaSeconds);
@@ -52,11 +52,11 @@ class Shell {
         }
     }
 
-    ShellType getType() {
+    public ShellType getType() {
         return shellType;
     }
 
-    Point2D getPoint() {
+    public Point2D getPoint() {
         return coordinate;
     }
 
@@ -65,7 +65,7 @@ class Shell {
      * node from its father (father should be javafx Group)
      * @param explosion create explosion.
      */
-    void kill(boolean explosion) {
+    public void kill(boolean explosion) {
         if (node != null && node.getParent() instanceof Group) {
             ((Group) node.getParent()).getChildren().remove(node);
         }
