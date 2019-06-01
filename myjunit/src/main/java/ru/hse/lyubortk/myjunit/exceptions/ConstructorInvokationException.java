@@ -1,5 +1,6 @@
 package ru.hse.lyubortk.myjunit.exceptions;
 
+/** This exception is thrown if a constructor of testing class throws an exception */
 public class ConstructorInvokationException extends Exception {
     public ConstructorInvokationException() {
     }

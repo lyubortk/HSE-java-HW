@@ -5,7 +5,14 @@ import ru.hse.lyubortk.myjunit.exceptions.*;
 
 import java.util.List;
 
+/**
+ * This class runs tests with {@link ru.hse.lyubortk.myjunit.MyJUnitCore} and prints results
+ * to the console.
+ */
 public class MyJUnitConsole {
+    /**
+     * Accepts the name of the testing class and tries to test it
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Wrong number of arguments.\n"
@@ -29,7 +36,7 @@ public class MyJUnitConsole {
                 | ConstructorInaccessibleException
                 | ClassIsAbstractException
                 | ConstructorInvokationException
-                | MethodInvokationException exception) {
+                | MethodInvocationException exception) {
             System.out.println("ERROR: " + exception.getMessage());
             return;
         }
@@ -37,9 +44,9 @@ public class MyJUnitConsole {
     }
 
     private static void printResult(@NotNull List<MyJUnitTestResult> results) {
-        long passedNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.PASSED);
-        long ignoredNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.IGNORED);
-        long failedNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.FAILED);
+        long passedNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.PASSED);
+        long ignoredNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.IGNORED);
+        long failedNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.FAILED);
 
         if (failedNumber == 0) {
             System.out.print("SUCCESS: ");
@@ -54,20 +61,20 @@ public class MyJUnitConsole {
         for (var result : results) {
             System.out.println();
             System.out.println(result.getMethodName());
-            if (result.getStatus() != MyJUnitTestResult.METHOD_STATUS.PASSED) {
+            if (result.getStatus() != MyJUnitTestResult.STATUS.PASSED) {
                 System.out.println(result.getStatus() + ": " + result.getCause());
             } else {
                 System.out.println(result.getStatus());
             }
 
-            if (result.getStatus() != MyJUnitTestResult.METHOD_STATUS.IGNORED) {
+            if (result.getStatus() != MyJUnitTestResult.STATUS.IGNORED) {
                 System.out.println("time: " + result.getTimeMillis() + "ms");
             }
         }
     }
 
     private static long getNumberWithStatus(@NotNull List<MyJUnitTestResult> results,
-                                            @NotNull MyJUnitTestResult.METHOD_STATUS status) {
+                                            @NotNull MyJUnitTestResult.STATUS status) {
         return results.stream()
                 .filter(result -> result.getStatus() == status)
                 .count();

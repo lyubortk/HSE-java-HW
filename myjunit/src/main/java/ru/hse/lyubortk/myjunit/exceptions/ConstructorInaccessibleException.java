@@ -1,5 +1,9 @@
 package ru.hse.lyubortk.myjunit.exceptions;
 
+/**
+ * This exception is thrown if the testing class has to be instantiated
+ * but has no matching constructor
+ */
 public class ConstructorInaccessibleException extends Exception {
     public ConstructorInaccessibleException() {
     }

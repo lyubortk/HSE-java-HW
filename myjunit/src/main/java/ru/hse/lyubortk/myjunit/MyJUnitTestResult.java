@@ -1,12 +1,18 @@
 package ru.hse.lyubortk.myjunit;
 
+/**
+ * Instances of this class are generated for every @Test method after testing
+ */
 public class MyJUnitTestResult {
     private String methodName;
-    private METHOD_STATUS status;
+    private STATUS status;
     private String cause;
     private long timeMillis;
 
-    public enum METHOD_STATUS {
+    /**
+     * Represents one test's results
+     */
+    public enum STATUS {
         PASSED,
         FAILED,
         IGNORED
@@ -18,7 +24,7 @@ public class MyJUnitTestResult {
     static MyJUnitTestResult createPassed(String methodName, long timeMillis) {
         var result = new MyJUnitTestResult();
         result.methodName = methodName;
-        result.status = METHOD_STATUS.PASSED;
+        result.status = STATUS.PASSED;
         result.timeMillis = timeMillis;
         return result;
     }
@@ -26,7 +32,7 @@ public class MyJUnitTestResult {
     static MyJUnitTestResult createFailed(String methodName, String cause, long timeMillis) {
         var result = new MyJUnitTestResult();
         result.methodName = methodName;
-        result.status = METHOD_STATUS.FAILED;
+        result.status = STATUS.FAILED;
         result.cause = cause;
         result.timeMillis = timeMillis;
         return result;
@@ -35,7 +41,7 @@ public class MyJUnitTestResult {
     static MyJUnitTestResult createIgnored(String methodName, String cause) {
         var result = new MyJUnitTestResult();
         result.methodName = methodName;
-        result.status = METHOD_STATUS.IGNORED;
+        result.status = STATUS.IGNORED;
         result.cause = cause;
         return result;
     }
@@ -44,14 +50,20 @@ public class MyJUnitTestResult {
         return methodName;
     }
 
-    public METHOD_STATUS getStatus() {
+    public STATUS getStatus() {
         return status;
     }
 
+    /**
+     * Returns info about FAILED or IGNORED test
+     */
     public String getCause() {
         return cause;
     }
 
+    /**
+     * Returns test running time
+     */
     public long getTimeMillis() {
         return timeMillis;
     }

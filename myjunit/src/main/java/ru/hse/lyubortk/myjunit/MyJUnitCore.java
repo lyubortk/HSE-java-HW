@@ -15,14 +15,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class performs testing and constructs convenient response
+ */
 public class MyJUnitCore {
+    /**
+     * Accepts testing class and invokes its methods with
+     * the order specified in annotations package.
+     *
+     * @return List of testing results (each element represent one test method).
+     * @throws MethodIsNotStaticException       If BeforeClass or AfterClass method is not static.
+     * @throws MethodParametersException        If any method annotated with MyJUnit annotations
+     *                                          accepts more than 0 arguments.
+     * @throws ConstructorInaccessibleException If any test methods or Before/After methods
+     *                                          are not static but the class does not provide public constructor with 0 parameters.
+     * @throws ClassIsAbstractException         If any test methods or Before/After methods
+     *                                          are not static but the class is abstract.
+     * @throws ConstructorInvokationException   If any test methods or Before/After methods
+     *                                          are not static and default constructor throws exception during instantiation.
+     * @throws MethodInvocationException        If Before/After or BeforeClass/AfterClass method throws
+     *                                          an exception.
+     */
     public static List<MyJUnitTestResult> runClass(@NotNull Class<?> testingClass)
             throws MethodIsNotStaticException,
                    MethodParametersException,
                    ConstructorInaccessibleException,
                    ClassIsAbstractException,
                    ConstructorInvokationException,
-                   MethodInvokationException {
+                   MethodInvocationException {
 
         // this blank line improves readability a lot and is not discouraged by Google Style Guide
         Method[] classMethods = testingClass.getMethods();
@@ -112,7 +132,7 @@ public class MyJUnitCore {
     private static void runNonTestMethods(@Nullable Object instance,
                                           @NotNull List<Method> methods,
                                           @NotNull String type)
-            throws MethodInvokationException {
+            throws MethodInvocationException {
 
         for (var method : methods) {
             try {
@@ -122,7 +142,7 @@ public class MyJUnitCore {
             } catch (InvocationTargetException exception) {
                 String message = type + " method " + method.getName() + " has thrown "
                                  + exception.getTargetException().getClass().getName();
-                throw new MethodInvokationException(message, exception);
+                throw new MethodInvocationException(message, exception);
             }
         }
     }

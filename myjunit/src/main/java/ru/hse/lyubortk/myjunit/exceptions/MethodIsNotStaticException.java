@@ -1,5 +1,6 @@
 package ru.hse.lyubortk.myjunit.exceptions;
 
+/** This exception is thrown if BeforeClass/AfterClass method is not static. */
 public class MethodIsNotStaticException extends Exception {
     public MethodIsNotStaticException() {
     }
