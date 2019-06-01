@@ -3,6 +3,7 @@ package ru.hse.lyubortk.myjunit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.hse.lyubortk.myjunit.annotations.*;
+import ru.hse.lyubortk.myjunit.exceptions.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -18,23 +19,42 @@ public class MyJUnitCore {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Wrong number of arguments.\n"
-            + "You should pass the name of the testing class");
+                               + "You should pass the name of the testing class");
             return;
         }
 
         Class<?> testingClass;
         try {
-             testingClass = Class.forName(args[0]);
+            testingClass = Class.forName(args[0]);
         } catch (ClassNotFoundException e) {
             System.out.println("Class not found");
             return;
         }
 
-        MyJUnitResult result = runClass(testingClass);
+        List<MyJUnitTestResult> result;
+        try {
+            result = runClass(testingClass);
+        } catch (StaticMethodException
+                | MethodParametersException
+                | InaccessibleConstructorException
+                | AbstractClassException
+                | ConstructorInvokationException
+                | MethodInvokationException exception) {
+            System.out.println("ERROR: " + exception.getMessage());
+            return;
+        }
         printResult(result);
     }
 
-    public static MyJUnitResult runClass(@NotNull Class<?> testingClass) {
+    public static List<MyJUnitTestResult> runClass(@NotNull Class<?> testingClass)
+            throws StaticMethodException,
+                   MethodParametersException,
+                   InaccessibleConstructorException,
+                   AbstractClassException,
+                   ConstructorInvokationException,
+                   MethodInvokationException {
+
+        // this blank line improves readability a lot and is not discouraged by Google Style Guide
         Method[] classMethods = testingClass.getMethods();
 
         List<Method> beforeClassMethods = getAnnotatedMethods(classMethods, BeforeClass.class);
@@ -43,44 +63,39 @@ public class MyJUnitCore {
         List<Method> afterMethods = getAnnotatedMethods(classMethods, After.class);
         List<Method> testMethods = getAnnotatedMethods(classMethods, Test.class);
 
-        if (!checkStatic(beforeClassMethods) || !checkStatic(afterClassMethods)) {
-            return MyJUnitResult.createError(testingClass.getName(),
+        if (checkNonStatic(beforeClassMethods) || checkNonStatic(afterClassMethods)) {
+            throw new StaticMethodException(
                     "methods annotated with BeforeClass and AfterClass have to be static");
         }
 
-        if (!checkNumberOfParameters(beforeClassMethods)
-            || !checkNumberOfParameters(afterClassMethods)
-            || !checkNumberOfParameters(beforeMethods)
-            || !checkNumberOfParameters(afterMethods)
-            || !checkNumberOfParameters(testMethods)) {
-            return MyJUnitResult.createError(testingClass.getName(),
+        if (checkHasNoParameters(beforeClassMethods)
+            || checkHasNoParameters(afterClassMethods)
+            || checkHasNoParameters(beforeMethods)
+            || checkHasNoParameters(afterMethods)
+            || checkHasNoParameters(testMethods)) {
+            throw new MethodParametersException(
                     "all annotated methods have to accept no arguments");
         }
 
         Constructor<?> testingClassConstructor = null;
-        if (!checkStatic(testMethods)) {
+        if (checkNonStatic(testMethods)) {
             try {
                 testingClassConstructor = testingClass.getConstructor();
             } catch (NoSuchMethodException exception) {
-                return MyJUnitResult.createError(testingClass.getName(),
-                        "some test methods are not static therefore "
-                        + "test class has to provide public constructor with no arguments");
+                String message = "some test methods are not static therefore "
+                               + "test class has to provide public constructor with no arguments";
+                throw new InaccessibleConstructorException(message, exception);
             }
         }
 
-        MyJUnitResult result;
-        if ((result = runNonTestMethods(testingClass.getName(), null,
-                beforeClassMethods, "BeforeClass")) != null) {
-            return result;
-        }
+        runNonTestMethods(null, beforeClassMethods, "BeforeClass");
 
-        int failedMethodsNumber = 0;
-        var methodsResults = new ArrayList<MyJUnitResult.MethodResult>();
+        var methodsResults = new ArrayList<MyJUnitTestResult>();
 
-        for (var method: testMethods) {
+        for (var method : testMethods) {
             Test annotation = method.getAnnotation(Test.class);
             if (!annotation.ignore().equals("")) {
-                methodsResults.add(MyJUnitResult.MethodResult.createIgnored(method.getName(),
+                methodsResults.add(MyJUnitTestResult.createIgnored(method.getName(),
                         annotation.ignore()));
                 continue;
             }
@@ -90,69 +105,60 @@ public class MyJUnitCore {
                 try {
                     instance = testingClassConstructor.newInstance();
                 } catch (IllegalAccessException ignored) {
-                    //constructor is public
+                    // constructor is public
                 } catch (InstantiationException exception) {
-                    return MyJUnitResult.createError(testingClass.getName(),
-                            "testing class is abstract");
+                    throw new AbstractClassException("testing class is abstract", exception);
                 } catch (InvocationTargetException exception) {
-                    return MyJUnitResult.createError(testingClass.getName(),
-                            "constructor has thrown "
-                            + exception.getTargetException().getClass().getName());
+                    String message = "constructor has thrown "
+                                     + exception.getTargetException().getClass().getName();
+                    throw new ConstructorInvokationException(message, exception);
                 }
             }
 
-            if ((result = runNonTestMethods(testingClass.getName(), instance,
-                    beforeMethods, "Before")) != null) {
-                return result;
-            }
-
-            MyJUnitResult.MethodResult methodResult = runTestMethod(method, instance);
-            if (methodResult.getStatus() == MyJUnitResult.MethodResult.METHOD_STATUS.FAILED) {
-                failedMethodsNumber++;
-            }
-            methodsResults.add(methodResult);
-
-            if ((result = runNonTestMethods(testingClass.getName(), instance,
-                    afterMethods, "After")) != null) {
-                return result;
-            }
+            runNonTestMethods(instance, beforeMethods, "Before");
+            methodsResults.add(runTestMethod(method, instance));
+            runNonTestMethods(instance, afterMethods, "After");
         }
 
-        if ((result = runNonTestMethods(testingClass.getName(), null,
-                afterClassMethods, "AfterClass")) != null) {
-            return result;
-        }
-
-        if (failedMethodsNumber != 0) {
-            return MyJUnitResult.createFailed(testingClass.getName(),
-                    testMethods.size(), failedMethodsNumber, methodsResults);
-        }
-        return MyJUnitResult.createSuccess(testingClass.getName(),
-                testMethods.size(), methodsResults);
+        runNonTestMethods(null, afterClassMethods, "AfterClass");
+        return methodsResults;
     }
 
-    private static void printResult(@NotNull MyJUnitResult result) {
-        if (result.getStatus() == MyJUnitResult.TESTING_STATUS.ERROR) {
-            System.out.println(result.getStatus() + ": " + result.getCause());
-            return;
+    private static void printResult(@NotNull List<MyJUnitTestResult> results) {
+        long passedNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.PASSED);
+        long ignoredNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.IGNORED);
+        long failedNumber = getNumberWithStatus(results, MyJUnitTestResult.METHOD_STATUS.FAILED);
+
+        if (failedNumber == 0) {
+            System.out.print("SUCCESS: ");
+        } else {
+            System.out.print("FAIL: ");
         }
 
-        System.out.println(result.getStatus() + ": " + result.getSuccessMethodsNumber()
-                + " methods passed out of " + result.getFailedMethodsNumber());
+        System.out.println("passed " + passedNumber
+                           + " tests out of " + (passedNumber + ignoredNumber)
+                           + ". " + ignoredNumber + " tests were ignored.");
 
-        for (var methodResult: result.getMethodsResults()) {
+        for (var result : results) {
             System.out.println();
-            System.out.println(methodResult.getMethodName());
-            if (methodResult.getStatus() != MyJUnitResult.MethodResult.METHOD_STATUS.SUCCESS) {
-                System.out.println(methodResult.getStatus() + ": " + methodResult.getCause());
+            System.out.println(result.getMethodName());
+            if (result.getStatus() != MyJUnitTestResult.METHOD_STATUS.PASSED) {
+                System.out.println(result.getStatus() + ": " + result.getCause());
             } else {
-                System.out.println(methodResult.getStatus());
+                System.out.println(result.getStatus());
             }
 
-            if (methodResult.getStatus() != MyJUnitResult.MethodResult.METHOD_STATUS.IGNORED) {
-                System.out.println("time: " + methodResult.getTimeMillis() + "ms");
+            if (result.getStatus() != MyJUnitTestResult.METHOD_STATUS.IGNORED) {
+                System.out.println("time: " + result.getTimeMillis() + "ms");
             }
         }
+    }
+
+    private static long getNumberWithStatus(@NotNull List<MyJUnitTestResult> results,
+                                            @NotNull MyJUnitTestResult.METHOD_STATUS status) {
+        return results.stream()
+                .filter(result -> result.getStatus() == status)
+                .count();
     }
 
     private static List<Method> getAnnotatedMethods(
@@ -162,76 +168,71 @@ public class MyJUnitCore {
                 .collect(Collectors.toList());
     }
 
-    private static boolean checkStatic(@NotNull List<Method> methods) {
-        return methods.stream().allMatch(method -> Modifier.isStatic(method.getModifiers()));
+    private static boolean checkNonStatic(@NotNull List<Method> methods) {
+        return !methods.stream().allMatch(method -> Modifier.isStatic(method.getModifiers()));
     }
 
-    private static boolean checkNumberOfParameters(@NotNull List<Method> methods) {
-        return methods.stream().allMatch(method -> method.getParameters().length == 0);
+    private static boolean checkHasNoParameters(@NotNull List<Method> methods) {
+        return !methods.stream().allMatch(method -> method.getParameters().length == 0);
     }
 
-    private static MyJUnitResult runNonTestMethods(@NotNull String className,
-                                                   @Nullable Object instance,
-                                                   @NotNull List<Method> methods,
-                                                   @NotNull String type) {
-        for (var method: methods) {
+    private static void runNonTestMethods(@Nullable Object instance,
+                                          @NotNull List<Method> methods,
+                                          @NotNull String type)
+            throws MethodInvokationException {
+
+        for (var method : methods) {
             try {
                 method.invoke(instance);
             } catch (IllegalAccessException ignored) {
                 //all methods are public
             } catch (InvocationTargetException exception) {
-                String cause = type + " method " + method.getName() + " has thrown "
+                String message = type + " method " + method.getName() + " has thrown "
                                + exception.getTargetException().getClass().getName();
-                return MyJUnitResult.createError(className, cause);
+                throw new MethodInvokationException(message, exception);
             }
         }
-        return null;
     }
 
-    private static MyJUnitResult.MethodResult runTestMethod(@NotNull Method method,
-                                                            @Nullable Object instance) {
+    private static MyJUnitTestResult runTestMethod(@NotNull Method method,
+                                                   @Nullable Object instance) {
         Test annotation = method.getAnnotation(Test.class);
         String expectedMessage;
         if (annotation.expected() == Test.DoesNotThrow.class) {
             expectedMessage = "Was not expected to throw;";
         } else {
-            expectedMessage = "Expected: " + annotation.expected().getName();
+            expectedMessage = "Expected: " + annotation.expected().getName() + ";";
         }
 
         boolean hasThrown = false;
         long startTimeMillis = System.currentTimeMillis();
-        MyJUnitResult.MethodResult methodResult = null;
+        MyJUnitTestResult testResult = null;
 
         try {
             method.invoke(instance);
         } catch (IllegalAccessException ignored) {
             //all methods are public
         } catch (InvocationTargetException exception) {
-            long timeMillis = startTimeMillis - System.currentTimeMillis();
+            long timeMillis = System.currentTimeMillis() - startTimeMillis;
             hasThrown = true;
             if (exception.getTargetException().getClass() == annotation.expected()) {
-                methodResult = MyJUnitResult.MethodResult.createSuccess(method.getName(),
-                        timeMillis);
+                testResult = MyJUnitTestResult.createPassed(method.getName(), timeMillis);
             } else {
-                methodResult = MyJUnitResult.MethodResult.createFailed(
-                        method.getName(),
-                        expectedMessage + " thrown "
-                        + exception.getTargetException().getClass().getName(),
-                        timeMillis
-                );
+                String message = expectedMessage + " thrown: "
+                                 + exception.getTargetException().getClass().getName();
+                testResult = MyJUnitTestResult.createFailed(method.getName(), message, timeMillis);
             }
         }
 
         if (!hasThrown) {
-            long timeMillis = startTimeMillis - System.currentTimeMillis();
+            long timeMillis = System.currentTimeMillis() - startTimeMillis;
             if (annotation.expected() == Test.DoesNotThrow.class) {
-                methodResult = MyJUnitResult.MethodResult.createSuccess(method.getName(),
-                        timeMillis);
+                testResult = MyJUnitTestResult.createPassed(method.getName(), timeMillis);
             } else {
-                methodResult = MyJUnitResult.MethodResult.createFailed(method.getName(),
+                testResult = MyJUnitTestResult.createFailed(method.getName(),
                         expectedMessage + " but method did not throw", timeMillis);
             }
         }
-        return methodResult;
+        return testResult;
     }
 }
