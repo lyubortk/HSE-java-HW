@@ -34,10 +34,10 @@ public class MyJUnitCore {
         List<MyJUnitTestResult> result;
         try {
             result = runClass(testingClass);
-        } catch (StaticMethodException
+        } catch (MethodIsNotStaticException
                 | MethodParametersException
-                | InaccessibleConstructorException
-                | AbstractClassException
+                | ConstructorInaccessibleException
+                | ClassIsAbstractException
                 | ConstructorInvokationException
                 | MethodInvokationException exception) {
             System.out.println("ERROR: " + exception.getMessage());
@@ -47,10 +47,10 @@ public class MyJUnitCore {
     }
 
     public static List<MyJUnitTestResult> runClass(@NotNull Class<?> testingClass)
-            throws StaticMethodException,
+            throws MethodIsNotStaticException,
                    MethodParametersException,
-                   InaccessibleConstructorException,
-                   AbstractClassException,
+                   ConstructorInaccessibleException,
+                   ClassIsAbstractException,
                    ConstructorInvokationException,
                    MethodInvokationException {
 
@@ -63,8 +63,8 @@ public class MyJUnitCore {
         List<Method> afterMethods = getAnnotatedMethods(classMethods, After.class);
         List<Method> testMethods = getAnnotatedMethods(classMethods, Test.class);
 
-        if (checkNonStatic(beforeClassMethods) || checkNonStatic(afterClassMethods)) {
-            throw new StaticMethodException(
+        if (checkNotStatic(beforeClassMethods) || checkNotStatic(afterClassMethods)) {
+            throw new MethodIsNotStaticException(
                     "methods annotated with BeforeClass and AfterClass have to be static");
         }
 
@@ -78,13 +78,13 @@ public class MyJUnitCore {
         }
 
         Constructor<?> testingClassConstructor = null;
-        if (checkNonStatic(testMethods)) {
+        if (checkNotStatic(testMethods)) {
             try {
                 testingClassConstructor = testingClass.getConstructor();
             } catch (NoSuchMethodException exception) {
                 String message = "some test methods are not static therefore "
                                + "test class has to provide public constructor with no arguments";
-                throw new InaccessibleConstructorException(message, exception);
+                throw new ConstructorInaccessibleException(message, exception);
             }
         }
 
@@ -107,7 +107,7 @@ public class MyJUnitCore {
                 } catch (IllegalAccessException ignored) {
                     // constructor is public
                 } catch (InstantiationException exception) {
-                    throw new AbstractClassException("testing class is abstract", exception);
+                    throw new ClassIsAbstractException("testing class is abstract", exception);
                 } catch (InvocationTargetException exception) {
                     String message = "constructor has thrown "
                                      + exception.getTargetException().getClass().getName();
@@ -168,7 +168,7 @@ public class MyJUnitCore {
                 .collect(Collectors.toList());
     }
 
-    private static boolean checkNonStatic(@NotNull List<Method> methods) {
+    private static boolean checkNotStatic(@NotNull List<Method> methods) {
         return !methods.stream().allMatch(method -> Modifier.isStatic(method.getModifiers()));
     }
 
@@ -215,7 +215,7 @@ public class MyJUnitCore {
         } catch (InvocationTargetException exception) {
             long timeMillis = System.currentTimeMillis() - startTimeMillis;
             hasThrown = true;
-            if (exception.getTargetException().getClass() == annotation.expected()) {
+            if (annotation.expected().isInstance(exception.getTargetException())) {
                 testResult = MyJUnitTestResult.createPassed(method.getName(), timeMillis);
             } else {
                 String message = expectedMessage + " thrown: "
