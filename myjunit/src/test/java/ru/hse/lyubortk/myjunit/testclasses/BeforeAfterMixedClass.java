@@ -15,19 +15,9 @@ public class BeforeAfterMixedClass {
         stringBuilder.append('c');
     }
 
-    @Test(expected = NullPointerException.class)
-    public void b1() {
-        stringBuilder.append('b');
-    }
-
     @AfterClass
     public static void c2() {
         stringBuilder.append('c');
-    }
-
-    @Test
-    public void b2() {
-        stringBuilder.append('b');
     }
 
     @BeforeClass
@@ -35,14 +25,24 @@ public class BeforeAfterMixedClass {
         stringBuilder.append('a');
     }
 
-    @Test
-    public void b3() {
-        stringBuilder.append('b');
-    }
-
     @Before
     public static void x() {
         stringBuilder.append('X');
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void b1() {
+        stringBuilder.append('b');
+    }
+
+    @Test
+    public void b2() {
+        stringBuilder.append('b');
+    }
+
+    @Test
+    public void b3() {
+        stringBuilder.append('b');
     }
 
     @After

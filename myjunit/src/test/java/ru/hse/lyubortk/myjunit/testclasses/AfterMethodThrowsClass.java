@@ -11,7 +11,5 @@ public class AfterMethodThrowsClass {
 
     @Test
     public void b() {
-
     }
-
 }

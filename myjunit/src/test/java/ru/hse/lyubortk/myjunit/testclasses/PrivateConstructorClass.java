@@ -10,5 +10,4 @@ public class PrivateConstructorClass {
     public void a() {
         throw new IndexOutOfBoundsException();
     }
-
 }

@@ -11,5 +11,4 @@ public class ThrowingConstructorClass {
     public void a() {
         throw new IndexOutOfBoundsException();
     }
-
 }

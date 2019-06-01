@@ -1,6 +1,5 @@
 package ru.hse.lyubortk.myjunit;
 
-
 public class MyJUnitTestResult {
     private String methodName;
     private METHOD_STATUS status;
