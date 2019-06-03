@@ -4,7 +4,7 @@ import javafx.geometry.Point2D;
 
 import java.util.List;
 
-/** This class represents cannon and contains methods which manage cannon's movement and position*/
+/** This class represents cannon and contains methods which manage cannon's movement and position */
 public class Cannon {
     public static final int MOVEMENT_SPEED = 100;
     public static final int TOWER_SPEED = 100;
@@ -28,12 +28,13 @@ public class Cannon {
 
     /**
      * Updates position of cannon and its tower.
+     *
      * @param timeDeltaSeconds time since last update.
-     * @param cannonMove current cannon movement direction
-     * @param towerMove current tower movement direction
+     * @param cannonMove       current cannon movement direction
+     * @param towerMove        current tower movement direction
      */
     public void update(double timeDeltaSeconds, CannonGameCore.MoveDirection cannonMove,
-                CannonGameCore.MoveDirection towerMove) {
+                       CannonGameCore.MoveDirection towerMove) {
         moveCannon(timeDeltaSeconds * MOVEMENT_SPEED, cannonMove);
         towerAngle = towerAngle - timeDeltaSeconds * TOWER_SPEED * towerMove.getValue();
         towerAngle %= 360;
@@ -64,7 +65,7 @@ public class Cannon {
                 curSegment += direction.getValue();
                 coordinate = next;
             } else {
-                double fraction = dist/distanceToNext;
+                double fraction = dist / distanceToNext;
                 coordinate = coordinate.add(
                         (next.getX() - coordinate.getX()) * fraction,
                         (next.getY() - coordinate.getY()) * fraction

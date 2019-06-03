@@ -38,6 +38,7 @@ public class Shell {
 
     /**
      * Updates shell position.
+     *
      * @param timeDeltaSeconds time since last update.
      */
     public void update(double timeDeltaSeconds) {
@@ -63,6 +64,7 @@ public class Shell {
     /**
      * Kills this shell and creates explosion if specified. Tries to delete corresponding javafx
      * node from its father (father should be javafx Group)
+     *
      * @param explosion create explosion.
      */
     public void kill(boolean explosion) {

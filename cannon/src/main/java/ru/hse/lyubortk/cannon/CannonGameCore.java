@@ -1,9 +1,7 @@
 package ru.hse.lyubortk.cannon;
 
-
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
 import java.time.Duration;
@@ -64,8 +62,8 @@ public class CannonGameCore {
         }
 
         List<Double> points = ground.stream().flatMap(a -> Stream.of(a.getX(), a.getY()))
-                        .collect(Collectors.toList());
-        points.addAll(Arrays.asList((double)WIDTH, (double)HEIGHT, 0.0, (double)HEIGHT));
+                .collect(Collectors.toList());
+        points.addAll(Arrays.asList((double) WIDTH, (double) HEIGHT, 0.0, (double) HEIGHT));
 
         groundPolygon = new Polygon();
         groundPolygon.getPoints().addAll(points);
@@ -90,6 +88,7 @@ public class CannonGameCore {
 
     /**
      * Updates game state.
+     *
      * @param currentTimeNano current frame timestamp
      */
     public void update(long currentTimeNano) {
@@ -116,7 +115,8 @@ public class CannonGameCore {
         }
 
         if (gameOverListener == null) {
-            gameOverListener = (string -> {});
+            gameOverListener = (string -> {
+            });
         }
 
         var iterator = shells.iterator();
@@ -140,7 +140,7 @@ public class CannonGameCore {
                     gameOverListener.accept("You killed yourself");
                 } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
                            < shell.getType().getExplosionRadius() + TARGET_RADIUS) {
-                        gameOverListener.accept("You won");
+                    gameOverListener.accept("You won");
                 }
                 iterator.remove();
             }
@@ -203,7 +203,7 @@ public class CannonGameCore {
     }
 
     /**
-     *  Get a list of points which represent ground surface.
+     * Get a list of points which represent ground surface.
      * The format is compatible with javafx.Polygon methods.
      */
     public List<Double> getGroundPoints() {

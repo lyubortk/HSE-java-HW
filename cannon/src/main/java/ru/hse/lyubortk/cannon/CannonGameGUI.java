@@ -73,10 +73,8 @@ public class CannonGameGUI extends Application {
                     inputKeys.remove(key);
                 });
 
-        new AnimationTimer()
-        {
-            public void handle(long currentNanoTime)
-            {
+        new AnimationTimer() {
+            public void handle(long currentNanoTime) {
                 cannonCore.update(currentNanoTime);
                 handleInput();
 
@@ -87,13 +85,13 @@ public class CannonGameGUI extends Application {
                 double towerAngle = cannonCore.getTowerAngle();
 
                 cannon.setTranslateX(cannonX);
-                cannon.setTranslateY(cannonY- Cannon.CANNON_RADIUS);
+                cannon.setTranslateY(cannonY - Cannon.CANNON_RADIUS);
 
                 tower.setTranslateX(cannonX);
-                tower.setTranslateY(cannonY - Cannon.CANNON_RADIUS - Cannon.TOWER_WIDTH/2.0);
+                tower.setTranslateY(cannonY - Cannon.CANNON_RADIUS - Cannon.TOWER_WIDTH / 2.0);
                 tower.getTransforms().clear();
                 tower.getTransforms().add(
-                        new Rotate(-towerAngle, 0, Cannon.TOWER_WIDTH/2.0));
+                        new Rotate(-towerAngle, 0, Cannon.TOWER_WIDTH / 2.0));
 
                 target.setTranslateX(targetX);
                 target.setTranslateY(targetY - CannonGameCore.TARGET_RADIUS);

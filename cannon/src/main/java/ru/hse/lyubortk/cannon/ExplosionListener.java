@@ -38,7 +38,7 @@ public class ExplosionListener implements Consumer<Point2D> {
         for (int i = 0; i < DENSITY; i++) {
             rectangles[i] = new Rectangle(SIZE, SIZE, COLOR);
             rectangles[i].setOpacity(0);
-            delaysMillis[i] = (long) (random.nextDouble()/2*DURATION_MILLIS);
+            delaysMillis[i] = (long) (random.nextDouble() / 2 * DURATION_MILLIS);
             angles[i] = 2 * Math.PI * random.nextDouble();
         }
 
@@ -56,7 +56,7 @@ public class ExplosionListener implements Consumer<Point2D> {
                 }
 
                 long timeDeltaMillis = Duration.ofNanos(nowNanos - startTimeNanos).toMillis();
-                double progress = timeDeltaMillis / (double)DURATION_MILLIS;
+                double progress = timeDeltaMillis / (double) DURATION_MILLIS;
 
                 if (progress >= 1) {
                     stop();
@@ -68,7 +68,7 @@ public class ExplosionListener implements Consumer<Point2D> {
                     Rectangle rectangle = rectangles[i];
                     double angle = angles[i];
                     long currentTimeMillis = (timeDeltaMillis - delaysMillis[i]);
-                    double distance = currentTimeMillis*radius/DURATION_MILLIS;
+                    double distance = currentTimeMillis * radius / DURATION_MILLIS;
 
                     if (distance < 0) {
                         rectangle.setOpacity(0);
