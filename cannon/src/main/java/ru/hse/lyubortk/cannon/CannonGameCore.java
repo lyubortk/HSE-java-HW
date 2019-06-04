@@ -3,6 +3,8 @@ package ru.hse.lyubortk.cannon;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.shape.Polygon;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -110,7 +112,9 @@ public class CannonGameCore {
             double speedY = (-1) * shellType.getStartSpeed() * Math.sin(towerAngleRad);
             var shell = new Shell(speedX, speedY, shellCoordinate, shellType);
             shell.setExplosionListener(explosionListener);
-            shell.setUINode(shellNodeSupplier.get());
+            if (shellNodeSupplier != null) {
+                shell.setUINode(shellNodeSupplier.get());
+            }
             shells.add(shell);
         }
 
@@ -155,12 +159,12 @@ public class CannonGameCore {
     }
 
     /** Sets current cannon movement direction */
-    public void setCannonMove(MoveDirection cannonMove) {
+    public void setCannonMove(@NotNull MoveDirection cannonMove) {
         this.cannonMove = cannonMove;
     }
 
     /** Sets current tower movement direction */
-    public void setTowerMove(MoveDirection towerMove) {
+    public void setTowerMove(@NotNull MoveDirection towerMove) {
         this.towerMove = towerMove;
     }
 
@@ -168,16 +172,16 @@ public class CannonGameCore {
      * Sets listener which will be called when cannon shell touches the ground or the target.
      * Listener accepts touch point.
      */
-    public void setExplosionListener(Consumer<Point2D> listener) {
+    public void setExplosionListener(@Nullable Consumer<Point2D> listener) {
         explosionListener = listener;
     }
 
-    public void setShellType(ShellType shellType) {
+    public void setShellType(@NotNull ShellType shellType) {
         this.shellType = shellType;
     }
 
     /** Sets supplier which will be called for creating cannon shell visual nodes */
-    public void setShellNodeSupplier(Supplier<Node> supplier) {
+    public void setShellNodeSupplier(@Nullable Supplier<Node> supplier) {
         shellNodeSupplier = supplier;
     }
 
@@ -185,11 +189,11 @@ public class CannonGameCore {
      * Sets listener which will be called when the game ends.
      * Listener accepts additional message.
      */
-    public void setGameOverListener(Consumer<String> listener) {
+    public void setGameOverListener(@Nullable Consumer<String> listener) {
         gameOverListener = listener;
     }
 
-    public Point2D getCannonCoordinate() {
+    public @NotNull Point2D getCannonCoordinate() {
         return cannon.getCoordinate();
     }
 
@@ -198,7 +202,7 @@ public class CannonGameCore {
         return cannon.getTowerAngle();
     }
 
-    public Point2D getTargetCoordinate() {
+    public @NotNull Point2D getTargetCoordinate() {
         return targetCoordinate;
     }
 
@@ -206,7 +210,7 @@ public class CannonGameCore {
      * Get a list of points which represent ground surface.
      * The format is compatible with javafx.Polygon methods.
      */
-    public List<Double> getGroundPoints() {
+    public @NotNull List<Double> getGroundPoints() {
         return groundPolygon.getPoints();
     }
 }

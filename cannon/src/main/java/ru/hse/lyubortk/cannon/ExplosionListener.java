@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Random;
@@ -23,14 +24,14 @@ public class ExplosionListener implements Consumer<Point2D> {
     private final Random random = new Random();
 
     /** Creates listener which will draw explosions of given radius in given javafx group */
-    public ExplosionListener(Group group, double radius) {
+    public ExplosionListener(@NotNull Group group, double radius) {
         this.group = group;
         this.radius = radius + 10;
     }
 
     /** Draws an explosion in given point */
     @Override
-    public void accept(Point2D point2D) {
+    public void accept(@NotNull Point2D point2D) {
         final Rectangle[] rectangles = new Rectangle[DENSITY];
         final long[] delaysMillis = new long[DENSITY];
         final double[] angles = new double[DENSITY];

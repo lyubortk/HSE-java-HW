@@ -21,6 +21,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.EnumSet;

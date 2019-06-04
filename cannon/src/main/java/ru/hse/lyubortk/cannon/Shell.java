@@ -3,6 +3,8 @@ package ru.hse.lyubortk.cannon;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -19,7 +21,8 @@ public class Shell {
     private Consumer<Point2D> explosionListener;
 
     /** Creates a shell with given initial parameters. */
-    public Shell(double speedX, double speedY, Point2D startCoordinate, ShellType type) {
+    public Shell(double speedX, double speedY,
+                 @NotNull Point2D startCoordinate, @NotNull ShellType type) {
         this.speedX = speedX;
         this.speedY = speedY;
         this.coordinate = startCoordinate;
@@ -27,12 +30,12 @@ public class Shell {
     }
 
     /** Binds a javafx ui node to this shell. */
-    public void setUINode(Node node) {
+    public void setUINode(@Nullable Node node) {
         this.node = node;
     }
 
     /** Sets listener which will be called in order to create explosion. */
-    public void setExplosionListener(Consumer<Point2D> consumer) {
+    public void setExplosionListener(@Nullable Consumer<Point2D> consumer) {
         explosionListener = consumer;
     }
 
@@ -53,11 +56,11 @@ public class Shell {
         }
     }
 
-    public ShellType getType() {
+    public @NotNull ShellType getType() {
         return shellType;
     }
 
-    public Point2D getPoint() {
+    public @NotNull Point2D getPoint() {
         return coordinate;
     }
 

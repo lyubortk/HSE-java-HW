@@ -1,6 +1,7 @@
 package ru.hse.lyubortk.cannon;
 
 import javafx.geometry.Point2D;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class Cannon {
      * This constructor accepts an initial position of cannon and a list of points which
      * represent surface (used to perform movements).
      */
-    public Cannon(Point2D startCoordinate, List<Point2D> ground) {
+    public Cannon(@NotNull Point2D startCoordinate, @NotNull List<Point2D> ground) {
         coordinate = startCoordinate;
         this.ground = ground;
     }
@@ -33,14 +34,14 @@ public class Cannon {
      * @param cannonMove       current cannon movement direction
      * @param towerMove        current tower movement direction
      */
-    public void update(double timeDeltaSeconds, CannonGameCore.MoveDirection cannonMove,
-                       CannonGameCore.MoveDirection towerMove) {
+    public void update(double timeDeltaSeconds, @NotNull CannonGameCore.MoveDirection cannonMove,
+                       @NotNull CannonGameCore.MoveDirection towerMove) {
         moveCannon(timeDeltaSeconds * MOVEMENT_SPEED, cannonMove);
         towerAngle = towerAngle - timeDeltaSeconds * TOWER_SPEED * towerMove.getValue();
         towerAngle %= 360;
     }
 
-    private void moveCannon(double dist, CannonGameCore.MoveDirection direction) {
+    private void moveCannon(double dist, @NotNull CannonGameCore.MoveDirection direction) {
         if (direction == CannonGameCore.MoveDirection.NONE) {
             return;
         }
@@ -75,7 +76,7 @@ public class Cannon {
         }
     }
 
-    public Point2D getCoordinate() {
+    public @NotNull Point2D getCoordinate() {
         return coordinate;
     }
 
