@@ -118,11 +118,6 @@ public class CannonGameCore {
             shells.add(shell);
         }
 
-        if (gameOverListener == null) {
-            gameOverListener = (string -> {
-            });
-        }
-
         var iterator = shells.iterator();
         while (iterator.hasNext()) {
             var shell = iterator.next();
@@ -133,24 +128,37 @@ public class CannonGameCore {
                 iterator.remove();
             } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
                        < shell.getType().getBulletRadius() + TARGET_RADIUS) {
-                shell.kill(true);
-                gameOverListener.accept("You won");
+                handleShellAndTargetContact(shell);
                 iterator.remove();
             } else if (groundPolygon.contains(shell.getPoint())) {
-                shell.kill(true);
-
-                if (shell.getPoint().distance(cannon.getCoordinate())
-                    < shell.getType().getExplosionRadius()) {
-                    gameOverListener.accept("You killed yourself");
-                } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
-                           < shell.getType().getExplosionRadius() + TARGET_RADIUS) {
-                    gameOverListener.accept("You won");
-                }
+                handleShellAndGroundContact(shell);
                 iterator.remove();
             }
         }
 
         lastUpdateTimeNano = currentTimeNano;
+    }
+
+    private void handleShellAndGroundContact(@NotNull Shell shell) {
+        shell.kill(true);
+        if (shell.getPoint().distance(cannon.getCoordinate())
+            < shell.getType().getExplosionRadius()) {
+            if (gameOverListener != null) {
+                gameOverListener.accept("You killed yourself");
+            }
+        } else if (shell.getPoint().distance(targetCoordinate.subtract(0, TARGET_RADIUS))
+                   < shell.getType().getExplosionRadius() + TARGET_RADIUS) {
+            if (gameOverListener != null) {
+                gameOverListener.accept("You won");
+            }
+        }
+    }
+
+    private void handleShellAndTargetContact(@NotNull Shell shell) {
+        shell.kill(true);
+        if (gameOverListener != null) {
+            gameOverListener.accept("You won");
+        }
     }
 
     /** Sets whether player is trying to fire */
