@@ -10,9 +10,7 @@ import java.util.List;
  * to the console.
  */
 public class MyJUnitConsole {
-    /**
-     * Accepts the name of the testing class and tries to test it
-     */
+    /** Accepts the name of the testing class and tries to test it */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Wrong number of arguments.\n"
@@ -35,7 +33,7 @@ public class MyJUnitConsole {
                 | MethodParametersException
                 | ConstructorInaccessibleException
                 | ClassIsAbstractException
-                | ConstructorInvokationException
+                | ConstructorInvocationException
                 | MethodInvocationException exception) {
             System.out.println("ERROR: " + exception.getMessage());
             return;
@@ -44,9 +42,9 @@ public class MyJUnitConsole {
     }
 
     private static void printResult(@NotNull List<MyJUnitTestResult> results) {
-        long passedNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.PASSED);
-        long ignoredNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.IGNORED);
-        long failedNumber = getNumberWithStatus(results, MyJUnitTestResult.STATUS.FAILED);
+        long passedNumber = getNumberWithStatus(results, MyJUnitTestResult.Status.PASSED);
+        long ignoredNumber = getNumberWithStatus(results, MyJUnitTestResult.Status.IGNORED);
+        long failedNumber = getNumberWithStatus(results, MyJUnitTestResult.Status.FAILED);
 
         if (failedNumber == 0) {
             System.out.print("SUCCESS: ");
@@ -61,20 +59,20 @@ public class MyJUnitConsole {
         for (var result : results) {
             System.out.println();
             System.out.println(result.getMethodName());
-            if (result.getStatus() != MyJUnitTestResult.STATUS.PASSED) {
+            if (result.getStatus() != MyJUnitTestResult.Status.PASSED) {
                 System.out.println(result.getStatus() + ": " + result.getCause());
             } else {
                 System.out.println(result.getStatus());
             }
 
-            if (result.getStatus() != MyJUnitTestResult.STATUS.IGNORED) {
+            if (result.getStatus() != MyJUnitTestResult.Status.IGNORED) {
                 System.out.println("time: " + result.getTimeMillis() + "ms");
             }
         }
     }
 
     private static long getNumberWithStatus(@NotNull List<MyJUnitTestResult> results,
-                                            @NotNull MyJUnitTestResult.STATUS status) {
+                                            @NotNull MyJUnitTestResult.Status status) {
         return results.stream()
                 .filter(result -> result.getStatus() == status)
                 .count();

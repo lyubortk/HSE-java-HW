@@ -15,9 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * This class performs testing and constructs convenient response
- */
+/** This class performs testing and constructs convenient response */
 public class MyJUnitCore {
     /**
      * Accepts testing class and invokes its methods with
@@ -28,20 +26,22 @@ public class MyJUnitCore {
      * @throws MethodParametersException        If any method annotated with MyJUnit annotations
      *                                          accepts more than 0 arguments.
      * @throws ConstructorInaccessibleException If any test methods or Before/After methods
-     *                                          are not static but the class does not provide public constructor with 0 parameters.
+     *                                          are not static but the class does not provide public
+     *                                          constructor with 0 parameters.
      * @throws ClassIsAbstractException         If any test methods or Before/After methods
      *                                          are not static but the class is abstract.
-     * @throws ConstructorInvokationException   If any test methods or Before/After methods
-     *                                          are not static and default constructor throws exception during instantiation.
-     * @throws MethodInvocationException        If Before/After or BeforeClass/AfterClass method throws
-     *                                          an exception.
+     * @throws ConstructorInvocationException   If any test methods or Before/After methods
+     *                                          are not static and default constructor throws
+     *                                          exception during instantiation.
+     * @throws MethodInvocationException        If Before/After or BeforeClass/AfterClass
+     *                                          method throws an exception.
      */
     public static List<MyJUnitTestResult> runClass(@NotNull Class<?> testingClass)
             throws MethodIsNotStaticException,
                    MethodParametersException,
                    ConstructorInaccessibleException,
                    ClassIsAbstractException,
-                   ConstructorInvokationException,
+                   ConstructorInvocationException,
                    MethodInvocationException {
 
         // this blank line improves readability a lot and is not discouraged by Google Style Guide
@@ -101,7 +101,7 @@ public class MyJUnitCore {
                 } catch (InvocationTargetException exception) {
                     String message = "constructor has thrown "
                                      + exception.getTargetException().getClass().getName();
-                    throw new ConstructorInvokationException(message, exception);
+                    throw new ConstructorInvocationException(message, exception);
                 }
             }
 

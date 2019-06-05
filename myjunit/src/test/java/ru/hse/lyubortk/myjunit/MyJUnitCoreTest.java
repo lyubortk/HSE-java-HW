@@ -34,7 +34,7 @@ class MyJUnitCoreTest {
         results.sort(Comparator.comparing(MyJUnitTestResult::getMethodName));
 
         for (int i = 0; i < 3; i++) {
-            assertEquals(MyJUnitTestResult.STATUS.IGNORED, results.get(i).getStatus());
+            assertEquals(MyJUnitTestResult.Status.IGNORED, results.get(i).getStatus());
             assertEquals("test ignored " + (i + 1), results.get(i).getCause());
         }
         assertEquals("", IgnoredTestsClass.stringBuilder.toString());
@@ -61,9 +61,9 @@ class MyJUnitCoreTest {
         assertEquals(3, results.size());
 
         results.sort(Comparator.comparing(MyJUnitTestResult::getMethodName));
-        assertEquals(MyJUnitTestResult.STATUS.FAILED, results.get(0).getStatus());
-        assertEquals(MyJUnitTestResult.STATUS.PASSED, results.get(1).getStatus());
-        assertEquals(MyJUnitTestResult.STATUS.IGNORED, results.get(2).getStatus());
+        assertEquals(MyJUnitTestResult.Status.FAILED, results.get(0).getStatus());
+        assertEquals(MyJUnitTestResult.Status.PASSED, results.get(1).getStatus());
+        assertEquals(MyJUnitTestResult.Status.IGNORED, results.get(2).getStatus());
     }
 
     @Test
@@ -102,7 +102,7 @@ class MyJUnitCoreTest {
 
     @Test
     void testThrowingConstructor() {
-        assertThrows(ConstructorInvokationException.class,
+        assertThrows(ConstructorInvocationException.class,
                 () -> MyJUnitCore.runClass(ThrowingConstructorClass.class));
     }
 
@@ -132,7 +132,7 @@ class MyJUnitCoreTest {
 
     private void assertAllPassed(List<MyJUnitTestResult> results) {
         for (MyJUnitTestResult result : results) {
-            assertEquals(MyJUnitTestResult.STATUS.PASSED, result.getStatus());
+            assertEquals(MyJUnitTestResult.Status.PASSED, result.getStatus());
         }
     }
 }
