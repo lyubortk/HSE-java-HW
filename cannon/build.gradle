@@ -4,6 +4,17 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.7'
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'ru.hse.lyubortk.cannon.CannonGameLauncher'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 group 'ru.hse.lyubortk'
 version '1.0-SNAPSHOT'
 
@@ -24,6 +35,9 @@ dependencies {
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.3.2'
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.2'
     compile 'org.jetbrains:annotations:16.0.2'
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:win"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:linux"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:mac"
 }
 
 test {
