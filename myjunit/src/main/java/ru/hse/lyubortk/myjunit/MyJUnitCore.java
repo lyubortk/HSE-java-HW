@@ -53,22 +53,22 @@ public class MyJUnitCore {
         List<Method> afterMethods = getAnnotatedMethods(classMethods, After.class);
         List<Method> testMethods = getAnnotatedMethods(classMethods, Test.class);
 
-        if (checkNotStatic(beforeClassMethods) || checkNotStatic(afterClassMethods)) {
+        if (someMethodsAreNotStatic(beforeClassMethods) || someMethodsAreNotStatic(afterClassMethods)) {
             throw new MethodIsNotStaticException(
                     "methods annotated with BeforeClass and AfterClass have to be static");
         }
 
-        if (checkHasNoParameters(beforeClassMethods)
-            || checkHasNoParameters(afterClassMethods)
-            || checkHasNoParameters(beforeMethods)
-            || checkHasNoParameters(afterMethods)
-            || checkHasNoParameters(testMethods)) {
+        if (someMethodsHaveParameters(beforeClassMethods)
+            || someMethodsHaveParameters(afterClassMethods)
+            || someMethodsHaveParameters(beforeMethods)
+            || someMethodsHaveParameters(afterMethods)
+            || someMethodsHaveParameters(testMethods)) {
             throw new MethodParametersException(
                     "all annotated methods have to accept no arguments");
         }
 
         Constructor<?> testingClassConstructor = null;
-        if (checkNotStatic(testMethods)) {
+        if (someMethodsAreNotStatic(testMethods)) {
             try {
                 testingClassConstructor = testingClass.getConstructor();
             } catch (NoSuchMethodException exception) {
@@ -121,11 +121,11 @@ public class MyJUnitCore {
                 .collect(Collectors.toList());
     }
 
-    private static boolean checkNotStatic(@NotNull List<Method> methods) {
+    private static boolean someMethodsAreNotStatic(@NotNull List<Method> methods) {
         return !methods.stream().allMatch(method -> Modifier.isStatic(method.getModifiers()));
     }
 
-    private static boolean checkHasNoParameters(@NotNull List<Method> methods) {
+    private static boolean someMethodsHaveParameters(@NotNull List<Method> methods) {
         return !methods.stream().allMatch(method -> method.getParameters().length == 0);
     }
 
